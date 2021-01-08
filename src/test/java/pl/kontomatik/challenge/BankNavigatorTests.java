@@ -1,8 +1,9 @@
 package pl.kontomatik.challenge;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
@@ -20,9 +21,11 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class BankNavigatorTests {
-    public static final String USERNAME = "USERNAME";
-    public static final String PASSWORD = "PASSWORD";
-    public static final String SESSION_TOKEN = "TOKEN";
+    private static final String USERNAME = "USERNAME";
+    private static final String PASSWORD = "PASSWORD";
+    private static final String SESSION_TOKEN = "TOKEN";
+    private static final String LOGIN_RESPONSE_BODY = "{\"flow_id\":\"flow_id\",\"token\":\"token\",\"finished\":true}";
+    private static final String BAD_LOGIN_RESPONSE_BODY = "{\"flow_id\":\"flow_id\",\"token\":\"token\"}";
 
     @Mock(answer = Answers.RETURNS_SELF)
     private Connection loginConnection;
@@ -36,84 +39,98 @@ public class BankNavigatorTests {
     @Mock
     private Connection.Response cookieResponse;
 
-    private String loginResponseBody = "{\"flow_id\":\"flow_id\",\"token\":\"token\",\"finished\":true}";
+    @Nested
+    @DisplayName("Given a login is being requested")
+    class Login {
 
-    private String badLoginResponseBody = "{\"flow_id\":\"flow_id\",\"token\":\"token\"}";
+        @Nested
+        @DisplayName("When login is correct")
+        class Correct {
 
-    @Test
-    public void givenLoggingIn_whenCorrectCredentials_thenIsAuthenticated() throws IOException {
-        // given
-        BankNavigator bankNavigator = new BankNavigator();
+            @Test
+            @DisplayName("Then is authenticated")
+            public void shouldReturnAuthenticated() throws IOException {
+                // given
+                BankNavigator bankNavigator = new BankNavigator();
 
-        try (MockedStatic<Jsoup> jsoup = mockStatic(Jsoup.class)) {
-            jsoup.when(() -> Jsoup.connect("https://www.ipko.pl/ipko3/login"))
-                    .thenReturn(loginConnection);
+                try (MockedStatic<Jsoup> jsoup = mockStatic(Jsoup.class)) {
+                    jsoup.when(() -> Jsoup.connect("https://www.ipko.pl/ipko3/login"))
+                            .thenReturn(loginConnection);
 
-            given(loginConnection.execute())
-                    .willReturn(loginResponse);
+                    given(loginConnection.execute())
+                            .willReturn(loginResponse);
 
-            given(loginResponse.headers())
-                    .willReturn(Map.of("X-Session-Id", SESSION_TOKEN));
+                    given(loginResponse.headers())
+                            .willReturn(Map.of("X-Session-Id", SESSION_TOKEN));
 
-            given(loginResponse.body())
-                    .willReturn(loginResponseBody);
+                    jsoup.when(() -> Jsoup.connect(startsWith("https://www.ipko.pl/nudatasecurity/2.2/w/w-573441/init/js/")))
+                            .thenReturn(cookieConnection);
 
-            jsoup.when(() -> Jsoup.connect(startsWith("https://www.ipko.pl/nudatasecurity/2.2/w/w-573441/init/js/")))
-                    .thenReturn(cookieConnection);
+                    given(cookieConnection.execute())
+                            .willReturn(cookieResponse);
 
-            given(cookieConnection.execute())
-                    .willReturn(cookieResponse);
+                    given(cookieResponse.cookies())
+                            .willReturn(new HashMap<>());
 
-            given(cookieResponse.cookies())
-                    .willReturn(new HashMap<>());
+                    given(loginResponse.body())
+                            .willReturn(LOGIN_RESPONSE_BODY);
 
-            bankNavigator.login(USERNAME, PASSWORD);
+                    bankNavigator.login(USERNAME, PASSWORD);
+                }
+
+                // when
+                boolean authenticated = bankNavigator.isAuthenticated();
+
+                // then
+                assertTrue(authenticated);
+            }
         }
 
-        // when
-        boolean authenticated = bankNavigator.isAuthenticated();
+        @Nested
+        @DisplayName("When login is incorrect")
+        class Incorrect {
 
-        // then
-        assertTrue(authenticated);
-    }
+            @Test
+            @DisplayName("Then isn't authenticated")
+            public void shouldReturnNotAuthenticated() throws IOException {
+                // given
+                BankNavigator bankNavigator = new BankNavigator();
 
-    @Test
-    public void givenLoggingIn_whenIncorrectCredentials_thenIsNotAuthenticated() {
-        // given
-        BankNavigator bankNavigator = new BankNavigator();
+                try (MockedStatic<Jsoup> jsoup = mockStatic(Jsoup.class)) {
+                    jsoup.when(() -> Jsoup.connect("https://www.ipko.pl/ipko3/login"))
+                            .thenReturn(loginConnection);
 
-        try (MockedStatic<Jsoup> jsoup = mockStatic(Jsoup.class)) {
-            jsoup.when(() -> Jsoup.connect("https://www.ipko.pl/ipko3/login"))
-                    .thenReturn(loginConnection);
+                    given(loginConnection.execute())
+                            .willReturn(loginResponse);
 
-            given(loginConnection.execute())
-                    .willReturn(loginResponse);
+                    given(loginResponse.headers())
+                            .willReturn(Map.of("X-Session-Id", SESSION_TOKEN));
 
-            given(loginResponse.headers())
-                    .willReturn(Map.of("X-Session-Id", SESSION_TOKEN));
+                    jsoup.when(() -> Jsoup.connect(startsWith("https://www.ipko.pl/nudatasecurity/2.2/w/w-573441/init/js/")))
+                            .thenReturn(cookieConnection);
 
-            given(loginResponse.body())
-                    .willReturn(badLoginResponseBody);
+                    given(cookieConnection.execute())
+                            .willReturn(cookieResponse);
 
-            jsoup.when(() -> Jsoup.connect(startsWith("https://www.ipko.pl/nudatasecurity/2.2/w/w-573441/init/js/")))
-                    .thenReturn(cookieConnection);
+                    given(cookieResponse.cookies())
+                            .willReturn(new HashMap<>());
 
-            given(cookieConnection.execute())
-                    .willReturn(cookieResponse);
+                    given(loginResponse.body())
+                            .willReturn(BAD_LOGIN_RESPONSE_BODY);
 
-            given(cookieResponse.cookies())
-                    .willReturn(new HashMap<>());
+                    bankNavigator.login(USERNAME, PASSWORD);
+                }
 
-            bankNavigator.login(USERNAME, PASSWORD);
-        } catch (IOException e) {
-            e.printStackTrace();
+                // when
+                boolean authenticated = bankNavigator.isAuthenticated();
+
+                // then
+                assertFalse(authenticated);
+            }
         }
-
-        // when
-        boolean authenticated = bankNavigator.isAuthenticated();
-
-        // then
-        assertFalse(authenticated);
     }
+
+
+
 
 }
