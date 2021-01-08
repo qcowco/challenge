@@ -21,15 +21,22 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class BankNavigatorTests {
+    private static final String LOGIN_URL = "https://www.ipko.pl/ipko3/login";
+    private static final String NDCD_URL = "https://www.ipko.pl/nudatasecurity/2.2/w/w-573441/init/js";
+    private static final String INIT_URL = "https://www.ipko.pl/ipko3/init";
+
     private static final String USERNAME = "USERNAME";
     private static final String PASSWORD = "PASSWORD";
+
+    private static final String SESSION_HEADER = "X-Session-Id";
     private static final String SESSION_TOKEN = "TOKEN";
+
     private static final String LOGIN_RESPONSE_BODY = "{\"flow_id\":\"flow_id\",\"token\":\"token\",\"finished\":true}";
     private static final String BAD_LOGIN_RESPONSE_BODY = "{\"flow_id\":\"flow_id\",\"token\":\"token\"}";
     private static final String ACCOUNT_RESPONSE_BODY = "{\"accounts\":{\"acc1\":{\"number\":{\"value\":\"123456789\"},\"balance\":0.5}}}";
+
     private static final String ACCOUNT_NUMBER = "123456789";
     private static final double ACCOUNT_BALANCE = 0.5;
-
 
     @Mock(answer = Answers.RETURNS_SELF)
     private Connection loginConnection;
@@ -64,16 +71,16 @@ public class BankNavigatorTests {
                 BankNavigator bankNavigator = new BankNavigator();
 
                 try (MockedStatic<Jsoup> jsoup = mockStatic(Jsoup.class)) {
-                    jsoup.when(() -> Jsoup.connect("https://www.ipko.pl/ipko3/login"))
+                    jsoup.when(() -> Jsoup.connect(LOGIN_URL))
                             .thenReturn(loginConnection);
 
                     given(loginConnection.execute())
                             .willReturn(loginResponse);
 
                     given(loginResponse.headers())
-                            .willReturn(Map.of("X-Session-Id", SESSION_TOKEN));
+                            .willReturn(Map.of(SESSION_HEADER, SESSION_TOKEN));
 
-                    jsoup.when(() -> Jsoup.connect(startsWith("https://www.ipko.pl/nudatasecurity/2.2/w/w-573441/init/js/")))
+                    jsoup.when(() -> Jsoup.connect(startsWith(NDCD_URL)))
                             .thenReturn(cookieConnection);
 
                     given(cookieConnection.execute())
@@ -107,16 +114,16 @@ public class BankNavigatorTests {
                 BankNavigator bankNavigator = new BankNavigator();
 
                 try (MockedStatic<Jsoup> jsoup = mockStatic(Jsoup.class)) {
-                    jsoup.when(() -> Jsoup.connect("https://www.ipko.pl/ipko3/login"))
+                    jsoup.when(() -> Jsoup.connect(LOGIN_URL))
                             .thenReturn(loginConnection);
 
                     given(loginConnection.execute())
                             .willReturn(loginResponse);
 
                     given(loginResponse.headers())
-                            .willReturn(Map.of("X-Session-Id", SESSION_TOKEN));
+                            .willReturn(Map.of(SESSION_HEADER, SESSION_TOKEN));
 
-                    jsoup.when(() -> Jsoup.connect(startsWith("https://www.ipko.pl/nudatasecurity/2.2/w/w-573441/init/js/")))
+                    jsoup.when(() -> Jsoup.connect(startsWith(NDCD_URL)))
                             .thenReturn(cookieConnection);
 
                     given(cookieConnection.execute())
@@ -146,16 +153,16 @@ public class BankNavigatorTests {
         BankNavigator bankNavigator = new BankNavigator();
 
         try (MockedStatic<Jsoup> jsoup = mockStatic(Jsoup.class)) {
-            jsoup.when(() -> Jsoup.connect("https://www.ipko.pl/ipko3/login"))
+            jsoup.when(() -> Jsoup.connect(LOGIN_URL))
                     .thenReturn(loginConnection);
 
             given(loginConnection.execute())
                     .willReturn(loginResponse);
 
             given(loginResponse.headers())
-                    .willReturn(Map.of("X-Session-Id", SESSION_TOKEN));
+                    .willReturn(Map.of(SESSION_HEADER, SESSION_TOKEN));
 
-            jsoup.when(() -> Jsoup.connect(startsWith("https://www.ipko.pl/nudatasecurity/2.2/w/w-573441/init/js/")))
+            jsoup.when(() -> Jsoup.connect(startsWith(NDCD_URL)))
                     .thenReturn(cookieConnection);
 
             given(cookieConnection.execute())
@@ -167,7 +174,7 @@ public class BankNavigatorTests {
             given(loginResponse.body())
                     .willReturn(BAD_LOGIN_RESPONSE_BODY);
 
-            jsoup.when(() -> Jsoup.connect("https://www.ipko.pl/ipko3/init"))
+            jsoup.when(() -> Jsoup.connect(INIT_URL))
                     .thenReturn(accountConnection);
 
             given(accountConnection.execute())
