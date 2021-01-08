@@ -15,8 +15,9 @@ repositories {
 dependencies {
     compile 'org.jsoup:jsoup:1.13.1'
     compile 'com.fasterxml.jackson.core:jackson-databind:2.11.4'
-    implementation 'org.springframework.boot:spring-boot-starter'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    compile 'org.mockito:mockito-inline:3.7.0'
+    implementation 'org.springframework.boot:spring-boot-starter:2.4.1'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test:2.4.1'
 }
 
 test {
