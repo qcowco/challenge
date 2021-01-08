@@ -1,4 +1,4 @@
-package pl.kontomatik.challenge;
+package pl.kontomatik.challenge.navigator;
 
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
@@ -9,6 +9,8 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import pl.kontomatik.challenge.exception.NotAuthenticatedException;
+import pl.kontomatik.challenge.navigator.BankNavigator;
+import pl.kontomatik.challenge.navigator.IpkoNavigator;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -19,7 +21,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class BankNavigatorTests {
+public class IpkoNavigatorTests {
     private static final String LOGIN_URL = "https://www.ipko.pl/ipko3/login";
     private static final String NDCD_URL = "https://www.ipko.pl/nudatasecurity/2.2/w/w-573441/init/js";
     private static final String INIT_URL = "https://www.ipko.pl/ipko3/init";
@@ -37,7 +39,7 @@ public class BankNavigatorTests {
     private static final String ACCOUNT_NUMBER = "123456789";
     private static final double ACCOUNT_BALANCE = 0.5;
 
-    private static BankNavigator bankNavigator;
+    private static IpkoNavigator bankNavigator;
 
     @Mock(answer = Answers.RETURNS_SELF)
     private Connection loginConnection;
@@ -60,7 +62,7 @@ public class BankNavigatorTests {
 
     @BeforeEach
     public void setupEach() {
-        bankNavigator = new BankNavigator();
+        bankNavigator = new IpkoNavigator();
     }
 
     @Nested
