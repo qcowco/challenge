@@ -8,11 +8,13 @@ import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 public class BankNavigator {
     public static final String LOGIN_URL = "https://www.ipko.pl/ipko3/login";
     public static final String NDCD_URL = "https://www.ipko.pl/nudatasecurity/2.2/w/w-573441/init/js/?q=%7B%22e%22%3A653560%2C%22fvq%22%3A%2263605qs6-1964-4721-n2n8-4p9n6027743p%22%2C%22oq%22%3A%22901%3A948%3A909%3A1033%3A1848%3A1053%22%2C%22wfi%22%3A%22flap-148694%22%2C%22yf%22%3A%7B%7D%2C%22jc%22%3A%22YbtvaCXB%22%2C%22jcc%22%3A1%2C%22ov%22%3A%22o2%7C1920k1080%201848k1053%2024%2024%7C-60%7Cra-HF%7Coc1-s649n1rr70p77oo7%7Csnyfr%7C%7CZbmvyyn%2F5.0%20(Jvaqbjf%20AG%2010.0%3B%20Jva64%3B%20k64)%20NccyrJroXvg%2F537.36%20(XUGZY%2C%20yvxr%20Trpxb)%20Puebzr%2F87.0.4280.88%20Fnsnev%2F537.36%7Cjt1-753633n7q242q4n9%22%7D";
+    public static final String INIT_URL = "https://www.ipko.pl/ipko3/init";
     public static final String FINGERPRINT = "6d95628f9a2a967148e1bce995e5b98a";
 
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -144,4 +146,59 @@ public class BankNavigator {
                 .ignoreContentType(true)
                 .execute();
     }
+
+    public Map<String, Double> getAccounts() throws IOException {
+        String jsonResponse = sendAccountsRequest()
+                .body();
+
+        return getAccountsFrom(jsonResponse);
+    }
+
+    private Connection.Response sendAccountsRequest() throws IOException {
+        return Jsoup.connect(INIT_URL)
+                .ignoreContentType(true)
+                .requestBody(getAccountsBody())
+                .cookies(getCookies())
+                .header("X-Session-Id", sessionToken)
+                .method(Connection.Method.POST)
+                .execute();
+    }
+
+    public String getAccountsBody() throws JsonProcessingException {
+        ObjectNode body = getBaseNode();
+
+        ObjectNode dataInner = body.with("data");
+        dataInner.set("accounts", objectMapper.createObjectNode());
+
+        body.set("data", dataInner);
+
+        return objectMapper.writeValueAsString(body);
+    }
+
+    private Map<String, Double> getAccountsFrom(String jsonAccounts) throws JsonProcessingException {
+        JsonNode accountsNode = jsonNodeFrom(jsonAccounts);
+        return accountsFrom(accountsNode);
+    }
+
+    private JsonNode jsonNodeFrom(String jsonAccounts) throws JsonProcessingException {
+        JsonNode accountsTree = objectMapper.readTree(jsonAccounts);
+
+        return accountsTree.findPath("accounts");
+    }
+
+    private Map<String, Double> accountsFrom(JsonNode accountsNode) {
+        Map<String, Double> accountMap = new HashMap<>();
+
+        accountsNode.forEach(accountNode -> {
+            String account = accountNode.with("number")
+                    .get("value").asText();
+            Double balance = accountNode.get("balance")
+                    .asDouble();
+
+            accountMap.put(account, balance);
+        });
+
+        return accountMap;
+    }
+
 }
