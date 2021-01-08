@@ -10,6 +10,7 @@ import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
+import pl.kontomatik.challenge.exception.NotAuthenticatedException;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -193,6 +194,15 @@ public class BankNavigatorTests {
             //then
             assertEquals(expectedAccounts, accounts);
         }
+    }
+
+    @Test
+    public void givenRequestingAccounts_whenNotLoggedIn_thenThrows_NotAuthenticatedException() throws IOException {
+        // given
+        BankNavigator bankNavigator = new BankNavigator();
+
+        // when/then
+        assertThrows(NotAuthenticatedException.class, bankNavigator::getAccounts);
     }
 
 }

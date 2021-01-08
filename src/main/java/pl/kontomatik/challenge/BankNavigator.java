@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
+import pl.kontomatik.challenge.exception.NotAuthenticatedException;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -148,6 +149,9 @@ public class BankNavigator {
     }
 
     public Map<String, Double> getAccounts() throws IOException {
+        if (!isAuthenticated())
+            throw new NotAuthenticatedException("You're not authenticated. Log in first.");
+
         String jsonResponse = sendAccountsRequest()
                 .body();
 
