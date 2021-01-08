@@ -2,9 +2,7 @@ package pl.kontomatik.challenge;
 
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
@@ -39,6 +37,8 @@ public class BankNavigatorTests {
     private static final String ACCOUNT_NUMBER = "123456789";
     private static final double ACCOUNT_BALANCE = 0.5;
 
+    private static BankNavigator bankNavigator;
+
     @Mock(answer = Answers.RETURNS_SELF)
     private Connection loginConnection;
 
@@ -57,9 +57,30 @@ public class BankNavigatorTests {
     @Mock
     private Connection.Response accountResponse;
 
+
+    @BeforeEach
+    public void setupEach() {
+        bankNavigator = new BankNavigator();
+    }
+
     @Nested
     @DisplayName("Given a login is being requested")
     class Login {
+
+        @BeforeEach
+        public void setup() throws IOException {
+            given(loginConnection.execute())
+                    .willReturn(loginResponse);
+
+            given(loginResponse.headers())
+                    .willReturn(Map.of(SESSION_HEADER, SESSION_TOKEN));
+
+            given(cookieConnection.execute())
+                    .willReturn(cookieResponse);
+
+            given(cookieResponse.cookies())
+                    .willReturn(new HashMap<>());
+        }
 
         @Nested
         @DisplayName("When login is correct")
@@ -69,29 +90,15 @@ public class BankNavigatorTests {
             @DisplayName("Then is authenticated")
             public void shouldReturnAuthenticated() throws IOException {
                 // given
-                BankNavigator bankNavigator = new BankNavigator();
-
                 try (MockedStatic<Jsoup> jsoup = mockStatic(Jsoup.class)) {
                     jsoup.when(() -> Jsoup.connect(LOGIN_URL))
                             .thenReturn(loginConnection);
 
-                    given(loginConnection.execute())
-                            .willReturn(loginResponse);
-
-                    given(loginResponse.headers())
-                            .willReturn(Map.of(SESSION_HEADER, SESSION_TOKEN));
+                    given(loginResponse.body())
+                            .willReturn(LOGIN_RESPONSE_BODY);
 
                     jsoup.when(() -> Jsoup.connect(startsWith(NDCD_URL)))
                             .thenReturn(cookieConnection);
-
-                    given(cookieConnection.execute())
-                            .willReturn(cookieResponse);
-
-                    given(cookieResponse.cookies())
-                            .willReturn(new HashMap<>());
-
-                    given(loginResponse.body())
-                            .willReturn(LOGIN_RESPONSE_BODY);
 
                     bankNavigator.login(USERNAME, PASSWORD);
                 }
@@ -112,29 +119,15 @@ public class BankNavigatorTests {
             @DisplayName("Then isn't authenticated")
             public void shouldReturnNotAuthenticated() throws IOException {
                 // given
-                BankNavigator bankNavigator = new BankNavigator();
-
                 try (MockedStatic<Jsoup> jsoup = mockStatic(Jsoup.class)) {
                     jsoup.when(() -> Jsoup.connect(LOGIN_URL))
                             .thenReturn(loginConnection);
 
-                    given(loginConnection.execute())
-                            .willReturn(loginResponse);
-
-                    given(loginResponse.headers())
-                            .willReturn(Map.of(SESSION_HEADER, SESSION_TOKEN));
+                    given(loginResponse.body())
+                            .willReturn(BAD_LOGIN_RESPONSE_BODY);
 
                     jsoup.when(() -> Jsoup.connect(startsWith(NDCD_URL)))
                             .thenReturn(cookieConnection);
-
-                    given(cookieConnection.execute())
-                            .willReturn(cookieResponse);
-
-                    given(cookieResponse.cookies())
-                            .willReturn(new HashMap<>());
-
-                    given(loginResponse.body())
-                            .willReturn(BAD_LOGIN_RESPONSE_BODY);
 
                     bankNavigator.login(USERNAME, PASSWORD);
                 }
@@ -148,61 +141,74 @@ public class BankNavigatorTests {
         }
     }
 
-    @Test
-    public void givenRequestingAccounts_whenLoggedIn_thenReturnsAccounts() throws IOException {
-        // given
-        BankNavigator bankNavigator = new BankNavigator();
+    @Nested
+    @DisplayName("Given accounts are being requested")
+    class RequestAccounts {
 
-        try (MockedStatic<Jsoup> jsoup = mockStatic(Jsoup.class)) {
-            jsoup.when(() -> Jsoup.connect(LOGIN_URL))
-                    .thenReturn(loginConnection);
+        @Nested
+        @DisplayName("When user is logged in")
+        class LoggedIn {
 
-            given(loginConnection.execute())
-                    .willReturn(loginResponse);
+            @Test
+            @DisplayName("Then returns a map of accounts")
+            public void shouldReturnAccounts() throws IOException {
+                // given
+                try (MockedStatic<Jsoup> jsoup = mockStatic(Jsoup.class)) {
+                    jsoup.when(() -> Jsoup.connect(LOGIN_URL))
+                            .thenReturn(loginConnection);
 
-            given(loginResponse.headers())
-                    .willReturn(Map.of(SESSION_HEADER, SESSION_TOKEN));
+                    given(loginConnection.execute())
+                            .willReturn(loginResponse);
 
-            jsoup.when(() -> Jsoup.connect(startsWith(NDCD_URL)))
-                    .thenReturn(cookieConnection);
+                    given(loginResponse.headers())
+                            .willReturn(Map.of(SESSION_HEADER, SESSION_TOKEN));
 
-            given(cookieConnection.execute())
-                    .willReturn(cookieResponse);
+                    given(loginResponse.body())
+                            .willReturn(LOGIN_RESPONSE_BODY);
 
-            given(cookieResponse.cookies())
-                    .willReturn(new HashMap<>());
+                    jsoup.when(() -> Jsoup.connect(startsWith(NDCD_URL)))
+                            .thenReturn(cookieConnection);
 
-            given(loginResponse.body())
-                    .willReturn(BAD_LOGIN_RESPONSE_BODY);
+                    given(cookieConnection.execute())
+                            .willReturn(cookieResponse);
 
-            jsoup.when(() -> Jsoup.connect(INIT_URL))
-                    .thenReturn(accountConnection);
+                    given(cookieResponse.cookies())
+                            .willReturn(new HashMap<>());
 
-            given(accountConnection.execute())
-                    .willReturn(accountResponse);
+                    jsoup.when(() -> Jsoup.connect(INIT_URL))
+                            .thenReturn(accountConnection);
 
-            given(accountResponse.body())
-                    .willReturn(ACCOUNT_RESPONSE_BODY);
+                    given(accountConnection.execute())
+                            .willReturn(accountResponse);
 
-            Map<String, Double> expectedAccounts = Map.of(ACCOUNT_NUMBER, ACCOUNT_BALANCE);
+                    given(accountResponse.body())
+                            .willReturn(ACCOUNT_RESPONSE_BODY);
 
-            bankNavigator.login(USERNAME, PASSWORD);
+                    Map<String, Double> expectedAccounts = Map.of(ACCOUNT_NUMBER, ACCOUNT_BALANCE);
 
-            //when
-            Map<String, Double> accounts = bankNavigator.getAccounts();
+                    bankNavigator.login(USERNAME, PASSWORD);
 
-            //then
-            assertEquals(expectedAccounts, accounts);
+                    // when
+                    Map<String, Double> accounts = bankNavigator.getAccounts();
+
+                    // then
+                    assertEquals(expectedAccounts, accounts);
+                }
+            }
+
         }
-    }
 
-    @Test
-    public void givenRequestingAccounts_whenNotLoggedIn_thenThrows_NotAuthenticatedException() throws IOException {
-        // given
-        BankNavigator bankNavigator = new BankNavigator();
+        @Nested
+        @DisplayName("When user is not logged in")
+        class NotLoggedIn {
 
-        // when/then
-        assertThrows(NotAuthenticatedException.class, bankNavigator::getAccounts);
+            @Test
+            @DisplayName("Then throws NotAuthenticatedException")
+            public void shouldThrow_NotAuthenticatedException() {
+                // when/then
+                assertThrows(NotAuthenticatedException.class, bankNavigator::getAccounts);
+            }
+        }
     }
 
 }
