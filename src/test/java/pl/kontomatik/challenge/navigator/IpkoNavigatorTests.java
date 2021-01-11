@@ -2,15 +2,17 @@ package pl.kontomatik.challenge.navigator;
 
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
+import pl.kontomatik.challenge.exception.LoginFailedException;
 import pl.kontomatik.challenge.exception.NotAuthenticatedException;
-import pl.kontomatik.challenge.navigator.BankNavigator;
-import pl.kontomatik.challenge.navigator.IpkoNavigator;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -33,7 +35,7 @@ public class IpkoNavigatorTests {
     private static final String SESSION_TOKEN = "TOKEN";
 
     private static final String LOGIN_RESPONSE_BODY = "{\"flow_id\":\"flow_id\",\"token\":\"token\",\"finished\":true}";
-    private static final String BAD_LOGIN_RESPONSE_BODY = "{\"flow_id\":\"flow_id\",\"token\":\"token\"}";
+    private static final String BAD_LOGIN_RESPONSE_BODY = "{\"flow_id\":\"flow_id\",\"token\":\"token\",\"errors\":{\"description\":\"An error!\"}}";
     private static final String ACCOUNT_RESPONSE_BODY = "{\"accounts\":{\"acc1\":{\"number\":{\"value\":\"123456789\"},\"balance\":0.5}}}";
 
     private static final String ACCOUNT_NUMBER = "123456789";
@@ -74,9 +76,6 @@ public class IpkoNavigatorTests {
             given(loginConnection.execute())
                     .willReturn(loginResponse);
 
-            given(loginResponse.headers())
-                    .willReturn(Map.of(SESSION_HEADER, SESSION_TOKEN));
-
             given(cookieConnection.execute())
                     .willReturn(cookieResponse);
 
@@ -95,6 +94,9 @@ public class IpkoNavigatorTests {
                 try (MockedStatic<Jsoup> jsoup = mockStatic(Jsoup.class)) {
                     jsoup.when(() -> Jsoup.connect(LOGIN_URL))
                             .thenReturn(loginConnection);
+
+                    given(loginResponse.headers())
+                            .willReturn(Map.of(SESSION_HEADER, SESSION_TOKEN));
 
                     given(loginResponse.body())
                             .willReturn(LOGIN_RESPONSE_BODY);
@@ -117,6 +119,26 @@ public class IpkoNavigatorTests {
         @DisplayName("When login is incorrect")
         class Incorrect {
 
+            @BeforeEach
+            public void setup() {
+                given(loginResponse.body())
+                        .willReturn(BAD_LOGIN_RESPONSE_BODY);
+            }
+
+            @Test
+            @DisplayName("Then throws LoginFailedException")
+            public void shouldThrow_LoginFailedException() throws IOException {
+                try (MockedStatic<Jsoup> jsoup = mockStatic(Jsoup.class)) {
+                    jsoup.when(() -> Jsoup.connect(LOGIN_URL))
+                            .thenReturn(loginConnection);
+
+                    jsoup.when(() -> Jsoup.connect(startsWith(NDCD_URL)))
+                            .thenReturn(cookieConnection);
+
+                    assertThrows(LoginFailedException.class, () -> bankNavigator.login(USERNAME, PASSWORD));
+                }
+            }
+
             @Test
             @DisplayName("Then isn't authenticated")
             public void shouldReturnNotAuthenticated() throws IOException {
@@ -125,13 +147,14 @@ public class IpkoNavigatorTests {
                     jsoup.when(() -> Jsoup.connect(LOGIN_URL))
                             .thenReturn(loginConnection);
 
-                    given(loginResponse.body())
-                            .willReturn(BAD_LOGIN_RESPONSE_BODY);
-
                     jsoup.when(() -> Jsoup.connect(startsWith(NDCD_URL)))
                             .thenReturn(cookieConnection);
 
-                    bankNavigator.login(USERNAME, PASSWORD);
+                    try {
+                        bankNavigator.login(USERNAME, PASSWORD);
+                    } catch (LoginFailedException exception) {
+
+                    }
                 }
 
                 // when

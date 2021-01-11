@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.springframework.stereotype.Component;
+import pl.kontomatik.challenge.exception.LoginFailedException;
 import pl.kontomatik.challenge.exception.NotAuthenticatedException;
 
 import java.io.IOException;
@@ -41,6 +42,8 @@ public class IpkoNavigator implements BankNavigator {
     private void beginAuthentication(String username) throws IOException {
         Connection.Response response = sendAuthenticationRequest(username);
 
+        isSuccessful(response.body());
+
         assignSessionToken(response.headers());
         assignFlowTokens(response.body());
     }
@@ -65,6 +68,17 @@ public class IpkoNavigator implements BankNavigator {
         authFlowToken = responseNode.get("token").asText();
     }
 
+    private void isSuccessful(String body) throws JsonProcessingException {
+        if (hasErrors(body))
+            throw new LoginFailedException("Couldn't login, response has errors.");
+    }
+
+    private boolean hasErrors(String responseBody) throws JsonProcessingException {
+        JsonNode jsonNode = objectMapper.readTree(responseBody);
+
+        return jsonNode.hasNonNull("errors");
+    }
+
     private String getAuthenticationBody(String username) throws JsonProcessingException {
         ObjectNode body = getBaseNode();
 
@@ -78,6 +92,7 @@ public class IpkoNavigator implements BankNavigator {
 
         return objectMapper.writeValueAsString(body);
     }
+
 
     private ObjectNode getBaseNode() {
         ObjectNode baseNode = objectMapper.createObjectNode();
@@ -96,6 +111,8 @@ public class IpkoNavigator implements BankNavigator {
     private void authorizeSessionToken(String password) throws IOException {
         String jsonBody = sendAuthorizeSessionRequest(password)
                 .body();
+
+        isSuccessful(jsonBody);
 
         verifySuccessful(jsonBody);
     }
