@@ -190,7 +190,7 @@ public class IpkoNavigator implements BankNavigator {
                 .execute();
     }
 
-    public String getAccountsBody() throws JsonProcessingException {
+    private String getAccountsBody() throws JsonProcessingException {
         ObjectNode body = getBaseNode();
 
         ObjectNode dataInner = body.with("data");
