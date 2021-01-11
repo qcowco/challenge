@@ -1,5 +1,8 @@
 package pl.kontomatik.challenge.commandline;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -24,36 +27,49 @@ public class BankNavigatorCLITests {
     @Mock
     private BankNavigator bankNavigator;
 
-    @Test
-    public void givenCliRuns_thenDisplaysBankNavigators() throws Exception {
-        // given
-        BankNavigatorCLI cli = new BankNavigatorCLI(Map.of(NAVIGATOR_NAME, bankNavigator));
+    @Nested
+    @DisplayName("Given CLI runs")
+    class CliRuns {
+        private BankNavigatorCLI cli;
+        private ByteArrayOutputStream out;
 
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        @BeforeEach
+        public void setup() {
+            cli = new BankNavigatorCLI(Map.of(NAVIGATOR_NAME, bankNavigator));
 
-        cli.setOut(out);
+            out = new ByteArrayOutputStream();
 
-        // when
-        cli.run();
+            cli.setOut(out);
 
-        String output = out.toString();
+        }
 
-        // then
-        assertTrue(output.contains(NAVIGATOR_NAME));
-    }
+        @Test
+        @DisplayName("Then displays bank navigators")
+        public void shouldDisplayBankNavigators() throws Exception {
+            // when
+            cli.run();
 
-    @Test
-    public void givenCliRuns_whenReceivesExitCommand_thenThrows_ForcedExitException() {
-        // given
-        BankNavigatorCLI cli = new BankNavigatorCLI(Map.of(NAVIGATOR_NAME, bankNavigator));
+            String output = out.toString();
 
-        String textInput = prepareInput(EXIT_COMMAND);
+            // then
+            assertTrue(output.contains(NAVIGATOR_NAME));
+        }
 
-        cli.setIn(new ByteArrayInputStream(textInput.getBytes()));
+        @Nested
+        @DisplayName("When receives exit command")
+        class ExitCommand {
 
-        // when/then
-        assertThrows(ForcedExitException.class, cli::run);
-    }
+            @Test
+            @DisplayName("Then throws ForcedExitException")
+            public void shouldThrow_ForcedExitException() {
+                // given
+                String textInput = prepareInput(EXIT_COMMAND);
+
+                cli.setIn(new ByteArrayInputStream(textInput.getBytes()));
+
+                // when/then
+                assertThrows(ForcedExitException.class, cli::run);
+            }
 
     private String prepareInput(String ... inputs) {
         return Stream.of(inputs).collect(StringBuilder::new,
