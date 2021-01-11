@@ -57,7 +57,13 @@ public class BankNavigatorCLITests {
         @DisplayName("Then displays bank navigators")
         public void shouldDisplayBankNavigators() throws Exception {
             // when
-            cli.run();
+            cli.setIn(new ByteArrayInputStream(prepareInput(EXIT_COMMAND).getBytes()));
+
+            try {
+                cli.run();
+            } catch (RuntimeException exception) {
+
+            }
 
             String output = out.toString();
 
@@ -191,6 +197,4 @@ public class BankNavigatorCLITests {
                 (stringBuilder, s1) -> stringBuilder.append(s1).append('\n'), StringBuilder::append)
                 .toString();
     }
-
-
 }
