@@ -3,11 +3,13 @@ package pl.kontomatik.challenge;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+import pl.kontomatik.challenge.exception.ForcedExitException;
 import pl.kontomatik.challenge.navigator.BankNavigator;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
@@ -20,10 +22,21 @@ public class BankNavigatorCLI implements CommandLineRunner {
     private OutputStream out;
     private Scanner scanner;
 
+    private Map<String, Runnable> commands;
+
     public BankNavigatorCLI() {
         this.in = System.in;
         this.out = System.out;
         updateScanner();
+        initCommands();
+    }
+
+    private void initCommands() {
+        commands = new HashMap<>();
+
+        commands.put("/exit", () -> {
+            throw new ForcedExitException("The exit command has been entered. Exitting..");
+        });
     }
 
     @Autowired
@@ -54,7 +67,16 @@ public class BankNavigatorCLI implements CommandLineRunner {
     }
 
     private String handleInput() {
-        return tryHandleInput();
+        String input = tryHandleInput();
+
+        handleCommand(input);
+
+        return input;
+    }
+
+    private void handleCommand(String input) {
+        if (commands.containsKey(input))
+            commands.get(input).run();
     }
 
     private String tryHandleInput() {
