@@ -17,6 +17,7 @@ import java.util.Scanner;
 @Component
 public class BankNavigatorCLI implements CommandLineRunner {
     private Map<String, BankNavigator> bankNavigators;
+    private BankNavigator bankNavigator;
 
     private InputStream in;
     private OutputStream out;
@@ -102,5 +103,29 @@ public class BankNavigatorCLI implements CommandLineRunner {
         String scrapers = String.join(", ", bankNavigators.keySet());
         writeOutput("Available scrapers: " + scrapers);
         String navigatorChoice = handleInput();
+
+        bankNavigator = bankNavigators.get(navigatorChoice);
+
+        writeOutput("Type in Your username:");
+        String username = handleInput();
+        writeOutput("Type in Your password:");
+        String password = handleInput();
+
+        writeOutput("Logging in...");
+
+        boolean authenticated = true;
+
+        try {
+            bankNavigator.login(username, password);
+        } catch (RuntimeException exception) {
+            writeOutput(String.format("Encountered exception: %s", exception.getMessage()));
+            authenticated = false;
+        }
+
+        if (authenticated && bankNavigator.isAuthenticated()) {
+            writeOutput("Login successful.");
+        } else {
+            writeOutput("Login failed.");
+        }
     }
 }

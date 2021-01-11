@@ -13,14 +13,20 @@ import pl.kontomatik.challenge.navigator.BankNavigator;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.Map;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doThrow;
 
 @ExtendWith(MockitoExtension.class)
 public class BankNavigatorCLITests {
+    private static final String USERNAME = "USERNAME";
+    private static final String PASSWORD = "PASSWORD";
+
     private static final String NAVIGATOR_NAME = "ipko";
     private static final String EXIT_COMMAND = "/exit";
 
@@ -70,6 +76,91 @@ public class BankNavigatorCLITests {
                 // when/then
                 assertThrows(ForcedExitException.class, cli::run);
             }
+
+        }
+    }
+
+    @Nested
+    @DisplayName("Given user logs in")
+    class LogIn {
+        private BankNavigatorCLI cli;
+        private String loginInput;
+
+        @BeforeEach
+        public void setup() {
+            cli = new BankNavigatorCLI(Map.of(NAVIGATOR_NAME, bankNavigator));
+
+            loginInput = prepareInput(NAVIGATOR_NAME, USERNAME, PASSWORD);
+
+            cli.setOut(new ByteArrayOutputStream());
+            cli.setIn(new ByteArrayInputStream(loginInput.getBytes()));
+        }
+
+        @Nested
+        @DisplayName("When login is unsuccessful")
+        class Unsuccessful {
+
+            @BeforeEach
+            public void setup() throws IOException {
+                doThrow(RuntimeException.class)
+                        .when(bankNavigator).login(USERNAME, PASSWORD);
+            }
+
+            @Test
+            @DisplayName("Then displays that the login has failed")
+            public void shouldDisplayLoginFailed() throws Exception {
+                // given
+                String expectedOutput = "login failed";
+
+                // when
+                cli.run();
+
+                String actualOutput = cli.getOut().toString();
+
+                // then
+                assertTrue(actualOutput.toLowerCase().contains(expectedOutput));
+            }
+
+            @Test
+            @DisplayName("Then displays an error message")
+            public void shouldDisplayExceptionMessage() throws Exception {
+                // given
+                String expectedOutput = "encountered exception";
+
+                // when
+                cli.run();
+
+                String actualOutput = cli.getOut().toString();
+
+                // then
+                assertTrue(actualOutput.toLowerCase().contains(expectedOutput));
+            }
+
+        }
+
+        @Nested
+        @DisplayName("When login was successful")
+        class Successful {
+
+            @Test
+            @DisplayName("Then displays that the login was successful")
+            public void shouldDisplayLoginSuccessful() throws Exception {
+                // given
+                given(bankNavigator.isAuthenticated())
+                        .willReturn(true);
+
+                String expectedOutput = "login successful";
+
+                // when
+                cli.run();
+
+                String actualOutput = cli.getOut().toString();
+
+                // then
+                assertTrue(actualOutput.toLowerCase().contains(expectedOutput));
+            }
+        }
+    }
 
     private String prepareInput(String ... inputs) {
         return Stream.of(inputs).collect(StringBuilder::new,
