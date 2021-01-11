@@ -127,5 +127,14 @@ public class BankNavigatorCLI implements CommandLineRunner {
         } else {
             writeOutput("Login failed.");
         }
+
+        Map<String, Double> accounts = bankNavigator.getAccounts();
+        writeOutput("Accounts:");
+
+        StringBuilder accountsListed = new StringBuilder();
+        accounts.forEach((s, aDouble) -> accountsListed.append(String.format("Account number: %s, Value %f", s, aDouble)));
+        writeOutput(accountsListed.toString());
+
+        handleInput();
     }
 }

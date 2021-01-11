@@ -30,6 +30,10 @@ public class BankNavigatorCLITests {
     private static final String NAVIGATOR_NAME = "ipko";
     private static final String EXIT_COMMAND = "/exit";
 
+    private static final String ACCOUNT_NUMBER = "0 1234 2345 3456 4567";
+    private static final Double ACCOUNT_VALUE = 500.15;
+    private static final Map<String, Double> BANK_ACCOUNTS = Map.of(ACCOUNT_NUMBER, ACCOUNT_VALUE);
+
     @Mock
     private BankNavigator bankNavigator;
 
@@ -142,13 +146,16 @@ public class BankNavigatorCLITests {
         @DisplayName("When login was successful")
         class Successful {
 
+            @BeforeEach
+            public void setup() {
+                given(bankNavigator.isAuthenticated())
+                        .willReturn(true);
+            }
+
             @Test
             @DisplayName("Then displays that the login was successful")
             public void shouldDisplayLoginSuccessful() throws Exception {
                 // given
-                given(bankNavigator.isAuthenticated())
-                        .willReturn(true);
-
                 String expectedOutput = "login successful";
 
                 // when
@@ -158,6 +165,23 @@ public class BankNavigatorCLITests {
 
                 // then
                 assertTrue(actualOutput.toLowerCase().contains(expectedOutput));
+            }
+
+            @Test
+            @DisplayName("Then lists users bank accounts")
+            public void shouldDisplayBankAccounts() throws Exception {
+                // given
+                given(bankNavigator.getAccounts())
+                        .willReturn(BANK_ACCOUNTS);
+
+                // when
+                cli.run();
+
+                String actualOutput = cli.getOut().toString();
+
+                // then
+                assertTrue(actualOutput.contains(ACCOUNT_NUMBER));
+                assertTrue(actualOutput.contains(String.valueOf(ACCOUNT_VALUE)));
             }
         }
     }
