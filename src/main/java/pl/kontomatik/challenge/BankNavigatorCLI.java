@@ -100,12 +100,33 @@ public class BankNavigatorCLI implements CommandLineRunner {
     public void run(String... args) throws Exception {
         writeOutput("Welcome to the BankNavigator app.");
 
+        chooseNavigator();
+
+        performLogin();
+
+        displayAccounts();
+
+        handleInput();
+    }
+
+    private void chooseNavigator() throws IOException {
+        displayNavigators();
+        setChosenNavigator();
+    }
+
+    private void displayNavigators() throws IOException {
         String scrapers = String.join(", ", bankNavigators.keySet());
+
         writeOutput("Available scrapers: " + scrapers);
+    }
+
+    private void setChosenNavigator() {
         String navigatorChoice = handleInput();
 
         bankNavigator = bankNavigators.get(navigatorChoice);
+    }
 
+    private void performLogin() throws IOException {
         writeOutput("Type in Your username:");
         String username = handleInput();
         writeOutput("Type in Your password:");
@@ -113,28 +134,31 @@ public class BankNavigatorCLI implements CommandLineRunner {
 
         writeOutput("Logging in...");
 
-        boolean authenticated = true;
-
         try {
             bankNavigator.login(username, password);
         } catch (RuntimeException exception) {
             writeOutput(String.format("Encountered exception: %s", exception.getMessage()));
-            authenticated = false;
         }
 
-        if (authenticated && bankNavigator.isAuthenticated()) {
+        if (bankNavigator.isAuthenticated()) {
             writeOutput("Login successful.");
-        } else {
+        } else
             writeOutput("Login failed.");
-        }
+    }
 
+    private void displayAccounts() throws IOException {
         Map<String, Double> accounts = bankNavigator.getAccounts();
-        writeOutput("Accounts:");
 
+        writeOutput(stringFrom(accounts));
+    }
+
+    private String stringFrom(Map<String, Double> accounts) {
         StringBuilder accountsListed = new StringBuilder();
-        accounts.forEach((s, aDouble) -> accountsListed.append(String.format("Account number: %s, Value %f", s, aDouble)));
-        writeOutput(accountsListed.toString());
 
-        handleInput();
+        accountsListed.append("Accounts:\n");
+
+        accounts.forEach((s, aDouble) -> accountsListed.append(String.format("Account number: %s, Value %f\n", s, aDouble)));
+
+        return accountsListed.toString();
     }
 }
