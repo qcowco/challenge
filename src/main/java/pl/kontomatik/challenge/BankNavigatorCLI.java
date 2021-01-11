@@ -25,6 +25,8 @@ public class BankNavigatorCLI implements CommandLineRunner {
 
     private Map<String, Runnable> commands;
 
+    private boolean authenticated;
+
     public BankNavigatorCLI() {
         this.in = System.in;
         this.out = System.out;
@@ -104,61 +106,9 @@ public class BankNavigatorCLI implements CommandLineRunner {
 
         performLogin();
 
-        displayAccounts();
+        if (authenticated)
+            displayAccounts();
 
         handleInput();
-    }
-
-    private void chooseNavigator() throws IOException {
-        displayNavigators();
-        setChosenNavigator();
-    }
-
-    private void displayNavigators() throws IOException {
-        String scrapers = String.join(", ", bankNavigators.keySet());
-
-        writeOutput("Available scrapers: " + scrapers);
-    }
-
-    private void setChosenNavigator() {
-        String navigatorChoice = handleInput();
-
-        bankNavigator = bankNavigators.get(navigatorChoice);
-    }
-
-    private void performLogin() throws IOException {
-        writeOutput("Type in Your username:");
-        String username = handleInput();
-        writeOutput("Type in Your password:");
-        String password = handleInput();
-
-        writeOutput("Logging in...");
-
-        try {
-            bankNavigator.login(username, password);
-        } catch (RuntimeException exception) {
-            writeOutput(String.format("Encountered exception: %s", exception.getMessage()));
-        }
-
-        if (bankNavigator.isAuthenticated()) {
-            writeOutput("Login successful.");
-        } else
-            writeOutput("Login failed.");
-    }
-
-    private void displayAccounts() throws IOException {
-        Map<String, Double> accounts = bankNavigator.getAccounts();
-
-        writeOutput(stringFrom(accounts));
-    }
-
-    private String stringFrom(Map<String, Double> accounts) {
-        StringBuilder accountsListed = new StringBuilder();
-
-        accountsListed.append("Accounts:\n");
-
-        accounts.forEach((s, aDouble) -> accountsListed.append(String.format("Account number: %s, Value %f\n", s, aDouble)));
-
-        return accountsListed.toString();
     }
 }
