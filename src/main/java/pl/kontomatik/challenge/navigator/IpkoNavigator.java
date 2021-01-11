@@ -76,7 +76,7 @@ public class IpkoNavigator implements BankNavigator {
     private boolean hasErrors(String responseBody) throws JsonProcessingException {
         JsonNode jsonNode = objectMapper.readTree(responseBody);
 
-        return jsonNode.hasNonNull("errors");
+        return jsonNode.findPath("fields").hasNonNull("errors");
     }
 
     private String getAuthenticationBody(String username) throws JsonProcessingException {
