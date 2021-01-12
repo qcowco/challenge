@@ -14,6 +14,15 @@ class IpkoMapperTest {
     private IpkoMapper ipkoMapper = new IpkoMapper();
     private ObjectMapper objectMapper = new ObjectMapper();
 
+    private int version = 3;
+    private String location = "";
+    private String action = "submit";
+    private int sequenceNumber = 0;
+
+    private String authStateId = "login";
+
+    private String sessionStateId = "password";
+
     @Test
     public void givenMapsAuthResponse_thenReturnsAuthResponse() throws JsonProcessingException {
         // given
@@ -33,22 +42,13 @@ class IpkoMapperTest {
     @Test
     public void givenMapsStartAuthRequest_thenReturnsAuthRequestJson() throws JsonProcessingException {
         // given
-        int version = 3;
-        int sequenceNumber = 0;
-        String location = "";
-        String stateId = "state_id";
         String fingerprint = "fingerprint";
         String username = "username";
-        String action = "submit";
 
-        AuthRequest expectedRequest = AuthRequest.builder()
-                .setVersion(version)
-                .setSeq(sequenceNumber)
-                .setLocation(location)
-                .setStateId(stateId)
+        AuthRequest expectedRequest = getBaseRequest()
+                .setStateId(authStateId)
                 .putData("login", username)
                 .putData("fingerprint", fingerprint)
-                .setAction(action)
                 .build();
 
         String expectedJsonBody = objectMapper.writeValueAsString(expectedRequest);
@@ -59,4 +59,40 @@ class IpkoMapperTest {
         // then
         assertEquals(expectedJsonBody, actualJsonBody);
     }
+
+    private AuthRequest.Builder getBaseRequest() {
+        return AuthRequest.builder()
+                .setVersion(version)
+                .setSeq(sequenceNumber)
+                .setLocation(location)
+                .setAction(action);
+    }
+
+    @Test
+    public void givenMapsSessionAuthRequest_thenReturnsAuthRequestJson() throws JsonProcessingException {
+        // given
+        String flowId = "password";
+        String token = "token";
+        String password = "password";
+        String placement = "LoginPKO";
+        int placement_page_no = 0;
+
+        AuthRequest expectedRequest = getBaseRequest()
+                .setStateId(sessionStateId)
+                .setFlowId(flowId)
+                .setToken(token)
+                .putData("password", password)
+                .putData("placement", placement)
+                .putData("placement_page_no", placement_page_no)
+                .build();
+
+        String expectedJsonBody = objectMapper.writeValueAsString(expectedRequest);
+
+        // when
+        String actualJsonBody = ipkoMapper.getSessionAuthRequestBodyFor(flowId, token, password, sequenceNumber);
+
+        // then
+        assertEquals(expectedJsonBody, actualJsonBody);
+    }
+
 }

@@ -9,8 +9,13 @@ import pl.kontomatik.challenge.navigator.dto.AuthResponse;
 public class IpkoMapper {
     private int version = 3;
     private String location = "";
-    private String authStateId = "state_id";
     private String action = "submit";
+
+    private String authStateId = "login";
+
+    private String sessionStateId = "password";
+    private String placement = "LoginPKO";
+    private int placement_page_no = 0;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -26,14 +31,33 @@ public class IpkoMapper {
 
     public String getAuthRequestBodyFor(String fingerprint,
                                         String username, int sequenceNumber) throws JsonProcessingException {
-        AuthRequest authRequest = AuthRequest.builder()
-                .setVersion(version)
+        AuthRequest authRequest = getBaseRequest()
                 .setSeq(sequenceNumber)
-                .setLocation(location)
                 .setStateId(authStateId)
                 .putData("login", username)
                 .putData("fingerprint", fingerprint)
-                .setAction(action)
+                .build();
+
+        return objectMapper.writeValueAsString(authRequest);
+    }
+
+    private AuthRequest.Builder getBaseRequest() {
+        return AuthRequest.builder()
+                .setVersion(version)
+                .setLocation(location)
+                .setAction(action);
+    }
+
+    public String getSessionAuthRequestBodyFor(String flowId, String token,
+                                               String password, int sequenceNumber) throws JsonProcessingException {
+        AuthRequest authRequest = getBaseRequest()
+                .setSeq(sequenceNumber)
+                .setStateId(sessionStateId)
+                .setFlowId(flowId)
+                .setToken(token)
+                .putData("password", password)
+                .putData("placement", placement)
+                .putData("placement_page_no", placement_page_no)
                 .build();
 
         return objectMapper.writeValueAsString(authRequest);
