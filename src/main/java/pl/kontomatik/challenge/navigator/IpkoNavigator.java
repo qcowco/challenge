@@ -76,17 +76,7 @@ public class IpkoNavigator implements BankNavigator {
     }
 
     private String getAuthenticationBody(String username) throws JsonProcessingException {
-        ObjectNode body = getBaseNode();
-
-        body.put("state_id", "login");
-
-        ObjectNode dataInner = body.with("data");
-        dataInner.put("login", username);
-        dataInner.put("fingerprint", FINGERPRINT);
-
-        body.put("action", "submit");
-
-        return objectMapper.writeValueAsString(body);
+        return ipkoMapper.getAuthRequestBodyFor(FINGERPRINT, username, requestSequenceNumber);
     }
 
 
@@ -132,20 +122,8 @@ public class IpkoNavigator implements BankNavigator {
     }
 
     private String getAuthorizeSessionBody(String password) throws JsonProcessingException {
-        ObjectNode body = getBaseNode();
-
-        body.put("state_id", "password");
-        body.put("flow_id", authFlowId);
-        body.put("token", authFlowToken);
-
-        ObjectNode dataInner = body.with("data");
-        dataInner.put("password", password);
-        dataInner.put("placement", "LoginPKO");
-        dataInner.put("placement_page_no", 1);
-
-        body.put("action", "submit");
-
-        return objectMapper.writeValueAsString(body);
+        return ipkoMapper.getSessionAuthRequestBodyFor(authFlowId, authFlowToken, password,
+                requestSequenceNumber);
     }
 
     @Override
@@ -189,14 +167,7 @@ public class IpkoNavigator implements BankNavigator {
     }
 
     private String getAccountsBody() throws JsonProcessingException {
-        ObjectNode body = getBaseNode();
-
-        ObjectNode dataInner = body.with("data");
-        dataInner.set("accounts", objectMapper.createObjectNode());
-
-        body.set("data", dataInner);
-
-        return objectMapper.writeValueAsString(body);
+        return ipkoMapper.getAccountsRequestBodyFor(requestSequenceNumber);
     }
 
     private Map<String, Double> getAccountsFrom(String jsonAccounts) throws JsonProcessingException {
