@@ -1,16 +1,12 @@
 package pl.kontomatik.challenge.navigator;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import pl.kontomatik.challenge.exception.LoginFailedException;
 import pl.kontomatik.challenge.exception.NotAuthenticatedException;
 import pl.kontomatik.challenge.mapper.IpkoMapper;
 import pl.kontomatik.challenge.navigator.dto.AuthResponse;
-import pl.kontomatik.challenge.navigator.dto.AuthorizeSessionRequest;
 
 import java.io.IOException;
 import java.util.Map;
@@ -21,7 +17,6 @@ public class IpkoNavigator implements BankNavigator {
     public static final String INIT_URL = "https://www.ipko.pl/ipko3/init";
     public static final String FINGERPRINT = "6d95628f9a2a967148e1bce995e5b98a";
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
     private IpkoMapper ipkoMapper = new IpkoMapper();
 
     private Map<String, String> cookies;
@@ -69,28 +64,13 @@ public class IpkoNavigator implements BankNavigator {
         authFlowToken = authResponse.getToken();
     }
 
-    private void isSuccessful(AuthResponse authResponse) throws JsonProcessingException {
+    private void isSuccessful(AuthResponse authResponse) {
         if (authResponse.hasErrors())
             throw new LoginFailedException("Couldn't login, response has errors.");
     }
 
     private String getAuthenticationBody(String username) throws JsonProcessingException {
         return ipkoMapper.getAuthRequestBodyFor(FINGERPRINT, username, requestSequenceNumber);
-    }
-
-
-    private ObjectNode getBaseNode() {
-        ObjectNode baseNode = objectMapper.createObjectNode();
-
-        baseNode.put("version", 3);
-        baseNode.put("seq", requestSequenceNumber++);
-        baseNode.put("location", "");
-
-        ObjectNode dataNode = objectMapper.createObjectNode();
-
-        baseNode.set("data", dataNode);
-
-        return baseNode;
     }
 
     private void authorizeSessionToken(String password) throws IOException {
@@ -100,8 +80,6 @@ public class IpkoNavigator implements BankNavigator {
         AuthResponse authResponse = ipkoMapper.getAuthResponseFrom(jsonBody);
 
         isSuccessful(authResponse);
-
-        verifySuccessful(jsonBody);
     }
 
     private Connection.Response sendAuthorizeSessionRequest(String password) throws IOException {
@@ -112,12 +90,6 @@ public class IpkoNavigator implements BankNavigator {
                 .header("X-Session-Id", sessionToken)
                 .method(Connection.Method.POST)
                 .execute();
-    }
-
-    private void verifySuccessful(String jsonBody) throws JsonProcessingException {
-        JsonNode jsonNode = objectMapper.readTree(jsonBody);
-
-        sessionTokenAuthorized = jsonNode.findPath("finished").asBoolean();
     }
 
     private String getAuthorizeSessionBody(String password) throws JsonProcessingException {
