@@ -7,6 +7,8 @@ import pl.kontomatik.challenge.navigator.dto.AuthRequest;
 import pl.kontomatik.challenge.navigator.dto.AuthResponse;
 import pl.kontomatik.challenge.navigator.dto.BaseRequest;
 
+import java.util.Map;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class IpkoMapperTest {
@@ -113,5 +115,21 @@ class IpkoMapperTest {
 
         // then
         assertEquals(expectedJsonBody, actualJsonBody);
+    }
+
+    @Test
+    public void givenMapsAccountsResponse_thenReturnsAccountMap() throws JsonProcessingException {
+        // given
+        String jsonAccounts = "{\"accounts\":{\"acc1\":{\"number\":{\"value\":\"123456789\"},\"balance\":0.5}}}";
+        String accountNumber = "123456789";
+        double balance = 0.5;
+
+        Map<String, Double> expectedAccounts = Map.of(accountNumber, balance);
+
+        // when
+        Map<String, Double> actualAccounts = ipkoMapper.getAccountsFromJson(jsonAccounts);
+
+        // then
+        assertEquals(expectedAccounts, actualAccounts);
     }
 }

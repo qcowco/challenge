@@ -7,6 +7,7 @@ import pl.kontomatik.challenge.navigator.dto.AuthRequest;
 import pl.kontomatik.challenge.navigator.dto.AuthResponse;
 import pl.kontomatik.challenge.navigator.dto.BaseRequest;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class IpkoMapper {
@@ -75,5 +76,32 @@ public class IpkoMapper {
                 .build();
 
         return objectMapper.writeValueAsString(accountsRequest);
+    }
+
+    public Map<String, Double> getAccountsFromJson(String jsonAccounts) throws JsonProcessingException {
+        JsonNode accountsNode = findAccountsNode(jsonAccounts);
+
+        return getAccountsFrom(accountsNode);
+    }
+
+    private JsonNode findAccountsNode(String jsonAccounts) throws JsonProcessingException {
+        JsonNode accountsTree = objectMapper.readTree(jsonAccounts);
+
+        return accountsTree.findPath("accounts");
+    }
+
+    private Map<String, Double> getAccountsFrom(JsonNode accountsNode) {
+        Map<String, Double> accountMap = new HashMap<>();
+
+        accountsNode.forEach(accountNode -> {
+            String account = accountNode.with("number")
+                    .get("value").asText();
+            Double balance = accountNode.get("balance")
+                    .asDouble();
+
+            accountMap.put(account, balance);
+        });
+
+        return accountMap;
     }
 }
