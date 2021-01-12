@@ -8,6 +8,8 @@ import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import pl.kontomatik.challenge.exception.LoginFailedException;
 import pl.kontomatik.challenge.exception.NotAuthenticatedException;
+import pl.kontomatik.challenge.mapper.IpkoMapper;
+import pl.kontomatik.challenge.navigator.dto.AuthResponse;
 import pl.kontomatik.challenge.navigator.dto.AuthorizeSessionRequest;
 
 import java.io.IOException;
@@ -21,6 +23,7 @@ public class IpkoNavigator implements BankNavigator {
     public static final String FINGERPRINT = "6d95628f9a2a967148e1bce995e5b98a";
 
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private IpkoMapper ipkoMapper = new IpkoMapper();
 
     private Map<String, String> cookies;
 
@@ -41,10 +44,12 @@ public class IpkoNavigator implements BankNavigator {
     private void beginAuthentication(String username) throws IOException {
         Connection.Response response = sendAuthenticationRequest(username);
 
-        isSuccessful(response.body());
+        AuthResponse authResponse = ipkoMapper.getAuthResponseFrom(response.body());
+
+        isSuccessful(authResponse);
 
         assignSessionToken(response.headers());
-        assignFlowTokens(response.body());
+        assignFlowTokens(authResponse);
     }
 
     private Connection.Response sendAuthenticationRequest(String username) throws IOException {
@@ -60,22 +65,14 @@ public class IpkoNavigator implements BankNavigator {
         sessionToken = headers.get("X-Session-Id");
     }
 
-    private void assignFlowTokens(String body) throws JsonProcessingException {
-        JsonNode responseNode = objectMapper.readTree(body);
-
-        authFlowId = responseNode.get("flow_id").asText();
-        authFlowToken = responseNode.get("token").asText();
+    private void assignFlowTokens(AuthResponse authResponse) {
+        authFlowId = authResponse.getFlowId();
+        authFlowToken = authResponse.getToken();
     }
 
-    private void isSuccessful(String body) throws JsonProcessingException {
-        if (hasErrors(body))
+    private void isSuccessful(AuthResponse authResponse) throws JsonProcessingException {
+        if (authResponse.hasErrors())
             throw new LoginFailedException("Couldn't login, response has errors.");
-    }
-
-    private boolean hasErrors(String responseBody) throws JsonProcessingException {
-        JsonNode jsonNode = objectMapper.readTree(responseBody);
-
-        return jsonNode.findPath("fields").hasNonNull("errors");
     }
 
     private String getAuthenticationBody(String username) throws JsonProcessingException {
@@ -111,7 +108,9 @@ public class IpkoNavigator implements BankNavigator {
         String jsonBody = sendAuthorizeSessionRequest(password)
                 .body();
 
-        isSuccessful(jsonBody);
+        AuthResponse authResponse = ipkoMapper.getAuthResponseFrom(jsonBody);
+
+        isSuccessful(authResponse);
 
         verifySuccessful(jsonBody);
     }
