@@ -13,7 +13,6 @@ import pl.kontomatik.challenge.navigator.dto.AuthResponse;
 import pl.kontomatik.challenge.navigator.dto.AuthorizeSessionRequest;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
 public class IpkoNavigator implements BankNavigator {
@@ -153,7 +152,7 @@ public class IpkoNavigator implements BankNavigator {
         String jsonResponse = sendAccountsRequest()
                 .body();
 
-        return getAccountsFrom(jsonResponse);
+        return ipkoMapper.getAccountsFromJson(jsonResponse);
     }
 
     private Connection.Response sendAccountsRequest() throws IOException {
@@ -168,32 +167,6 @@ public class IpkoNavigator implements BankNavigator {
 
     private String getAccountsBody() throws JsonProcessingException {
         return ipkoMapper.getAccountsRequestBodyFor(requestSequenceNumber);
-    }
-
-    private Map<String, Double> getAccountsFrom(String jsonAccounts) throws JsonProcessingException {
-        JsonNode accountsNode = jsonNodeFrom(jsonAccounts);
-        return accountsFrom(accountsNode);
-    }
-
-    private JsonNode jsonNodeFrom(String jsonAccounts) throws JsonProcessingException {
-        JsonNode accountsTree = objectMapper.readTree(jsonAccounts);
-
-        return accountsTree.findPath("accounts");
-    }
-
-    private Map<String, Double> accountsFrom(JsonNode accountsNode) {
-        Map<String, Double> accountMap = new HashMap<>();
-
-        accountsNode.forEach(accountNode -> {
-            String account = accountNode.with("number")
-                    .get("value").asText();
-            Double balance = accountNode.get("balance")
-                    .asDouble();
-
-            accountMap.put(account, balance);
-        });
-
-        return accountMap;
     }
 
 }
