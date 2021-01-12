@@ -5,6 +5,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import pl.kontomatik.challenge.navigator.dto.AuthRequest;
 import pl.kontomatik.challenge.navigator.dto.AuthResponse;
+import pl.kontomatik.challenge.navigator.dto.BaseRequest;
+
+import java.util.Map;
 
 public class IpkoMapper {
     private int version = 3;
@@ -61,5 +64,16 @@ public class IpkoMapper {
                 .build();
 
         return objectMapper.writeValueAsString(authRequest);
+    }
+
+    public String getAccountsRequestBodyFor(int sequenceNumber) throws JsonProcessingException {
+        BaseRequest accountsRequest = BaseRequest.builder()
+                .setVersion(version)
+                .setLocation(location)
+                .setSeq(sequenceNumber)
+                .putData("accounts", Map.of())
+                .build();
+
+        return objectMapper.writeValueAsString(accountsRequest);
     }
 }

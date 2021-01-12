@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import pl.kontomatik.challenge.navigator.dto.AuthRequest;
 import pl.kontomatik.challenge.navigator.dto.AuthResponse;
+import pl.kontomatik.challenge.navigator.dto.BaseRequest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -95,4 +96,22 @@ class IpkoMapperTest {
         assertEquals(expectedJsonBody, actualJsonBody);
     }
 
+    @Test
+    public void givenMapsAccountRequest_thenReturnsBaseRequestJson() throws JsonProcessingException {
+        // given
+        BaseRequest accountsRequest = BaseRequest.builder()
+                .setVersion(version)
+                .setSeq(sequenceNumber)
+                .setLocation(location)
+                .putData("accounts", objectMapper.createObjectNode())
+                .build();
+
+        String expectedJsonBody = objectMapper.writeValueAsString(accountsRequest);
+
+        // when
+        String actualJsonBody = ipkoMapper.getAccountsRequestBodyFor(sequenceNumber);
+
+        // then
+        assertEquals(expectedJsonBody, actualJsonBody);
+    }
 }
