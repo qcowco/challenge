@@ -1,8 +1,5 @@
 package pl.kontomatik.challenge.commandline;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
 import pl.kontomatik.challenge.exception.ForcedExitException;
 import pl.kontomatik.challenge.navigator.BankNavigator;
 
@@ -14,8 +11,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
-@Component
-public class BankNavigatorCLI implements CommandLineRunner {
+public class BankNavigatorCLI {
     private Map<String, BankNavigator> bankNavigators;
     private BankNavigator bankNavigator;
 
@@ -42,7 +38,6 @@ public class BankNavigatorCLI implements CommandLineRunner {
         });
     }
 
-    @Autowired
     public BankNavigatorCLI(Map<String, BankNavigator> bankNavigators) {
         this();
         this.bankNavigators = bankNavigators;
@@ -98,7 +93,6 @@ public class BankNavigatorCLI implements CommandLineRunner {
         out.write((output + '\n').getBytes());
     }
 
-    @Override
     public void run(String... args) throws Exception {
         writeOutput("Welcome to the BankNavigator app.");
 

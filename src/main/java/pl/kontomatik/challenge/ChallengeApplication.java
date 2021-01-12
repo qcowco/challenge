@@ -1,13 +1,15 @@
 package pl.kontomatik.challenge;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import pl.kontomatik.challenge.commandline.BankNavigatorCLI;
+import pl.kontomatik.challenge.navigator.IpkoNavigator;
 
-@SpringBootApplication
+import java.util.Map;
+
 public class ChallengeApplication {
 
-    public static void main(String[] args) {
-        SpringApplication.run(ChallengeApplication.class, args);
+    public static void main(String[] args) throws Exception {
+        BankNavigatorCLI bankNavigatorCLI = new BankNavigatorCLI(Map.of("ipko", new IpkoNavigator()));
+        bankNavigatorCLI.run();
     }
 
 }
