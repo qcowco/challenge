@@ -61,7 +61,7 @@ class IpkoMapperTest {
     }
 
     private AuthRequest.Builder getBaseRequest() {
-        return AuthRequest.builder()
+        return AuthRequest.authBuilder()
                 .setVersion(version)
                 .setSeq(sequenceNumber)
                 .setLocation(location)

@@ -42,7 +42,7 @@ public class IpkoMapper {
     }
 
     private AuthRequest.Builder getBaseRequest() {
-        return AuthRequest.builder()
+        return AuthRequest.authBuilder()
                 .setVersion(version)
                 .setLocation(location)
                 .setAction(action);

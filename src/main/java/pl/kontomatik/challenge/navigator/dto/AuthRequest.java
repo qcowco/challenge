@@ -70,7 +70,7 @@ public class AuthRequest extends BaseRequest {
         return Objects.hash(stateId, flowId, token, action);
     }
 
-    public static Builder builder() {
+    public static Builder authBuilder() {
         return new Builder();
     }
 
