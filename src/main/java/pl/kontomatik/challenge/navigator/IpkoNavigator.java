@@ -72,7 +72,11 @@ public class IpkoNavigator implements BankNavigator {
     }
 
     private String getAuthenticationBody(String username) throws JsonProcessingException {
-        return ipkoMapper.getAuthRequestBodyFor(FINGERPRINT, username, requestSequenceNumber);
+        return ipkoMapper.getAuthRequestBodyFor(FINGERPRINT, username, getAndIncrementSequence());
+    }
+
+    public int getAndIncrementSequence() {
+        return requestSequenceNumber++;
     }
 
     private void authorizeSessionToken(String password) throws IOException {
@@ -96,7 +100,7 @@ public class IpkoNavigator implements BankNavigator {
 
     private String getAuthorizeSessionBody(String password) throws JsonProcessingException {
         return ipkoMapper.getSessionAuthRequestBodyFor(authFlowId, authFlowToken, password,
-                requestSequenceNumber);
+                getAndIncrementSequence());
     }
 
     @Override
@@ -140,7 +144,7 @@ public class IpkoNavigator implements BankNavigator {
     }
 
     private String getAccountsBody() throws JsonProcessingException {
-        return ipkoMapper.getAccountsRequestBodyFor(requestSequenceNumber);
+        return ipkoMapper.getAccountsRequestBodyFor(getAndIncrementSequence());
     }
 
 }
