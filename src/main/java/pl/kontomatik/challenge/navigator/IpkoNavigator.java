@@ -44,7 +44,7 @@ public class IpkoNavigator implements BankNavigator {
 
         AuthResponse authResponse = ipkoMapper.getAuthResponseFrom(response.body());
 
-        isSuccessful(authResponse);
+        isLoginSuccessful(authResponse);
 
         assignSessionToken(response.headers());
         assignFlowTokens(authResponse);
@@ -68,8 +68,8 @@ public class IpkoNavigator implements BankNavigator {
         authFlowToken = authResponse.getToken();
     }
 
-    private boolean isSuccessful(AuthResponse authResponse) {
-        if (authResponse.hasErrors())
+    private boolean isLoginSuccessful(AuthResponse authResponse) {
+        if (authResponse.isWrongCredentials())
             throw new InvalidCredentialsException("Couldn't login with provided credentials.");
 
         return true;
@@ -89,7 +89,7 @@ public class IpkoNavigator implements BankNavigator {
 
         AuthResponse authResponse = ipkoMapper.getAuthResponseFrom(jsonBody);
 
-        sessionTokenAuthorized = isSuccessful(authResponse);
+        sessionTokenAuthorized = isLoginSuccessful(authResponse);
     }
 
     private Connection.Response sendAuthorizeSessionRequest(String password) throws IOException {
