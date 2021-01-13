@@ -1,12 +1,10 @@
 package pl.kontomatik.challenge.commandline;
 
-import pl.kontomatik.challenge.exception.ForcedExitException;
 import pl.kontomatik.challenge.navigator.BankNavigator;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
@@ -18,23 +16,12 @@ public class BankNavigatorCLI {
     private OutputStream out;
     private Scanner scanner;
 
-    private Map<String, Runnable> commands;
-
     private boolean authenticated;
 
     public BankNavigatorCLI() {
         this.in = System.in;
         this.out = System.out;
         updateScanner();
-        initCommands();
-    }
-
-    private void initCommands() {
-        commands = new HashMap<>();
-
-        commands.put("/exit", () -> {
-            throw new ForcedExitException("The exit command has been entered. Exitting..");
-        });
     }
 
     public BankNavigatorCLI(BankNavigator bankNavigator) {
@@ -64,16 +51,7 @@ public class BankNavigatorCLI {
     }
 
     private String handleInput() {
-        String input = tryHandleInput();
-
-        handleCommand(input);
-
-        return input;
-    }
-
-    private void handleCommand(String input) {
-        if (commands.containsKey(input))
-            commands.get(input).run();
+        return tryHandleInput();
     }
 
     private String tryHandleInput() {

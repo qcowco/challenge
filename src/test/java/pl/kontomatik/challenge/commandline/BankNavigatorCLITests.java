@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import pl.kontomatik.challenge.exception.ForcedExitException;
 import pl.kontomatik.challenge.navigator.BankNavigator;
 
 import java.io.ByteArrayInputStream;
@@ -24,7 +23,6 @@ public class BankNavigatorCLITests {
     private static final String PASSWORD = "PASSWORD";
 
     private static final String NAVIGATOR_NAME = "ipko";
-    private static final String EXIT_COMMAND = "/exit";
 
     private static final String ACCOUNT_NUMBER = "0 1234 2345 3456 4567";
     private static final Double ACCOUNT_VALUE = 500.15;
