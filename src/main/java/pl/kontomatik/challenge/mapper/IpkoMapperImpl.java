@@ -27,9 +27,8 @@ public class IpkoMapperImpl implements IpkoMapper {
     public AuthResponse getAuthResponseFrom(String responseBody) throws JsonProcessingException {
         JsonNode responseNode = objectMapper.readTree(responseBody);
 
-        String flowId = responseNode.get("flow_id").asText();
-        String token = getTokenIfExists(responseNode);
-        boolean hasErrors = responseNode.with("fields").has("errors");
+        String flowId = responseNode.findPath("flow_id").asText();
+        String token = responseNode.findPath("token").asText();
 
         return new AuthResponse(flowId, token, hasErrors);
     }
