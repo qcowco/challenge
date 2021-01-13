@@ -14,17 +14,17 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class IpkoMapperTest {
     private static final String LOGIN_RESPONSE_BODY = "{\"flow_id\":\"flow_id\",\"token\":\"token\",\"finished\":true}";
 
+    private final int VERSION = 3;
+    private final String LOCATION = "";
+    private final String ACTION = "submit";
+    private final int SEQUENCE_NUMBER = 0;
+
+    private final String AUTH_STATE_ID = "login";
+
+    private final String SESSION_STATE_ID = "password";
+
     private IpkoMapper ipkoMapper = new IpkoMapperImpl();
     private ObjectMapper objectMapper = new ObjectMapper();
-
-    private int version = 3;
-    private String location = "";
-    private String action = "submit";
-    private int sequenceNumber = 0;
-
-    private String authStateId = "login";
-
-    private String sessionStateId = "password";
 
     @Test
     public void givenMapsAuthResponse_thenReturnsAuthResponse() throws JsonProcessingException {
@@ -49,7 +49,7 @@ class IpkoMapperTest {
         String username = "username";
 
         AuthRequest expectedRequest = getBaseRequest()
-                .setStateId(authStateId)
+                .setStateId(AUTH_STATE_ID)
                 .putData("login", username)
                 .putData("fingerprint", fingerprint)
                 .build();
@@ -57,7 +57,7 @@ class IpkoMapperTest {
         String expectedJsonBody = objectMapper.writeValueAsString(expectedRequest);
 
         // when
-        String actualJsonBody = ipkoMapper.getAuthRequestBodyFor(fingerprint, username, sequenceNumber);
+        String actualJsonBody = ipkoMapper.getAuthRequestBodyFor(fingerprint, username, SEQUENCE_NUMBER);
 
         // then
         assertEquals(expectedJsonBody, actualJsonBody);
@@ -65,10 +65,10 @@ class IpkoMapperTest {
 
     private AuthRequest.Builder getBaseRequest() {
         return AuthRequest.authBuilder()
-                .setVersion(version)
-                .setSeq(sequenceNumber)
-                .setLocation(location)
-                .setAction(action);
+                .setVersion(VERSION)
+                .setSeq(SEQUENCE_NUMBER)
+                .setLocation(LOCATION)
+                .setAction(ACTION);
     }
 
     @Test
@@ -81,7 +81,7 @@ class IpkoMapperTest {
         int placement_page_no = 0;
 
         AuthRequest expectedRequest = getBaseRequest()
-                .setStateId(sessionStateId)
+                .setStateId(SESSION_STATE_ID)
                 .setFlowId(flowId)
                 .setToken(token)
                 .putData("password", password)
@@ -92,7 +92,7 @@ class IpkoMapperTest {
         String expectedJsonBody = objectMapper.writeValueAsString(expectedRequest);
 
         // when
-        String actualJsonBody = ipkoMapper.getSessionAuthRequestBodyFor(flowId, token, password, sequenceNumber);
+        String actualJsonBody = ipkoMapper.getSessionAuthRequestBodyFor(flowId, token, password, SEQUENCE_NUMBER);
 
         // then
         assertEquals(expectedJsonBody, actualJsonBody);
@@ -102,16 +102,16 @@ class IpkoMapperTest {
     public void givenMapsAccountRequest_thenReturnsBaseRequestJson() throws JsonProcessingException {
         // given
         BaseRequest accountsRequest = BaseRequest.builder()
-                .setVersion(version)
-                .setSeq(sequenceNumber)
-                .setLocation(location)
+                .setVersion(VERSION)
+                .setSeq(SEQUENCE_NUMBER)
+                .setLocation(LOCATION)
                 .putData("accounts", objectMapper.createObjectNode())
                 .build();
 
         String expectedJsonBody = objectMapper.writeValueAsString(accountsRequest);
 
         // when
-        String actualJsonBody = ipkoMapper.getAccountsRequestBodyFor(sequenceNumber);
+        String actualJsonBody = ipkoMapper.getAccountsRequestBodyFor(SEQUENCE_NUMBER);
 
         // then
         assertEquals(expectedJsonBody, actualJsonBody);
