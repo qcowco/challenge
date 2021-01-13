@@ -44,7 +44,7 @@ public class BankNavigatorCLITests {
     @Test
     public void givenLogIn_whenFails_thenDisplaysLoginFailed() throws Exception {
         // given
-        cli.setIn(new ByteArrayInputStream(prepareInput(USERNAME, PASSWORD).getBytes()));
+        cli.setIn(getLoginInputStream());
 
         String expectedOutput = "login failed";
 
@@ -63,7 +63,7 @@ public class BankNavigatorCLITests {
     @Test
     public void givenLogIn_whenFails_thenDisplaysErrorMessage() throws Exception {
         // given
-        cli.setIn(new ByteArrayInputStream(prepareInput(USERNAME, PASSWORD).getBytes()));
+        cli.setIn(getLoginInputStream());
 
         String expectedOutput = "encountered exception";
 
@@ -82,7 +82,7 @@ public class BankNavigatorCLITests {
     @Test
     public void givenLogin_whenSuccessful_thenDisplaysLoginSuccessful() throws Exception {
         // given
-        cli.setIn(new ByteArrayInputStream(prepareInput(USERNAME, PASSWORD).getBytes()));
+        cli.setIn(getLoginInputStream());
 
         String expectedOutput = "login successful";
 
@@ -101,7 +101,7 @@ public class BankNavigatorCLITests {
     @Test
     public void givenGettingAccounts_whenSuccessful_thenDisplaysBankAccounts() throws Exception {
         // given
-        cli.setIn(new ByteArrayInputStream(prepareInput(USERNAME, PASSWORD).getBytes()));
+        cli.setIn(getLoginInputStream());
 
         given(bankNavigator.isAuthenticated())
                 .willReturn(true);
@@ -117,6 +117,10 @@ public class BankNavigatorCLITests {
         // then
         assertTrue(actualOutput.contains(ACCOUNT_NUMBER));
         assertTrue(actualOutput.contains(String.valueOf(ACCOUNT_VALUE)));
+    }
+
+    private ByteArrayInputStream getLoginInputStream() {
+        return new ByteArrayInputStream(prepareInput(USERNAME, PASSWORD).getBytes());
     }
 
     private String prepareInput(String ... inputs) {
