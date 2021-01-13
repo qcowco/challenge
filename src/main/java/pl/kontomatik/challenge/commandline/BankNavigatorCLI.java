@@ -72,33 +72,63 @@ public class BankNavigatorCLI {
     public void run(String... args) throws Exception {
         writeOutput("Welcome to the BankNavigator app.");
 
-        performLogin();
+        boolean tryAgain = true;
+        while (tryAgain)
+            tryAgain = performLogin();
 
-        if (authenticated)
+        if (bankNavigator.isAuthenticated())
             displayAccounts();
 
         handleInput();
     }
 
-    private void performLogin() throws IOException {
-        writeOutput("Type in Your username:");
-        String username = handleInput();
-        writeOutput("Type in Your password:");
-        String password = handleInput();
+    private boolean performLogin() throws IOException {
+        String username = askForInput("Type in Your username:");
+        String password = askForInput("Type in Your password:");
 
-        writeOutput("Logging in...");
+        tryLogin(username, password);
 
+        return tryRepeatLoginIfFailed();
+    }
+
+    private String askForInput(String message) throws IOException {
+        writeOutput(message);
+
+        return handleInput();
+    }
+
+    private void tryLogin(String username, String password) throws IOException {
         try {
             bankNavigator.login(username, password);
         } catch (InvalidCredentialsException exception) {
             writeOutput(String.format("Encountered exception: %s", exception.getMessage()));
         }
+    }
+
+    private boolean tryRepeatLoginIfFailed() throws IOException {
+        boolean tryAgain = false;
 
         if (bankNavigator.isAuthenticated()) {
-            authenticated = true;
             writeOutput("Login successful.");
-        } else
-            writeOutput("Login failed.");
+        } else {
+            tryAgain = askIfRepeat();
+        }
+
+        return tryAgain;
+    }
+
+    private boolean askIfRepeat() throws IOException {
+        boolean tryAgain;
+
+        String answer = askForInput("Login failed. Try again? (y/n)");
+
+        tryAgain = notNegative(answer);
+
+        return tryAgain;
+    }
+
+    private boolean notNegative(String answer) {
+        return !answer.equals("n");
     }
 
     private void displayAccounts() throws IOException {

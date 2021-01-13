@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import pl.kontomatik.challenge.exception.InvalidCredentialsException;
 import pl.kontomatik.challenge.navigator.BankNavigator;
 
 import java.io.ByteArrayInputStream;
@@ -39,13 +40,16 @@ public class BankNavigatorCLITests {
 
 
     @Test
-    public void givenLogIn_whenFails_thenDisplaysLoginFailed() throws Exception {
+    public void givenLogIn_whenFails_thenCanTryAgain() throws Exception {
         // given
-        cli.setIn(getLoginInputStream());
+        String agreeTryAgain = "y";
+        String refuseTryAgain = "n";
 
-        String expectedOutput = "login failed";
+        cli.setIn(getInputStream(USERNAME, PASSWORD, agreeTryAgain, USERNAME, PASSWORD, refuseTryAgain));
 
-        doThrow(RuntimeException.class)
+        String expectedOutput = "try again";
+
+        doThrow(InvalidCredentialsException.class)
                 .when(bankNavigator).login(USERNAME, PASSWORD);
 
         // when
@@ -60,11 +64,13 @@ public class BankNavigatorCLITests {
     @Test
     public void givenLogIn_whenFails_thenDisplaysErrorMessage() throws Exception {
         // given
-        cli.setIn(getLoginInputStream());
+        String refuseTryAgain = "n";
+
+        cli.setIn(getInputStream(USERNAME, PASSWORD, refuseTryAgain));
 
         String expectedOutput = "encountered exception";
 
-        doThrow(RuntimeException.class)
+        doThrow(InvalidCredentialsException.class)
                 .when(bankNavigator).login(USERNAME, PASSWORD);
 
         // when
@@ -79,7 +85,7 @@ public class BankNavigatorCLITests {
     @Test
     public void givenLogin_whenSuccessful_thenDisplaysLoginSuccessful() throws Exception {
         // given
-        cli.setIn(getLoginInputStream());
+        cli.setIn(getInputStream(USERNAME, PASSWORD));
 
         String expectedOutput = "login successful";
 
@@ -98,7 +104,7 @@ public class BankNavigatorCLITests {
     @Test
     public void givenGettingAccounts_whenSuccessful_thenDisplaysBankAccounts() throws Exception {
         // given
-        cli.setIn(getLoginInputStream());
+        cli.setIn(getInputStream(USERNAME, PASSWORD));
 
         given(bankNavigator.isAuthenticated())
                 .willReturn(true);
@@ -116,8 +122,8 @@ public class BankNavigatorCLITests {
         assertTrue(actualOutput.contains(String.valueOf(ACCOUNT_VALUE)));
     }
 
-    private ByteArrayInputStream getLoginInputStream() {
-        return new ByteArrayInputStream(prepareInput(USERNAME, PASSWORD).getBytes());
+    private ByteArrayInputStream getInputStream(String... inputs) {
+        return new ByteArrayInputStream(prepareInput(inputs).getBytes());
     }
 
     private String prepareInput(String ... inputs) {
