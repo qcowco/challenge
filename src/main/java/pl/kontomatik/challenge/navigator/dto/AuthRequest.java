@@ -10,13 +10,14 @@ import java.util.Objects;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AuthRequest extends BaseRequest {
     @JsonProperty("state_id")
-    private String stateId;
+    private final String stateId;
     @JsonProperty("flow_id")
-    private String flowId;
-    private String token;
-    private String action;
+    private final String flowId;
+    private final String token;
+    private final String action;
 
-    public AuthRequest(int version, int seq, String location, Map<String, Object> data, String stateId, String flowId, String token, String action) {
+    public AuthRequest(int version, int seq, String location, Map<String, Object> data, String stateId,
+                       String flowId, String token, String action) {
         super(version, seq, location, data);
         this.stateId = stateId;
         this.flowId = flowId;
@@ -28,32 +29,16 @@ public class AuthRequest extends BaseRequest {
         return stateId;
     }
 
-    public void setStateId(String stateId) {
-        this.stateId = stateId;
-    }
-
     public String getFlowId() {
         return flowId;
-    }
-
-    public void setFlowId(String flowId) {
-        this.flowId = flowId;
     }
 
     public String getToken() {
         return token;
     }
 
-    public void setToken(String token) {
-        this.token = token;
-    }
-
     public String getAction() {
         return action;
-    }
-
-    public void setAction(String action) {
-        this.action = action;
     }
 
     @Override
