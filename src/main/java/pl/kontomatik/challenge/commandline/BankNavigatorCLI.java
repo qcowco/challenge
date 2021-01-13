@@ -1,5 +1,6 @@
 package pl.kontomatik.challenge.commandline;
 
+import pl.kontomatik.challenge.exception.InvalidCredentialsException;
 import pl.kontomatik.challenge.navigator.BankNavigator;
 
 import java.io.IOException;
@@ -91,7 +92,7 @@ public class BankNavigatorCLI {
 
         try {
             bankNavigator.login(username, password);
-        } catch (RuntimeException exception) {
+        } catch (InvalidCredentialsException exception) {
             writeOutput(String.format("Encountered exception: %s", exception.getMessage()));
         }
 

@@ -5,12 +5,12 @@ import java.util.Objects;
 public class AuthResponse {
     private String flowId;
     private String token;
-    private boolean hasErrors;
+    private boolean wrongCredentials;
 
-    public AuthResponse(String flowId, String token, boolean hasErrors) {
+    public AuthResponse(String flowId, String token, boolean wrongCredentials) {
         this.flowId = flowId;
         this.token = token;
-        this.hasErrors = hasErrors;
+        this.wrongCredentials = wrongCredentials;
     }
 
     public String getFlowId() {
@@ -29,12 +29,12 @@ public class AuthResponse {
         this.token = token;
     }
 
-    public boolean hasErrors() {
-        return hasErrors;
+    public boolean isWrongCredentials() {
+        return wrongCredentials;
     }
 
-    public void setHasErrors(boolean hasErrors) {
-        this.hasErrors = hasErrors;
+    public void setWrongCredentials(boolean wrongCredentials) {
+        this.wrongCredentials = wrongCredentials;
     }
 
     @Override
@@ -42,11 +42,11 @@ public class AuthResponse {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         AuthResponse that = (AuthResponse) o;
-        return hasErrors == that.hasErrors && flowId.equals(that.flowId) && token.equals(that.token);
+        return wrongCredentials == that.wrongCredentials && flowId.equals(that.flowId) && token.equals(that.token);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(flowId, token, hasErrors);
+        return Objects.hash(flowId, token, wrongCredentials);
     }
 }

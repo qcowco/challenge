@@ -3,7 +3,7 @@ package pl.kontomatik.challenge.navigator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
-import pl.kontomatik.challenge.exception.LoginFailedException;
+import pl.kontomatik.challenge.exception.InvalidCredentialsException;
 import pl.kontomatik.challenge.exception.NotAuthenticatedException;
 import pl.kontomatik.challenge.mapper.IpkoMapper;
 import pl.kontomatik.challenge.navigator.dto.AuthResponse;
@@ -70,7 +70,7 @@ public class IpkoNavigator implements BankNavigator {
 
     private boolean isSuccessful(AuthResponse authResponse) {
         if (authResponse.hasErrors())
-            throw new LoginFailedException("Couldn't login, response has errors.");
+            throw new InvalidCredentialsException("Couldn't login with provided credentials.");
 
         return true;
     }

@@ -11,7 +11,7 @@ import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
-import pl.kontomatik.challenge.exception.LoginFailedException;
+import pl.kontomatik.challenge.exception.InvalidCredentialsException;
 import pl.kontomatik.challenge.exception.NotAuthenticatedException;
 import pl.kontomatik.challenge.mapper.IpkoMapper;
 import pl.kontomatik.challenge.mapper.IpkoMapperImpl;
@@ -131,7 +131,7 @@ public class IpkoNavigatorTests {
 
             try {
                 bankNavigator.login(USERNAME, PASSWORD);
-            } catch (LoginFailedException exception) {
+            } catch (InvalidCredentialsException exception) {
 
             }
         }
@@ -164,7 +164,7 @@ public class IpkoNavigatorTests {
             given(cookieResponse.cookies())
                     .willReturn(COOKIES);
 
-            assertThrows(LoginFailedException.class, () -> bankNavigator.login(USERNAME, PASSWORD));
+            assertThrows(InvalidCredentialsException.class, () -> bankNavigator.login(USERNAME, PASSWORD));
         }
     }
 
