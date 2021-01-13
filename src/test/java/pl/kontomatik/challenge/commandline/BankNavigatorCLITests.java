@@ -12,7 +12,6 @@ import java.io.ByteArrayOutputStream;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
@@ -21,8 +20,6 @@ import static org.mockito.Mockito.doThrow;
 public class BankNavigatorCLITests {
     private static final String USERNAME = "USERNAME";
     private static final String PASSWORD = "PASSWORD";
-
-    private static final String NAVIGATOR_NAME = "ipko";
 
     private static final String ACCOUNT_NUMBER = "0 1234 2345 3456 4567";
     private static final Double ACCOUNT_VALUE = 500.15;

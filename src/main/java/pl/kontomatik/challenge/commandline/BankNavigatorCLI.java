@@ -17,8 +17,6 @@ public class BankNavigatorCLI {
     private OutputStream out;
     private Scanner scanner;
 
-    private boolean authenticated;
-
     public BankNavigatorCLI() {
         this.in = System.in;
         this.out = System.out;

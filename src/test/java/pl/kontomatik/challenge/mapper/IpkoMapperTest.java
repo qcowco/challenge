@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class IpkoMapperTest {
     private static final String LOGIN_RESPONSE_BODY = "{\"flow_id\":\"flow_id\",\"token\":\"token\",\"finished\":true}";
 
-    private IpkoMapper ipkoMapper = new IpkoMapper();
+    private IpkoMapper ipkoMapper = new IpkoMapperImpl();
     private ObjectMapper objectMapper = new ObjectMapper();
 
     private int version = 3;
@@ -120,9 +120,10 @@ class IpkoMapperTest {
     @Test
     public void givenMapsAccountsResponse_thenReturnsAccountMap() throws JsonProcessingException {
         // given
-        String jsonAccounts = "{\"accounts\":{\"acc1\":{\"number\":{\"value\":\"123456789\"},\"balance\":0.5}}}";
         String accountNumber = "123456789";
         double balance = 0.5;
+        String jsonAccounts = String.format("{\"accounts\":{\"acc1\":{\"number\":{\"value\":\"%s\"},\"balance\":%f}}}",
+                accountNumber, balance);
 
         Map<String, Double> expectedAccounts = Map.of(accountNumber, balance);
 

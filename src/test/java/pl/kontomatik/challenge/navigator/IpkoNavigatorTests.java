@@ -3,8 +3,6 @@ package pl.kontomatik.challenge.navigator;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
@@ -22,7 +20,8 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.startsWith;
 
 @ExtendWith(MockitoExtension.class)
 public class IpkoNavigatorTests {
