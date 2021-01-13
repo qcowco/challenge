@@ -1,8 +1,6 @@
 package pl.kontomatik.challenge.commandline;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -12,7 +10,6 @@ import pl.kontomatik.challenge.navigator.BankNavigator;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -36,159 +33,120 @@ public class BankNavigatorCLITests {
     @Mock
     private BankNavigator bankNavigator;
 
-    @Nested
-    @DisplayName("Given CLI runs")
-    class CliRuns {
-        private BankNavigatorCLI cli;
-        private ByteArrayOutputStream out;
+    private BankNavigatorCLI cli;
 
-        @BeforeEach
-        public void setup() {
-            cli = new BankNavigatorCLI(Map.of(NAVIGATOR_NAME, bankNavigator));
+    @BeforeEach
+    public void setup() {
+        cli = new BankNavigatorCLI(Map.of(NAVIGATOR_NAME, bankNavigator));
 
-            out = new ByteArrayOutputStream();
-
-            cli.setOut(out);
-
-        }
-
-        @Test
-        @DisplayName("Then displays bank navigators")
-        public void shouldDisplayBankNavigators() throws Exception {
-            // when
-            cli.setIn(new ByteArrayInputStream(prepareInput(EXIT_COMMAND).getBytes()));
-
-            try {
-                cli.run();
-            } catch (RuntimeException exception) {
-
-            }
-
-            String output = out.toString();
-
-            // then
-            assertTrue(output.contains(NAVIGATOR_NAME));
-        }
-
-        @Nested
-        @DisplayName("When receives exit command")
-        class ExitCommand {
-
-            @Test
-            @DisplayName("Then throws ForcedExitException")
-            public void shouldThrow_ForcedExitException() {
-                // given
-                String textInput = prepareInput(EXIT_COMMAND);
-
-                cli.setIn(new ByteArrayInputStream(textInput.getBytes()));
-
-                // when/then
-                assertThrows(ForcedExitException.class, cli::run);
-            }
-
-        }
+        cli.setOut(new ByteArrayOutputStream());
     }
 
-    @Nested
-    @DisplayName("Given user logs in")
-    class LogIn {
-        private BankNavigatorCLI cli;
-        private String loginInput;
 
-        @BeforeEach
-        public void setup() {
-            cli = new BankNavigatorCLI(Map.of(NAVIGATOR_NAME, bankNavigator));
+    @Test
+    public void givenCliRuns_thenDisplaysBankNavigators() throws Exception {
+        // when
+        cli.setIn(new ByteArrayInputStream(prepareInput(EXIT_COMMAND).getBytes()));
 
-            loginInput = prepareInput(NAVIGATOR_NAME, USERNAME, PASSWORD);
-
-            cli.setOut(new ByteArrayOutputStream());
-            cli.setIn(new ByteArrayInputStream(loginInput.getBytes()));
-        }
-
-        @Nested
-        @DisplayName("When login is unsuccessful")
-        class Unsuccessful {
-
-            @BeforeEach
-            public void setup() throws IOException {
-                doThrow(RuntimeException.class)
-                        .when(bankNavigator).login(USERNAME, PASSWORD);
-            }
-
-            @Test
-            @DisplayName("Then displays that the login has failed")
-            public void shouldDisplayLoginFailed() throws Exception {
-                // given
-                String expectedOutput = "login failed";
-
-                // when
-                cli.run();
-
-                String actualOutput = cli.getOut().toString();
-
-                // then
-                assertTrue(actualOutput.toLowerCase().contains(expectedOutput));
-            }
-
-            @Test
-            @DisplayName("Then displays an error message")
-            public void shouldDisplayExceptionMessage() throws Exception {
-                // given
-                String expectedOutput = "encountered exception";
-
-                // when
-                cli.run();
-
-                String actualOutput = cli.getOut().toString();
-
-                // then
-                assertTrue(actualOutput.toLowerCase().contains(expectedOutput));
-            }
+        try {
+            cli.run();
+        } catch (RuntimeException exception) {
 
         }
 
-        @Nested
-        @DisplayName("When login was successful")
-        class Successful {
+        String output = cli.getOut().toString();
 
-            @BeforeEach
-            public void setup() {
-                given(bankNavigator.isAuthenticated())
-                        .willReturn(true);
-            }
+        // then
+        assertTrue(output.contains(NAVIGATOR_NAME));
+    }
 
-            @Test
-            @DisplayName("Then displays that the login was successful")
-            public void shouldDisplayLoginSuccessful() throws Exception {
-                // given
-                String expectedOutput = "login successful";
+    @Test
+    public void givenCliRuns_whenReceivesExitCommand_thenThrows_ForcedExitException() {
+        // given
+        String textInput = prepareInput(EXIT_COMMAND);
 
-                // when
-                cli.run();
+        cli.setIn(new ByteArrayInputStream(textInput.getBytes()));
 
-                String actualOutput = cli.getOut().toString();
+        // when/then
+        assertThrows(ForcedExitException.class, cli::run);
+    }
 
-                // then
-                assertTrue(actualOutput.toLowerCase().contains(expectedOutput));
-            }
+    @Test
+    public void givenLogIn_whenFails_thenDisplaysLoginFailed() throws Exception {
+        // given
+        cli.setIn(new ByteArrayInputStream(prepareInput(NAVIGATOR_NAME, USERNAME, PASSWORD).getBytes()));
 
-            @Test
-            @DisplayName("Then lists users bank accounts")
-            public void shouldDisplayBankAccounts() throws Exception {
-                // given
-                given(bankNavigator.getAccounts())
-                        .willReturn(BANK_ACCOUNTS);
+        String expectedOutput = "login failed";
 
-                // when
-                cli.run();
+        doThrow(RuntimeException.class)
+                .when(bankNavigator).login(USERNAME, PASSWORD);
 
-                String actualOutput = cli.getOut().toString();
+        // when
+        cli.run();
 
-                // then
-                assertTrue(actualOutput.contains(ACCOUNT_NUMBER));
-                assertTrue(actualOutput.contains(String.valueOf(ACCOUNT_VALUE)));
-            }
-        }
+        String actualOutput = cli.getOut().toString();
+
+        // then
+        assertTrue(actualOutput.toLowerCase().contains(expectedOutput));
+    }
+
+    @Test
+    public void givenLogIn_whenFails_thenDisplaysErrorMessage() throws Exception {
+        // given
+        cli.setIn(new ByteArrayInputStream(prepareInput(NAVIGATOR_NAME, USERNAME, PASSWORD).getBytes()));
+
+        String expectedOutput = "encountered exception";
+
+        doThrow(RuntimeException.class)
+                .when(bankNavigator).login(USERNAME, PASSWORD);
+
+        // when
+        cli.run();
+
+        String actualOutput = cli.getOut().toString();
+
+        // then
+        assertTrue(actualOutput.toLowerCase().contains(expectedOutput));
+    }
+
+    @Test
+    public void givenLogin_whenSuccessful_thenDisplaysLoginSuccessful() throws Exception {
+        // given
+        cli.setIn(new ByteArrayInputStream(prepareInput(NAVIGATOR_NAME, USERNAME, PASSWORD).getBytes()));
+
+        String expectedOutput = "login successful";
+
+        given(bankNavigator.isAuthenticated())
+                .willReturn(true);
+
+        // when
+        cli.run();
+
+        String actualOutput = cli.getOut().toString();
+
+        // then
+        assertTrue(actualOutput.toLowerCase().contains(expectedOutput));
+    }
+
+    @Test
+    public void givenGettingAccounts_whenSuccessful_thenDisplaysBankAccounts() throws Exception {
+        // given
+        cli.setIn(new ByteArrayInputStream(prepareInput(NAVIGATOR_NAME, USERNAME, PASSWORD).getBytes()));
+
+        given(bankNavigator.isAuthenticated())
+                .willReturn(true);
+
+        given(bankNavigator.getAccounts())
+                .willReturn(BANK_ACCOUNTS);
+
+        // when
+        cli.run();
+
+        String actualOutput = cli.getOut().toString();
+
+        // then
+        assertTrue(actualOutput.contains(ACCOUNT_NUMBER));
+        assertTrue(actualOutput.contains(String.valueOf(ACCOUNT_VALUE)));
     }
 
     private String prepareInput(String ... inputs) {
