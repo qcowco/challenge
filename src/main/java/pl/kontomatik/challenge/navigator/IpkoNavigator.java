@@ -64,9 +64,11 @@ public class IpkoNavigator implements BankNavigator {
         authFlowToken = authResponse.getToken();
     }
 
-    private void isSuccessful(AuthResponse authResponse) {
+    private boolean isSuccessful(AuthResponse authResponse) {
         if (authResponse.hasErrors())
             throw new LoginFailedException("Couldn't login, response has errors.");
+
+        return true;
     }
 
     private String getAuthenticationBody(String username) throws JsonProcessingException {
@@ -79,7 +81,7 @@ public class IpkoNavigator implements BankNavigator {
 
         AuthResponse authResponse = ipkoMapper.getAuthResponseFrom(jsonBody);
 
-        isSuccessful(authResponse);
+        sessionTokenAuthorized = isSuccessful(authResponse);
     }
 
     private Connection.Response sendAuthorizeSessionRequest(String password) throws IOException {
