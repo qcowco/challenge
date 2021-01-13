@@ -17,7 +17,7 @@ public class IpkoNavigator implements BankNavigator {
     public static final String INIT_URL = "https://www.ipko.pl/ipko3/init";
     public static final String FINGERPRINT = "6d95628f9a2a967148e1bce995e5b98a";
 
-    private IpkoMapper ipkoMapper = new IpkoMapper();
+    private IpkoMapper ipkoMapper;
 
     private Map<String, String> cookies;
 
@@ -28,6 +28,10 @@ public class IpkoNavigator implements BankNavigator {
     private String authFlowToken;
 
     private int requestSequenceNumber;
+
+    public IpkoNavigator(IpkoMapper ipkoMapper) {
+        this.ipkoMapper = ipkoMapper;
+    }
 
     @Override
     public void login(String username, String password) throws IOException {

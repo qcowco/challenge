@@ -13,6 +13,8 @@ import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import pl.kontomatik.challenge.exception.LoginFailedException;
 import pl.kontomatik.challenge.exception.NotAuthenticatedException;
+import pl.kontomatik.challenge.mapper.IpkoMapper;
+import pl.kontomatik.challenge.mapper.IpkoMapperImpl;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -42,6 +44,7 @@ public class IpkoNavigatorTests {
     private static final double ACCOUNT_BALANCE = 0.5;
 
     private static IpkoNavigator bankNavigator;
+    private static IpkoMapper ipkoMapper = new IpkoMapperImpl();
 
     @Mock(answer = Answers.RETURNS_SELF)
     private Connection loginConnection;
@@ -64,7 +67,7 @@ public class IpkoNavigatorTests {
 
     @BeforeEach
     public void setupEach() {
-        bankNavigator = new IpkoNavigator();
+        bankNavigator = new IpkoNavigator(ipkoMapper);
     }
 
     @Nested
