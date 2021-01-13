@@ -1,14 +1,15 @@
 package pl.kontomatik.challenge.navigator.dto;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
 public class BaseRequest {
-    private int version;
-    private int seq;
-    private String location;
-    private Map<String, Object> data;
+    private final int version;
+    private final int seq;
+    private final String location;
+    private final Map<String, Object> data;
 
     public BaseRequest(int version, int seq, String location, Map<String, Object> data) {
         this.version = version;
@@ -21,32 +22,16 @@ public class BaseRequest {
         return version;
     }
 
-    public void setVersion(int version) {
-        this.version = version;
-    }
-
     public int getSeq() {
         return seq;
-    }
-
-    public void setSeq(int seq) {
-        this.seq = seq;
     }
 
     public String getLocation() {
         return location;
     }
 
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
     public Map<String, Object> getData() {
-        return data;
-    }
-
-    public void setData(Map<String, Object> data) {
-        this.data = data;
+        return Collections.unmodifiableMap(data);
     }
 
     @Override
