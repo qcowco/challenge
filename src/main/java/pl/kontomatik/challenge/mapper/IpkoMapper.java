@@ -27,10 +27,19 @@ public class IpkoMapper {
         JsonNode responseNode = objectMapper.readTree(responseBody);
 
         String flowId = responseNode.get("flow_id").asText();
-        String token = responseNode.get("token").asText();
+        String token = getTokenIfExists(responseNode);
         boolean hasErrors = responseNode.with("fields").has("errors");
 
         return new AuthResponse(flowId, token, hasErrors);
+    }
+
+    private String getTokenIfExists(JsonNode responseNode) {
+        String token = "";
+
+        if (responseNode.has("token"))
+            token = responseNode.get("token").asText();
+
+        return token;
     }
 
     public String getAuthRequestBodyFor(String fingerprint,
