@@ -43,6 +43,24 @@ class IpkoMapperTest {
     }
 
     @Test
+    public void givenMapsAuthResponse_whenContainsCredentialError_thenSetsLoginErrorTrue() throws JsonProcessingException {
+        // given
+        String credentialErrorTemplate = "{\"response\":{\"flow_id\":\"%s\",\"token\":\"%s\",\"fields\":{\"login\":{\"errors\":{}},\"password\":{\"errors\":{}}}}}";
+        String credentialErrorResponse = String.format(credentialErrorTemplate, FLOW_ID, TOKEN);
+
+        boolean hasErrors = true;
+
+        AuthResponse expectedResponse = new AuthResponse(flowId, token, hasErrors);
+
+        // when
+        AuthResponse actualResponse = ipkoMapper.getAuthResponseFrom(credentialErrorResponse);
+
+        // then
+        assertEquals(expectedResponse, actualResponse);
+    }
+
+
+    @Test
     public void givenMapsStartAuthRequest_thenReturnsAuthRequestJson() throws JsonProcessingException {
         // given
         String fingerprint = "fingerprint";
