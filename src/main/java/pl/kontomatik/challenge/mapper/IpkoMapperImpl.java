@@ -30,10 +30,22 @@ public class IpkoMapperImpl implements IpkoMapper {
         String flowId = responseNode.findPath("flow_id").asText();
         String token = responseNode.findPath("token").asText();
 
-        JsonNode fields = responseNode.with("response").with("fields");
-        boolean wrongCredential = hasCredentialError(fields);
+        boolean wrongCredential = containsLoginErrors(responseNode);
 
         return new AuthResponse(flowId, token, wrongCredential);
+    }
+
+    private boolean containsLoginErrors(JsonNode responseNode) {
+        JsonNode fields = responseNode.with("response").with("fields");
+
+        boolean generalError = hasGeneralError(fields);
+        boolean wrongCredential = hasCredentialError(fields);
+
+        return generalError || wrongCredential;
+    }
+
+    private boolean hasGeneralError(JsonNode fields) {
+        return fields.hasNonNull("errors");
     }
 
     private boolean hasCredentialError(JsonNode fields) {

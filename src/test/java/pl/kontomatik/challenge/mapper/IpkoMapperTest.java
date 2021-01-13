@@ -23,20 +23,38 @@ class IpkoMapperTest {
 
     private final String SESSION_STATE_ID = "password";
 
+    private final String FLOW_ID = "flow_id";
+    private final String TOKEN = "token";
+
     private IpkoMapper ipkoMapper = new IpkoMapperImpl();
     private ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
     public void givenMapsAuthResponse_thenReturnsAuthResponse() throws JsonProcessingException {
         // given
-        String flowId = "flow_id";
-        String token = "token";
         boolean hasErrors = false;
 
-        AuthResponse expectedResponse = new AuthResponse(flowId, token, hasErrors);
+        AuthResponse expectedResponse = new AuthResponse(FLOW_ID, TOKEN, hasErrors);
 
         // when
         AuthResponse actualResponse = ipkoMapper.getAuthResponseFrom(LOGIN_RESPONSE_BODY);
+
+        // then
+        assertEquals(expectedResponse, actualResponse);
+    }
+
+    @Test
+    public void givenMapsAuthResponse_whenContainsGeneralError_thenSetsLoginErrorTrue() throws JsonProcessingException {
+        // given
+        String generalErrorTemplate = "{\"response\":{\"flow_id\":\"%s\",\"token\":\"%s\",\"fields\":{\"errors\":{}}}}";
+        String generalErrorResponse = String.format(generalErrorTemplate, FLOW_ID, TOKEN);
+
+        boolean hasErrors = true;
+
+        AuthResponse expectedResponse = new AuthResponse(FLOW_ID, TOKEN, hasErrors);
+
+        // when
+        AuthResponse actualResponse = ipkoMapper.getAuthResponseFrom(generalErrorResponse);
 
         // then
         assertEquals(expectedResponse, actualResponse);
@@ -50,7 +68,7 @@ class IpkoMapperTest {
 
         boolean hasErrors = true;
 
-        AuthResponse expectedResponse = new AuthResponse(flowId, token, hasErrors);
+        AuthResponse expectedResponse = new AuthResponse(FLOW_ID, TOKEN, hasErrors);
 
         // when
         AuthResponse actualResponse = ipkoMapper.getAuthResponseFrom(credentialErrorResponse);
