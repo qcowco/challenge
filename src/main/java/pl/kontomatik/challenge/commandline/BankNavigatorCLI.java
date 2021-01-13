@@ -12,7 +12,6 @@ import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 public class BankNavigatorCLI {
-    private Map<String, BankNavigator> bankNavigators;
     private BankNavigator bankNavigator;
 
     private InputStream in;
@@ -38,9 +37,9 @@ public class BankNavigatorCLI {
         });
     }
 
-    public BankNavigatorCLI(Map<String, BankNavigator> bankNavigators) {
+    public BankNavigatorCLI(BankNavigator bankNavigator) {
         this();
-        this.bankNavigators = bankNavigators;
+        this.bankNavigator = bankNavigator;
     }
 
     public InputStream getIn() {
@@ -96,31 +95,12 @@ public class BankNavigatorCLI {
     public void run(String... args) throws Exception {
         writeOutput("Welcome to the BankNavigator app.");
 
-        chooseNavigator();
-
         performLogin();
 
         if (authenticated)
             displayAccounts();
 
         handleInput();
-    }
-
-    private void chooseNavigator() throws IOException {
-        displayNavigators();
-        setChosenNavigator();
-    }
-
-    private void displayNavigators() throws IOException {
-        String scrapers = String.join(", ", bankNavigators.keySet());
-
-        writeOutput("Available scrapers: " + scrapers);
-    }
-
-    private void setChosenNavigator() {
-        String navigatorChoice = handleInput();
-
-        bankNavigator = bankNavigators.get(navigatorChoice);
     }
 
     private void performLogin() throws IOException {

@@ -37,44 +37,16 @@ public class BankNavigatorCLITests {
 
     @BeforeEach
     public void setup() {
-        cli = new BankNavigatorCLI(Map.of(NAVIGATOR_NAME, bankNavigator));
+        cli = new BankNavigatorCLI(bankNavigator);
 
         cli.setOut(new ByteArrayOutputStream());
     }
 
 
     @Test
-    public void givenCliRuns_thenDisplaysBankNavigators() throws Exception {
-        // when
-        cli.setIn(new ByteArrayInputStream(prepareInput(EXIT_COMMAND).getBytes()));
-
-        try {
-            cli.run();
-        } catch (RuntimeException exception) {
-
-        }
-
-        String output = cli.getOut().toString();
-
-        // then
-        assertTrue(output.contains(NAVIGATOR_NAME));
-    }
-
-    @Test
-    public void givenCliRuns_whenReceivesExitCommand_thenThrows_ForcedExitException() {
-        // given
-        String textInput = prepareInput(EXIT_COMMAND);
-
-        cli.setIn(new ByteArrayInputStream(textInput.getBytes()));
-
-        // when/then
-        assertThrows(ForcedExitException.class, cli::run);
-    }
-
-    @Test
     public void givenLogIn_whenFails_thenDisplaysLoginFailed() throws Exception {
         // given
-        cli.setIn(new ByteArrayInputStream(prepareInput(NAVIGATOR_NAME, USERNAME, PASSWORD).getBytes()));
+        cli.setIn(new ByteArrayInputStream(prepareInput(USERNAME, PASSWORD).getBytes()));
 
         String expectedOutput = "login failed";
 
@@ -93,7 +65,7 @@ public class BankNavigatorCLITests {
     @Test
     public void givenLogIn_whenFails_thenDisplaysErrorMessage() throws Exception {
         // given
-        cli.setIn(new ByteArrayInputStream(prepareInput(NAVIGATOR_NAME, USERNAME, PASSWORD).getBytes()));
+        cli.setIn(new ByteArrayInputStream(prepareInput(USERNAME, PASSWORD).getBytes()));
 
         String expectedOutput = "encountered exception";
 
@@ -112,7 +84,7 @@ public class BankNavigatorCLITests {
     @Test
     public void givenLogin_whenSuccessful_thenDisplaysLoginSuccessful() throws Exception {
         // given
-        cli.setIn(new ByteArrayInputStream(prepareInput(NAVIGATOR_NAME, USERNAME, PASSWORD).getBytes()));
+        cli.setIn(new ByteArrayInputStream(prepareInput(USERNAME, PASSWORD).getBytes()));
 
         String expectedOutput = "login successful";
 
@@ -131,7 +103,7 @@ public class BankNavigatorCLITests {
     @Test
     public void givenGettingAccounts_whenSuccessful_thenDisplaysBankAccounts() throws Exception {
         // given
-        cli.setIn(new ByteArrayInputStream(prepareInput(NAVIGATOR_NAME, USERNAME, PASSWORD).getBytes()));
+        cli.setIn(new ByteArrayInputStream(prepareInput(USERNAME, PASSWORD).getBytes()));
 
         given(bankNavigator.isAuthenticated())
                 .willReturn(true);
