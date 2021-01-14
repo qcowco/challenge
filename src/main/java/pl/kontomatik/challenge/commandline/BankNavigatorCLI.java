@@ -69,7 +69,7 @@ public class BankNavigatorCLI {
         out.write((output + '\n').getBytes());
     }
 
-    public void run(String... args) throws Exception {
+    public void run() throws Exception {
         writeOutput("Welcome to the BankNavigator app.");
 
         boolean tryAgain = true;
@@ -78,8 +78,6 @@ public class BankNavigatorCLI {
 
         if (bankNavigator.isAuthenticated())
             displayAccounts();
-
-        handleInput();
     }
 
     private boolean performLogin() throws IOException {
@@ -118,13 +116,9 @@ public class BankNavigatorCLI {
     }
 
     private boolean askIfRepeat() throws IOException {
-        boolean tryAgain;
-
         String answer = askForInput("Login failed. Try again? (y/n)");
 
-        tryAgain = notNegative(answer);
-
-        return tryAgain;
+        return notNegative(answer);
     }
 
     private boolean notNegative(String answer) {
