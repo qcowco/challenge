@@ -25,6 +25,7 @@ dependencies {
     testCompile 'org.mockito:mockito-inline:3.7.0'
     testCompile 'org.mockito:mockito-junit-jupiter:3.7.0'
     testCompile 'org.junit.jupiter:junit-jupiter:5.6.3'
+    testCompile 'org.mock-server:mockserver-junit-jupiter:5.11.2'
 }
 
 test {
