@@ -12,10 +12,10 @@ import java.io.IOException;
 import java.util.Map;
 
 public class IpkoNavigator implements BankNavigator {
-    public static final String LOGIN_URL = "https://www.ipko.pl/ipko3/login";
-    public static final String NDCD_URL = "https://www.ipko.pl/nudatasecurity/2.2/w/w-573441/init/js/?q=%7B%22e%22%3A653560%2C%22fvq%22%3A%2263605qs6-1964-4721-n2n8-4p9n6027743p%22%2C%22oq%22%3A%22901%3A948%3A909%3A1033%3A1848%3A1053%22%2C%22wfi%22%3A%22flap-148694%22%2C%22yf%22%3A%7B%7D%2C%22jc%22%3A%22YbtvaCXB%22%2C%22jcc%22%3A1%2C%22ov%22%3A%22o2%7C1920k1080%201848k1053%2024%2024%7C-60%7Cra-HF%7Coc1-s649n1rr70p77oo7%7Csnyfr%7C%7CZbmvyyn%2F5.0%20(Jvaqbjf%20AG%2010.0%3B%20Jva64%3B%20k64)%20NccyrJroXvg%2F537.36%20(XUGZY%2C%20yvxr%20Trpxb)%20Puebzr%2F87.0.4280.88%20Fnsnev%2F537.36%7Cjt1-753633n7q242q4n9%22%7D";
-    public static final String INIT_URL = "https://www.ipko.pl/ipko3/init";
     public static final String FINGERPRINT = "6d95628f9a2a967148e1bce995e5b98a";
+    public String loginUrl = "https://www.ipko.pl/ipko3/login";
+    public String ndcdUrl = "https://www.ipko.pl/nudatasecurity/2.2/w/w-573441/init/js/?q=%7B%22e%22%3A653560%2C%22fvq%22%3A%2263605qs6-1964-4721-n2n8-4p9n6027743p%22%2C%22oq%22%3A%22901%3A948%3A909%3A1033%3A1848%3A1053%22%2C%22wfi%22%3A%22flap-148694%22%2C%22yf%22%3A%7B%7D%2C%22jc%22%3A%22YbtvaCXB%22%2C%22jcc%22%3A1%2C%22ov%22%3A%22o2%7C1920k1080%201848k1053%2024%2024%7C-60%7Cra-HF%7Coc1-s649n1rr70p77oo7%7Csnyfr%7C%7CZbmvyyn%2F5.0%20(Jvaqbjf%20AG%2010.0%3B%20Jva64%3B%20k64)%20NccyrJroXvg%2F537.36%20(XUGZY%2C%20yvxr%20Trpxb)%20Puebzr%2F87.0.4280.88%20Fnsnev%2F537.36%7Cjt1-753633n7q242q4n9%22%7D";
+    public String initUrl = "https://www.ipko.pl/ipko3/init";
 
     private IpkoMapper ipkoMapper;
 
@@ -31,6 +31,18 @@ public class IpkoNavigator implements BankNavigator {
 
     public IpkoNavigator(IpkoMapper ipkoMapper) {
         this.ipkoMapper = ipkoMapper;
+    }
+
+    public void setLoginUrl(String loginUrl) {
+        this.loginUrl = loginUrl;
+    }
+
+    public void setNdcdUrl(String ndcdUrl) {
+        this.ndcdUrl = ndcdUrl;
+    }
+
+    public void setInitUrl(String initUrl) {
+        this.initUrl = initUrl;
     }
 
     @Override
@@ -51,7 +63,7 @@ public class IpkoNavigator implements BankNavigator {
     }
 
     private Connection.Response sendAuthenticationRequest(String username) throws IOException {
-        return Jsoup.connect(LOGIN_URL)
+        return Jsoup.connect(loginUrl)
                 .ignoreContentType(true)
                 .requestBody(getAuthenticationBody(username))
                 .cookies(getCookies())
@@ -93,7 +105,7 @@ public class IpkoNavigator implements BankNavigator {
     }
 
     private Connection.Response sendAuthorizeSessionRequest(String password) throws IOException {
-        return Jsoup.connect(LOGIN_URL)
+        return Jsoup.connect(loginUrl)
                 .ignoreContentType(true)
                 .requestBody(getAuthorizeSessionBody(password))
                 .cookies(getCookies())
@@ -121,7 +133,7 @@ public class IpkoNavigator implements BankNavigator {
     }
 
     private Connection.Response sendCookieRequest() throws IOException {
-        return Jsoup.connect(NDCD_URL)
+        return Jsoup.connect(ndcdUrl)
                 .ignoreContentType(true)
                 .execute();
     }
@@ -138,7 +150,7 @@ public class IpkoNavigator implements BankNavigator {
     }
 
     private Connection.Response sendAccountsRequest() throws IOException {
-        return Jsoup.connect(INIT_URL)
+        return Jsoup.connect(initUrl)
                 .ignoreContentType(true)
                 .requestBody(getAccountsBody())
                 .cookies(getCookies())
