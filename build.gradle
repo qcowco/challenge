@@ -9,6 +9,15 @@ repositories {
     mavenCentral()
 }
 
+sourceSets {
+    integrationTest {
+        java.srcDir file('src/integration-test/java')
+        resources.srcDir file('src/integration-test/resources')
+        compileClasspath += sourceSets.main.output + configurations.testRuntime
+        runtimeClasspath += output + compileClasspath
+    }
+}
+
 dependencies {
     compile 'org.jsoup:jsoup:1.13.1'
     compile 'com.fasterxml.jackson.core:jackson-databind:2.11.4'
@@ -19,4 +28,16 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+task integrationTest(type: Test) {
+    testClassesDirs = sourceSets.integrationTest.output.classesDirs
+    classpath = sourceSets.integrationTest.runtimeClasspath
+
+    useJUnitPlatform()
+
+    reports {
+        html.enabled true
+        junitXml.enabled true
+    }
 }
