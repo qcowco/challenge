@@ -6,7 +6,9 @@ import pl.kontomatik.challenge.mapper.IpkoMapper;
 import pl.kontomatik.challenge.mapper.IpkoMapperImpl;
 
 import java.io.IOException;
+import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class IpkoNavigatorIT {
@@ -33,6 +35,26 @@ public class IpkoNavigatorIT {
 
         // then
         assertTrue(authenticated);
+    }
+
+    @Test
+    public void givenGettingAccounts_whenCorrectCredentials_thenReturnsAccounts() throws IOException {
+        // given
+        IpkoMapper ipkoMapper = new IpkoMapperImpl();
+        BankNavigator bankNavigator = new IpkoNavigator(ipkoMapper);
+
+        String username = ipkoNavigatorProperties.getUsername();
+        String password = ipkoNavigatorProperties.getPassword();
+
+        bankNavigator.login(username, password);
+
+        Map<String, Double> expectedAccounts = ipkoNavigatorProperties.getAccounts();
+
+        // when
+        Map<String, Double> actualAccounts = bankNavigator.getAccounts();
+
+        // then
+        assertEquals(expectedAccounts, actualAccounts);
     }
 
 }
