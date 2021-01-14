@@ -26,6 +26,8 @@ public class MockNavigatorServer {
     private static final String BAD_LOGIN_RESPONSE_BODY = "{\"response\":{\"flow_id\":\"flow_id\",\"token\":\"token\",\"fields\":{\"errors\":{\"description\":\"An error!\"}}}}";
     private static final String ACCOUNT_RESPONSE_BODY = "{\"accounts\":{\"acc1\":{\"number\":{\"value\":\"123456789\"},\"balance\":0.5}}}";
 
+    protected static final String ACCOUNT_NUMBER = "123456789";
+    protected static final Double ACCOUNT_VALUE = 0.5;
 
     protected static IpkoNavigator bankNavigator;
     private static IpkoMapper ipkoMapper = new IpkoMapperImpl();
