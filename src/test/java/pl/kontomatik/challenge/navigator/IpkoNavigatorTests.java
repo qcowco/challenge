@@ -22,7 +22,7 @@ public class IpkoNavigatorTests extends MockNavigatorServer {
     private static final double ACCOUNT_BALANCE = 0.5;
 
     @Test
-    public void givenAuthenticationCheck_whenLoggedIn_thenReturnsIsAuthenticated(MockServerClient mockServerClient) throws IOException {
+    public void givenIsAuth_whenLoggedIn_thenReturnsTrue(MockServerClient mockServerClient) throws IOException {
         // given
         mockSuccessfulLogin(mockServerClient);
 
@@ -38,7 +38,7 @@ public class IpkoNavigatorTests extends MockNavigatorServer {
     }
 
     @Test
-    public void givenAuthenticationCheck_whenNotLoggedIn_thenReturnsNotAuthenticated(MockServerClient mockServerClient) throws IOException {
+    public void givenIsAuth_whenNotLoggedIn_thenReturnsFalse(MockServerClient mockServerClient) throws IOException {
         // given
         mockFailedLogin(mockServerClient);
 
@@ -69,7 +69,7 @@ public class IpkoNavigatorTests extends MockNavigatorServer {
     }
 
     @Test
-    public void givenRequestingAccounts_whenLoggedIn_thenReturnsAccounts(MockServerClient mockServerClient) throws IOException {
+    public void givenGettingAccounts_whenLoggedIn_thenReturnsAccounts(MockServerClient mockServerClient) throws IOException {
         // given
         mockSuccessfulLogin(mockServerClient);
 
@@ -89,7 +89,7 @@ public class IpkoNavigatorTests extends MockNavigatorServer {
     }
 
     @Test
-    public void givenRequestingAccounts_whenNotLoggedIn_thenThrows_NotAuthenticatedException() {
+    public void givenGettingAccounts_whenNotLoggedIn_thenThrows_NotAuthenticatedException() {
         // when/then
         assertThrows(NotAuthenticatedException.class, bankNavigator::getAccounts);
     }
