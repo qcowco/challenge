@@ -1,6 +1,6 @@
 # BankNavigator
 ### A web client that performs operations on Your bank account through the API.
-Banks expose APIs that allow their websites to perform any kind of operations reliant on data. Through the magic of reverse-engineering, this client performs those operations using the bare minimal data required replacing the browser in the process.
+Banks expose APIs that allow their websites to perform any kind of operations reliant on data. Through the magic of reverse-engineering, this client performs those operations using the bare minimal data required replacing the browser in the process. Supports ipko.pl
 
 ## Table of contents
 * [Technologies](#technologies)
@@ -32,6 +32,7 @@ $ ./gradlew run --console=plain
 ```shell
 $ ./gradlew run --console=plain
 > Welcome to the BankNavigator app.
+> Logging in to ipko...
 > Type in Your username:
 $ login
 > Type in Your password:

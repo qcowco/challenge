@@ -81,6 +81,8 @@ public class BankNavigatorCLI {
     }
 
     private boolean performLogin() throws IOException {
+        writeOutput("Logging in to ipko...");
+
         String username = askForInput("Type in Your username:");
         String password = askForInput("Type in Your password:");
 
