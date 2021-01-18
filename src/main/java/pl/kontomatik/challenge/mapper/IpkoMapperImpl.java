@@ -16,16 +16,16 @@ public class IpkoMapperImpl implements IpkoMapper {
     private String action = "submit";
 
     private String authStateId = "login";
-
     private String sessionStateId = "password";
+
     private String placement = "LoginPKO";
     private int placement_page_no = 0;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
-    public AuthResponse getAuthResponseFrom(String responseBody) throws JsonProcessingException {
-        JsonNode responseNode = objectMapper.readTree(responseBody);
+    public AuthResponse getAuthResponseFrom(String responseBody) {
+        JsonNode responseNode = tryGetJsonNodeFrom(responseBody);
 
         String flowId = responseNode.findPath("flow_id").asText();
         String token = responseNode.findPath("token").asText();
@@ -33,6 +33,14 @@ public class IpkoMapperImpl implements IpkoMapper {
         boolean wrongCredential = containsLoginErrors(responseNode);
 
         return new AuthResponse(flowId, token, wrongCredential);
+    }
+
+    private JsonNode tryGetJsonNodeFrom(String responseBody) {
+        try {
+            return objectMapper.readTree(responseBody);
+        } catch (JsonProcessingException e) {
+            throw new IllegalArgumentException("Cannot parse json in response", e);
+        }
     }
 
     private boolean containsLoginErrors(JsonNode responseNode) {
@@ -57,7 +65,7 @@ public class IpkoMapperImpl implements IpkoMapper {
 
     @Override
     public String getAuthRequestBodyFor(String fingerprint,
-                                        String username, int sequenceNumber) throws JsonProcessingException {
+                                        String username, int sequenceNumber) {
         AuthRequest authRequest = getBaseRequest()
                 .setSeq(sequenceNumber)
                 .setStateId(authStateId)
@@ -65,7 +73,7 @@ public class IpkoMapperImpl implements IpkoMapper {
                 .putData("fingerprint", fingerprint)
                 .build();
 
-        return objectMapper.writeValueAsString(authRequest);
+        return tryWriteAsString(authRequest);
     }
 
     private AuthRequest.Builder getBaseRequest() {
@@ -77,7 +85,7 @@ public class IpkoMapperImpl implements IpkoMapper {
 
     @Override
     public String getSessionAuthRequestBodyFor(String flowId, String token,
-                                               String password, int sequenceNumber) throws JsonProcessingException {
+                                               String password, int sequenceNumber) {
         AuthRequest authRequest = getBaseRequest()
                 .setSeq(sequenceNumber)
                 .setStateId(sessionStateId)
@@ -88,11 +96,11 @@ public class IpkoMapperImpl implements IpkoMapper {
                 .putData("placement_page_no", placement_page_no)
                 .build();
 
-        return objectMapper.writeValueAsString(authRequest);
+        return tryWriteAsString(authRequest);
     }
 
     @Override
-    public String getAccountsRequestBodyFor(int sequenceNumber) throws JsonProcessingException {
+    public String getAccountsRequestBodyFor(int sequenceNumber) {
         BaseRequest accountsRequest = BaseRequest.builder()
                 .setVersion(version)
                 .setLocation(location)
@@ -100,18 +108,28 @@ public class IpkoMapperImpl implements IpkoMapper {
                 .putData("accounts", Map.of())
                 .build();
 
-        return objectMapper.writeValueAsString(accountsRequest);
+        return tryWriteAsString(accountsRequest);
+    }
+
+    private String tryWriteAsString(BaseRequest accountsRequest) {
+        String value;
+        try {
+            value = objectMapper.writeValueAsString(accountsRequest);
+        } catch (JsonProcessingException e) {
+            throw new IllegalArgumentException("Couldn't parse given node as String", e);
+        }
+        return value;
     }
 
     @Override
-    public Map<String, Double> getAccountsFromJson(String jsonAccounts) throws JsonProcessingException {
+    public Map<String, Double> getAccountsFromJson(String jsonAccounts) {
         JsonNode accountsNode = findAccountsNode(jsonAccounts);
 
         return getAccountsFrom(accountsNode);
     }
 
-    private JsonNode findAccountsNode(String jsonAccounts) throws JsonProcessingException {
-        JsonNode accountsTree = objectMapper.readTree(jsonAccounts);
+    private JsonNode findAccountsNode(String jsonAccounts) {
+        JsonNode accountsTree = tryGetJsonNodeFrom(jsonAccounts);
 
         return accountsTree.findPath("accounts");
     }

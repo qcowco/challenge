@@ -1,6 +1,5 @@
 package pl.kontomatik.challenge.navigator;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import pl.kontomatik.challenge.exception.ConnectionFailed;
@@ -47,12 +46,12 @@ public class IpkoNavigator implements BankNavigator {
     }
 
     @Override
-    public void login(String username, String password) throws JsonProcessingException {
+    public void login(String username, String password) {
         beginAuthentication(username);
         authorizeSessionToken(password);
     }
 
-    private void beginAuthentication(String username) throws JsonProcessingException {
+    private void beginAuthentication(String username) {
         Connection.Response response = sendAuthenticationRequest(username);
 
         AuthResponse authResponse = ipkoMapper.getAuthResponseFrom(response.body());
@@ -63,13 +62,13 @@ public class IpkoNavigator implements BankNavigator {
         assignFlowTokens(authResponse);
     }
 
-    private Connection.Response sendAuthenticationRequest(String username) throws JsonProcessingException {
+    private Connection.Response sendAuthenticationRequest(String username) {
         Connection request = getAuthenticationRequest(username);
 
         return trySendRequest(request);
     }
 
-    private Connection getAuthenticationRequest(String username) throws JsonProcessingException {
+    private Connection getAuthenticationRequest(String username) {
         return Jsoup.connect(loginUrl)
                 .ignoreContentType(true)
                 .requestBody(getAuthenticationBody(username))
@@ -101,7 +100,7 @@ public class IpkoNavigator implements BankNavigator {
         return true;
     }
 
-    private String getAuthenticationBody(String username) throws JsonProcessingException {
+    private String getAuthenticationBody(String username) {
         return ipkoMapper.getAuthRequestBodyFor(FINGERPRINT, username, getAndIncrementSequence());
     }
 
@@ -109,7 +108,7 @@ public class IpkoNavigator implements BankNavigator {
         return requestSequenceNumber++;
     }
 
-    private void authorizeSessionToken(String password) throws JsonProcessingException {
+    private void authorizeSessionToken(String password) {
         String jsonBody = sendAuthorizeSessionRequest(password)
                 .body();
 
@@ -118,13 +117,13 @@ public class IpkoNavigator implements BankNavigator {
         sessionTokenAuthorized = isLoginSuccessful(authResponse);
     }
 
-    private Connection.Response sendAuthorizeSessionRequest(String password) throws JsonProcessingException {
+    private Connection.Response sendAuthorizeSessionRequest(String password) {
         Connection request = getAuthorizeSessionRequest(password);
 
         return trySendRequest(request);
     }
 
-    private Connection getAuthorizeSessionRequest(String password) throws JsonProcessingException {
+    private Connection getAuthorizeSessionRequest(String password) {
         return Jsoup.connect(loginUrl)
                     .ignoreContentType(true)
                     .requestBody(getAuthorizeSessionBody(password))
@@ -133,7 +132,7 @@ public class IpkoNavigator implements BankNavigator {
                     .method(Connection.Method.POST);
     }
 
-    private String getAuthorizeSessionBody(String password) throws JsonProcessingException {
+    private String getAuthorizeSessionBody(String password) {
         return ipkoMapper.getSessionAuthRequestBodyFor(authFlowId, authFlowToken, password,
                 getAndIncrementSequence());
     }
@@ -163,7 +162,7 @@ public class IpkoNavigator implements BankNavigator {
     }
 
     @Override
-    public Map<String, Double> getAccounts() throws JsonProcessingException {
+    public Map<String, Double> getAccounts() {
         if (!isAuthenticated())
             throw new NotAuthenticatedException("You're not authenticated. Log in first.");
 
@@ -173,13 +172,13 @@ public class IpkoNavigator implements BankNavigator {
         return ipkoMapper.getAccountsFromJson(jsonResponse);
     }
 
-    private Connection.Response sendAccountsRequest() throws JsonProcessingException {
+    private Connection.Response sendAccountsRequest() {
         Connection request = getAccountsRequest();
 
         return trySendRequest(request);
     }
 
-    private Connection getAccountsRequest() throws JsonProcessingException {
+    private Connection getAccountsRequest() {
         return Jsoup.connect(initUrl)
                 .ignoreContentType(true)
                 .requestBody(getAccountsBody())
@@ -188,7 +187,7 @@ public class IpkoNavigator implements BankNavigator {
                 .method(Connection.Method.POST);
     }
 
-    private String getAccountsBody() throws JsonProcessingException {
+    private String getAccountsBody() {
         return ipkoMapper.getAccountsRequestBodyFor(getAndIncrementSequence());
     }
 
