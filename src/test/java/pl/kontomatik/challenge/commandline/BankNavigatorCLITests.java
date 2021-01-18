@@ -12,6 +12,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith({MockitoExtension.class})
@@ -30,31 +31,13 @@ public class BankNavigatorCLITests extends MockNavigatorServer {
     }
 
     @Test
-    public void givenLogIn_whenFails_thenCanTryAgain(MockServerClient mockServerClient) throws Exception {
-        // given
-        mockFailedLogin(mockServerClient);
-
-        mockCookieRequest(mockServerClient);
-
-        setInput(USERNAME, PASSWORD, "y", USERNAME, PASSWORD, "n");
-
-        String expectedOutput = "try again";
-
-        // when
-        cli.run();
-
-        // then
-        assertTrue(outputContains(expectedOutput));
-    }
-
-    @Test
     public void givenLogIn_whenFails_thenDisplaysErrorMessage(MockServerClient mockServerClient) throws Exception {
         // given
         mockFailedLogin(mockServerClient);
 
         mockCookieRequest(mockServerClient);
 
-        setInput(USERNAME, PASSWORD, "n");
+        setInput(USERNAME, PASSWORD);
 
         String expectedOutput = "encountered exception";
 
@@ -76,13 +59,13 @@ public class BankNavigatorCLITests extends MockNavigatorServer {
 
         setInput(USERNAME, PASSWORD);
 
-        String expectedOutput = "login successful";
+        String exceptionMessage = "encountered exception";
 
         // when
         cli.run();
 
         // then
-        assertTrue(outputContains(expectedOutput));
+        assertFalse(outputContains(exceptionMessage));
     }
 
     @Test

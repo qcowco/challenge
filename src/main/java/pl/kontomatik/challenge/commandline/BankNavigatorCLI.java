@@ -22,23 +22,19 @@ public class BankNavigatorCLI {
     public void run() throws Exception {
         consumer.accept("Welcome to the BankNavigator app.");
 
-        boolean tryAgain = true;
-        while (tryAgain)
-            tryAgain = performLogin();
+        performLogin();
 
         if (bankNavigator.isAuthenticated())
             displayAccounts();
     }
 
-    private boolean performLogin() throws IOException {
+    private void performLogin() throws IOException {
         consumer.accept("Logging in to ipko...");
 
         String username = askForInput("Type in Your username:");
         String password = askForInput("Type in Your password:");
 
         tryLogin(username, password);
-
-        return tryRepeatLoginIfFailed();
     }
 
     private String askForInput(String message) {
@@ -53,28 +49,6 @@ public class BankNavigatorCLI {
         } catch (InvalidCredentialsException exception) {
             consumer.accept(String.format("Encountered exception: %s", exception.getMessage()));
         }
-    }
-
-    private boolean tryRepeatLoginIfFailed() throws IOException {
-        boolean tryAgain = false;
-
-        if (bankNavigator.isAuthenticated()) {
-            writeOutput("Login successful.");
-        } else {
-            tryAgain = askIfRepeat();
-        }
-
-        return tryAgain;
-    }
-
-    private boolean askIfRepeat() throws IOException {
-        String answer = askForInput("Login failed. Try again? (y/n)");
-
-        return notNegative(answer);
-    }
-
-    private boolean notNegative(String answer) {
-        return !answer.equals("n");
     }
 
     private void displayAccounts() throws IOException {
