@@ -20,8 +20,6 @@ public class BankNavigatorCLI {
     }
 
     public void run() throws Exception {
-        consumer.accept("Welcome to the BankNavigator app.");
-
         performLogin();
 
         if (bankNavigator.isAuthenticated())
@@ -29,8 +27,6 @@ public class BankNavigatorCLI {
     }
 
     private void performLogin() throws IOException {
-        consumer.accept("Logging in to ipko...");
-
         String username = askForInput("Type in Your username:");
         String password = askForInput("Type in Your password:");
 
