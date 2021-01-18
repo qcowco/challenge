@@ -3,6 +3,7 @@ package pl.kontomatik.challenge.navigator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
+import pl.kontomatik.challenge.exception.ConnectionFailed;
 import pl.kontomatik.challenge.exception.InvalidCredentialsException;
 import pl.kontomatik.challenge.exception.NotAuthenticatedException;
 import pl.kontomatik.challenge.mapper.IpkoMapper;
@@ -46,12 +47,12 @@ public class IpkoNavigator implements BankNavigator {
     }
 
     @Override
-    public void login(String username, String password) throws IOException {
+    public void login(String username, String password) throws JsonProcessingException {
         beginAuthentication(username);
         authorizeSessionToken(password);
     }
 
-    private void beginAuthentication(String username) throws IOException {
+    private void beginAuthentication(String username) throws JsonProcessingException {
         Connection.Response response = sendAuthenticationRequest(username);
 
         AuthResponse authResponse = ipkoMapper.getAuthResponseFrom(response.body());
@@ -62,13 +63,26 @@ public class IpkoNavigator implements BankNavigator {
         assignFlowTokens(authResponse);
     }
 
-    private Connection.Response sendAuthenticationRequest(String username) throws IOException {
+    private Connection.Response sendAuthenticationRequest(String username) throws JsonProcessingException {
+        Connection request = getAuthenticationRequest(username);
+
+        return trySendRequest(request);
+    }
+
+    private Connection getAuthenticationRequest(String username) throws JsonProcessingException {
         return Jsoup.connect(loginUrl)
                 .ignoreContentType(true)
                 .requestBody(getAuthenticationBody(username))
                 .cookies(getCookies())
-                .method(Connection.Method.POST)
-                .execute();
+                .method(Connection.Method.POST);
+    }
+
+    private Connection.Response trySendRequest(Connection request) {
+        try {
+            return request.execute();
+        } catch (IOException e) {
+            throw new ConnectionFailed(e);
+        }
     }
 
     private void assignSessionToken(Map<String, String> headers) {
@@ -95,7 +109,7 @@ public class IpkoNavigator implements BankNavigator {
         return requestSequenceNumber++;
     }
 
-    private void authorizeSessionToken(String password) throws IOException {
+    private void authorizeSessionToken(String password) throws JsonProcessingException {
         String jsonBody = sendAuthorizeSessionRequest(password)
                 .body();
 
@@ -104,14 +118,19 @@ public class IpkoNavigator implements BankNavigator {
         sessionTokenAuthorized = isLoginSuccessful(authResponse);
     }
 
-    private Connection.Response sendAuthorizeSessionRequest(String password) throws IOException {
+    private Connection.Response sendAuthorizeSessionRequest(String password) throws JsonProcessingException {
+        Connection request = getAuthorizeSessionRequest(password);
+
+        return trySendRequest(request);
+    }
+
+    private Connection getAuthorizeSessionRequest(String password) throws JsonProcessingException {
         return Jsoup.connect(loginUrl)
-                .ignoreContentType(true)
-                .requestBody(getAuthorizeSessionBody(password))
-                .cookies(getCookies())
-                .header("X-Session-Id", sessionToken)
-                .method(Connection.Method.POST)
-                .execute();
+                    .ignoreContentType(true)
+                    .requestBody(getAuthorizeSessionBody(password))
+                    .cookies(getCookies())
+                    .header("X-Session-Id", sessionToken)
+                    .method(Connection.Method.POST);
     }
 
     private String getAuthorizeSessionBody(String password) throws JsonProcessingException {
@@ -124,7 +143,7 @@ public class IpkoNavigator implements BankNavigator {
         return sessionTokenAuthorized;
     }
 
-    private Map<String, String> getCookies() throws IOException {
+    private Map<String, String> getCookies() {
         if (cookies == null)
             cookies = sendCookieRequest()
                     .cookies();
@@ -132,14 +151,19 @@ public class IpkoNavigator implements BankNavigator {
         return cookies;
     }
 
-    private Connection.Response sendCookieRequest() throws IOException {
+    private Connection.Response sendCookieRequest() {
+        Connection request = getCookieRequest();
+
+        return trySendRequest(request);
+    }
+
+    private Connection getCookieRequest() {
         return Jsoup.connect(ndcdUrl)
-                .ignoreContentType(true)
-                .execute();
+                .ignoreContentType(true);
     }
 
     @Override
-    public Map<String, Double> getAccounts() throws IOException {
+    public Map<String, Double> getAccounts() throws JsonProcessingException {
         if (!isAuthenticated())
             throw new NotAuthenticatedException("You're not authenticated. Log in first.");
 
@@ -149,14 +173,19 @@ public class IpkoNavigator implements BankNavigator {
         return ipkoMapper.getAccountsFromJson(jsonResponse);
     }
 
-    private Connection.Response sendAccountsRequest() throws IOException {
+    private Connection.Response sendAccountsRequest() throws JsonProcessingException {
+        Connection request = getAccountsRequest();
+
+        return trySendRequest(request);
+    }
+
+    private Connection getAccountsRequest() throws JsonProcessingException {
         return Jsoup.connect(initUrl)
                 .ignoreContentType(true)
                 .requestBody(getAccountsBody())
                 .cookies(getCookies())
                 .header("X-Session-Id", sessionToken)
-                .method(Connection.Method.POST)
-                .execute();
+                .method(Connection.Method.POST);
     }
 
     private String getAccountsBody() throws JsonProcessingException {
