@@ -1,24 +1,10 @@
 # BankNavigator
 ### A web client that performs operations on Your bank account through the API.
-Banks expose APIs that allow their websites to perform any kind of operations reliant on data. Through the magic of reverse-engineering, this client performs those operations using the bare minimal data required replacing the browser in the process. Supports ipko.pl
+Banks expose APIs that allow their websites to perform any kind of operations reliant on data. Through the magic of reverse-engineering, this client performs those operations using the bare minimal data required replacing the browser in the process. Just like the browser, this client uses HTTPS to communicate with the APIs. No additional requests are made, no data retained at any point. Supports ipko.pl
 
-## Table of contents
-* [Technologies](#technologies)
-* [Secure?](#secure?)
-* [Setup](#setup)
-* [Running the application](#running-the-application)
-* [Usage](#usage)
-* [Running tests](#running-tests)
-* [Populating test data](#populating-test-data)
-
-## Technologies
-* Java 11
-* JSoup
-* JUnit 5
-* Mockito
-
-## Secure?
-Just like the browser, this client uses HTTPS to communicate with the APIs. No additional requests are made, no data retained at any point.
+## Prerequisites
+* Java 11 JDK
+* Gradle for building and running
 
 ## Setup
 There are no external dependencies. This is a simple commandline application that just needs to be built.
@@ -28,7 +14,7 @@ There are no external dependencies. This is a simple commandline application tha
 $ ./gradlew run --console=plain
 ```
 
-## Usage
+## Example usage
 ```shell
 $ ./gradlew run --console=plain
 > Welcome to the BankNavigator app.
@@ -42,15 +28,9 @@ $ password
 ...
 ```
 
-## Running tests
-### Unit tests
+## Unit tests
 ```shell
 $ ./gradlew test
-```
-
-### Integration tests [(test data required)](#populating-test-data)
-```shell
-$ ./gradlew integrationTest
 ```
 
 ## Populating test data
@@ -63,4 +43,9 @@ username=password
 ```
 Then save it as application.properties over at 'src/integration-test/resources'
 
+
+## Integration tests [(test data required)](#populating-test-data)
+```shell
+$ ./gradlew integrationTest
+```
 
