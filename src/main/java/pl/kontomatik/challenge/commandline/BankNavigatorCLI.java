@@ -4,73 +4,23 @@ import pl.kontomatik.challenge.exception.InvalidCredentialsException;
 import pl.kontomatik.challenge.navigator.BankNavigator;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Scanner;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class BankNavigatorCLI {
     private BankNavigator bankNavigator;
+    private Supplier<String> supplier;
+    private Consumer<String> consumer;
 
-    private InputStream in;
-    private OutputStream out;
-    private Scanner scanner;
-
-    public BankNavigatorCLI() {
-        this.in = System.in;
-        this.out = System.out;
-        updateScanner();
-    }
-
-    public BankNavigatorCLI(BankNavigator bankNavigator) {
-        this();
+    public BankNavigatorCLI(BankNavigator bankNavigator, Supplier<String> supplier, Consumer<String> consumer) {
         this.bankNavigator = bankNavigator;
-    }
-
-    public InputStream getIn() {
-        return in;
-    }
-
-    public void setIn(InputStream in) {
-        this.in = in;
-        updateScanner();
-    }
-
-    private void updateScanner() {
-        scanner = new Scanner(in);
-    }
-
-    public OutputStream getOut() {
-        return out;
-    }
-
-    public void setOut(OutputStream out) {
-        this.out = out;
-    }
-
-    private String handleInput() {
-        return tryHandleInput();
-    }
-
-    private String tryHandleInput() {
-        String input = "";
-
-        try {
-            input = scanner.nextLine();
-        } catch (NoSuchElementException exception) {
-
-        }
-
-        return input;
-    }
-
-    private void writeOutput(String output) throws IOException {
-        out.write((output + '\n').getBytes());
+        this.supplier = supplier;
+        this.consumer = consumer;
     }
 
     public void run() throws Exception {
-        writeOutput("Welcome to the BankNavigator app.");
+        consumer.accept("Welcome to the BankNavigator app.");
 
         boolean tryAgain = true;
         while (tryAgain)
@@ -81,7 +31,7 @@ public class BankNavigatorCLI {
     }
 
     private boolean performLogin() throws IOException {
-        writeOutput("Logging in to ipko...");
+        consumer.accept("Logging in to ipko...");
 
         String username = askForInput("Type in Your username:");
         String password = askForInput("Type in Your password:");
@@ -91,17 +41,17 @@ public class BankNavigatorCLI {
         return tryRepeatLoginIfFailed();
     }
 
-    private String askForInput(String message) throws IOException {
-        writeOutput(message);
+    private String askForInput(String message) {
+        consumer.accept(message);
 
-        return handleInput();
+        return supplier.get();
     }
 
     private void tryLogin(String username, String password) throws IOException {
         try {
             bankNavigator.login(username, password);
         } catch (InvalidCredentialsException exception) {
-            writeOutput(String.format("Encountered exception: %s", exception.getMessage()));
+            consumer.accept(String.format("Encountered exception: %s", exception.getMessage()));
         }
     }
 
@@ -130,7 +80,7 @@ public class BankNavigatorCLI {
     private void displayAccounts() throws IOException {
         Map<String, Double> accounts = bankNavigator.getAccounts();
 
-        writeOutput(stringFrom(accounts));
+        consumer.accept(stringFrom(accounts));
     }
 
     private String stringFrom(Map<String, Double> accounts) {
