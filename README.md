@@ -17,13 +17,10 @@ $ ./gradlew run --console=plain
 ## Example usage
 ```shell
 $ ./gradlew run --console=plain
-> Welcome to the BankNavigator app.
-> Logging in to ipko...
 > Type in Your username:
 $ login
 > Type in Your password:
 $ password
-> Login successful.
 > Accounts:
 ...
 ```
