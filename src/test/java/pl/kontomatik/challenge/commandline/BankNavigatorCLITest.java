@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockserver.client.MockServerClient;
-import pl.kontomatik.challenge.exception.InvalidCredentialsException;
+import pl.kontomatik.challenge.exception.InvalidCredentials;
 import pl.kontomatik.challenge.mockserver.MockNavigatorServer;
 
 import java.util.Arrays;
@@ -40,7 +40,7 @@ public class BankNavigatorCLITest extends MockNavigatorServer {
         setInput(USERNAME, PASSWORD);
 
         // when/then
-        assertThrows(InvalidCredentialsException.class, cli::run);
+        assertThrows(InvalidCredentials.class, cli::run);
     }
 
     @Test

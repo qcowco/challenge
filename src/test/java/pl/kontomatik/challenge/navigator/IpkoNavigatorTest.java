@@ -4,8 +4,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockserver.client.MockServerClient;
-import pl.kontomatik.challenge.exception.InvalidCredentialsException;
-import pl.kontomatik.challenge.exception.NotAuthenticatedException;
+import pl.kontomatik.challenge.exception.InvalidCredentials;
+import pl.kontomatik.challenge.exception.NotAuthenticated;
 import pl.kontomatik.challenge.mockserver.MockNavigatorServer;
 
 import java.util.Map;
@@ -38,7 +38,7 @@ public class IpkoNavigatorTest extends MockNavigatorServer {
         mockCookieRequest(mockServerClient);
 
         // when/then
-        assertThrows(InvalidCredentialsException.class, () -> bankNavigator.login(USERNAME, PASSWORD));
+        assertThrows(InvalidCredentials.class, () -> bankNavigator.login(USERNAME, PASSWORD));
     }
 
     @Test
@@ -64,7 +64,7 @@ public class IpkoNavigatorTest extends MockNavigatorServer {
     @Test
     public void accountFetchingFailsWhenNotAuthenticated() {
         // when/then
-        assertThrows(NotAuthenticatedException.class, bankNavigator::getAccounts);
+        assertThrows(NotAuthenticated.class, bankNavigator::getAccounts);
     }
 
 }

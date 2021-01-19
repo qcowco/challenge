@@ -3,8 +3,8 @@ package pl.kontomatik.challenge.navigator;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import pl.kontomatik.challenge.exception.ConnectionFailed;
-import pl.kontomatik.challenge.exception.InvalidCredentialsException;
-import pl.kontomatik.challenge.exception.NotAuthenticatedException;
+import pl.kontomatik.challenge.exception.InvalidCredentials;
+import pl.kontomatik.challenge.exception.NotAuthenticated;
 import pl.kontomatik.challenge.mapper.IpkoMapper;
 import pl.kontomatik.challenge.navigator.dto.AuthResponse;
 
@@ -95,7 +95,7 @@ public class IpkoNavigator implements BankNavigator {
 
     private void verifySuccessful(AuthResponse authResponse) {
         if (authResponse.isWrongCredentials())
-            throw new InvalidCredentialsException("Couldn't login with provided credentials.");
+            throw new InvalidCredentials("Couldn't login with provided credentials.");
     }
 
     private String getAuthenticationBody(String username) {
@@ -168,7 +168,7 @@ public class IpkoNavigator implements BankNavigator {
 
     private void verifyAuthenticated() {
         if (Objects.isNull(sessionToken))
-            throw new NotAuthenticatedException("You're not authenticated. Log in first.");
+            throw new NotAuthenticated("You're not authenticated. Log in first.");
     }
 
     private Connection.Response sendAccountsRequest() {
