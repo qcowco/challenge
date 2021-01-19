@@ -13,7 +13,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
-public class IpkoNavigatorTests extends MockNavigatorServer {
+public class IpkoNavigatorTest extends MockNavigatorServer {
     private static final String USERNAME = "USERNAME";
     private static final String PASSWORD = "PASSWORD";
 

@@ -16,7 +16,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith({MockitoExtension.class})
-public class BankNavigatorCLITests extends MockNavigatorServer {
+public class BankNavigatorCLITest extends MockNavigatorServer {
     private static final String USERNAME = "USERNAME";
     private static final String PASSWORD = "PASSWORD";
 
