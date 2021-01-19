@@ -1,44 +1,43 @@
 package pl.kontomatik.challenge.navigator;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import pl.kontomatik.challenge.mapper.IpkoMapper;
 import pl.kontomatik.challenge.mapper.IpkoMapperImpl;
 
 import java.io.IOException;
-import java.util.Map;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 public class IpkoNavigatorTest {
-    private static IpkoNavigatorProperties ipkoNavigatorProperties;
-
-    @BeforeAll
-    public static void setup() throws IOException {
-        ipkoNavigatorProperties = new IpkoNavigatorProperties();
-    }
+    private final String RESOURCE_NAME = "application.properties";
 
     @Test
-    public void givenLoggingIn_whenCorrectCredentials_thenDoesntThrow() {
+    public void givenLoggingIn_whenCorrectCredentials_thenDoesntThrow() throws IOException {
         // given
         IpkoMapper ipkoMapper = new IpkoMapperImpl();
         BankNavigator bankNavigator = new IpkoNavigator(ipkoMapper);
+        Properties testData = getTestData();
 
-        String username = ipkoNavigatorProperties.getUsername();
-        String password = ipkoNavigatorProperties.getPassword();
+        String username = testData.getProperty("username");
+        String password = testData.getProperty("password");
 
         // when/then
         assertDoesNotThrow(() -> bankNavigator.login(username, password));
     }
 
     @Test
-    public void givenGettingAccounts_whenCorrectCredentials_thenDoesntThrow() {
+    public void givenGettingAccounts_whenCorrectCredentials_thenDoesntThrow() throws IOException {
         // given
         IpkoMapper ipkoMapper = new IpkoMapperImpl();
         BankNavigator bankNavigator = new IpkoNavigator(ipkoMapper);
+        Properties testData = getTestData();
 
-        String username = ipkoNavigatorProperties.getUsername();
-        String password = ipkoNavigatorProperties.getPassword();
+        String username = testData.getProperty("username");
+        String password = testData.getProperty("password");
 
         bankNavigator.login(username, password);
 
@@ -46,4 +45,16 @@ public class IpkoNavigatorTest {
         assertDoesNotThrow(bankNavigator::getAccounts);
     }
 
+    private Properties getTestData() throws IOException {
+        Properties properties = new Properties();
+        InputStream inputStream = Files.newInputStream(getTestResourcePath());
+        properties.load(inputStream);
+        return properties;
+    }
+
+    private Path getTestResourcePath() {
+        ClassLoader classLoader = getClass().getClassLoader();
+        String path = classLoader.getResource(RESOURCE_NAME).getFile();
+        return Path.of(path);
+    }
 }
