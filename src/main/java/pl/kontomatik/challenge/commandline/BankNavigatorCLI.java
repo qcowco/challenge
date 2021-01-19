@@ -1,6 +1,5 @@
 package pl.kontomatik.challenge.commandline;
 
-import pl.kontomatik.challenge.exception.InvalidCredentialsException;
 import pl.kontomatik.challenge.navigator.BankNavigator;
 
 import java.util.Map;
@@ -21,29 +20,20 @@ public class BankNavigatorCLI {
     public void run() {
         performLogin();
 
-        if (bankNavigator.isAuthenticated())
-            displayAccounts();
+        displayAccounts();
     }
 
     private void performLogin() {
         String username = askForInput("Type in Your username:");
         String password = askForInput("Type in Your password:");
 
-        tryLogin(username, password);
+        bankNavigator.login(username, password);
     }
 
     private String askForInput(String message) {
         consumer.accept(message);
 
         return supplier.get();
-    }
-
-    private void tryLogin(String username, String password) {
-        try {
-            bankNavigator.login(username, password);
-        } catch (InvalidCredentialsException exception) {
-            consumer.accept(String.format("Encountered exception: %s", exception.getMessage()));
-        }
     }
 
     private void displayAccounts() {

@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockserver.client.MockServerClient;
+import pl.kontomatik.challenge.exception.InvalidCredentialsException;
 import pl.kontomatik.challenge.mockserver.MockNavigatorServer;
 
 import java.util.Arrays;
@@ -12,8 +13,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith({MockitoExtension.class})
 public class BankNavigatorCLITests extends MockNavigatorServer {
@@ -39,13 +39,8 @@ public class BankNavigatorCLITests extends MockNavigatorServer {
 
         setInput(USERNAME, PASSWORD);
 
-        String expectedOutput = "encountered exception";
-
-        // when
-        cli.run();
-
-        // then
-        assertTrue(outputContains(expectedOutput));
+        // when/then
+        assertThrows(InvalidCredentialsException.class, cli::run);
     }
 
     @Test
@@ -59,13 +54,8 @@ public class BankNavigatorCLITests extends MockNavigatorServer {
 
         setInput(USERNAME, PASSWORD);
 
-        String exceptionMessage = "encountered exception";
-
-        // when
-        cli.run();
-
-        // then
-        assertFalse(outputContains(exceptionMessage));
+        // when/then
+        assertDoesNotThrow(cli::run);
     }
 
     @Test
