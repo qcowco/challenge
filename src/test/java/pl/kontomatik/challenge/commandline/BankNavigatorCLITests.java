@@ -31,7 +31,7 @@ public class BankNavigatorCLITests extends MockNavigatorServer {
     }
 
     @Test
-    public void givenLogIn_whenFails_thenDisplaysErrorMessage(MockServerClient mockServerClient) throws Exception {
+    public void givenLogIn_whenFails_thenDisplaysErrorMessage(MockServerClient mockServerClient) {
         // given
         mockFailedLogin(mockServerClient);
 
@@ -49,7 +49,7 @@ public class BankNavigatorCLITests extends MockNavigatorServer {
     }
 
     @Test
-    public void givenLogin_whenSuccessful_thenDisplaysLoginSuccessful(MockServerClient mockServerClient) throws Exception {
+    public void givenLogin_whenSuccessful_thenDisplaysSuccess(MockServerClient mockServerClient) {
         // given
         mockSuccessfulLogin(mockServerClient);
 
@@ -69,7 +69,7 @@ public class BankNavigatorCLITests extends MockNavigatorServer {
     }
 
     @Test
-    public void givenGettingAccounts_whenSuccessful_thenDisplaysBankAccounts(MockServerClient mockServerClient) throws Exception {
+    public void givenGettingAccounts_whenSuccessful_thenDisplaysBankAccounts(MockServerClient mockServerClient) {
         // given
         mockSuccessfulLogin(mockServerClient);
 

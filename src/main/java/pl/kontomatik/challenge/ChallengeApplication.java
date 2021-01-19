@@ -10,7 +10,7 @@ import java.util.function.Supplier;
 
 public class ChallengeApplication {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         IpkoMapperImpl ipkoMapper = new IpkoMapperImpl();
         IpkoNavigator ipkoNavigator = new IpkoNavigator(ipkoMapper);
 

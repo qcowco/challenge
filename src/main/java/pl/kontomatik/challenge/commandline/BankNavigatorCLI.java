@@ -3,7 +3,6 @@ package pl.kontomatik.challenge.commandline;
 import pl.kontomatik.challenge.exception.InvalidCredentialsException;
 import pl.kontomatik.challenge.navigator.BankNavigator;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -19,14 +18,14 @@ public class BankNavigatorCLI {
         this.consumer = consumer;
     }
 
-    public void run() throws Exception {
+    public void run() {
         performLogin();
 
         if (bankNavigator.isAuthenticated())
             displayAccounts();
     }
 
-    private void performLogin() throws IOException {
+    private void performLogin() {
         String username = askForInput("Type in Your username:");
         String password = askForInput("Type in Your password:");
 
@@ -39,7 +38,7 @@ public class BankNavigatorCLI {
         return supplier.get();
     }
 
-    private void tryLogin(String username, String password) throws IOException {
+    private void tryLogin(String username, String password) {
         try {
             bankNavigator.login(username, password);
         } catch (InvalidCredentialsException exception) {
@@ -47,7 +46,7 @@ public class BankNavigatorCLI {
         }
     }
 
-    private void displayAccounts() throws IOException {
+    private void displayAccounts() {
         Map<String, Double> accounts = bankNavigator.getAccounts();
 
         consumer.accept(stringFrom(accounts));
