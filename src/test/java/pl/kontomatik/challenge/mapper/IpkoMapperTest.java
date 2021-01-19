@@ -30,7 +30,7 @@ class IpkoMapperTest {
     private ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
-    public void givenMapsAuthResponse_thenReturnsAuthResponse() throws JsonProcessingException {
+    public void givenMapsAuthResponse_thenReturnsAuthResponse() {
         // given
         boolean hasErrors = false;
 
@@ -44,7 +44,7 @@ class IpkoMapperTest {
     }
 
     @Test
-    public void givenMapsAuthResponse_whenContainsGeneralError_thenSetsLoginErrorTrue() throws JsonProcessingException {
+    public void givenMapsAuthResponse_whenContainsGeneralError_thenSetsLoginErrorTrue() {
         // given
         String generalErrorTemplate = "{\"response\":{\"flow_id\":\"%s\",\"token\":\"%s\",\"fields\":{\"errors\":{}}}}";
         String generalErrorResponse = String.format(generalErrorTemplate, FLOW_ID, TOKEN);
@@ -61,7 +61,7 @@ class IpkoMapperTest {
     }
 
     @Test
-    public void givenMapsAuthResponse_whenContainsCredentialError_thenSetsLoginErrorTrue() throws JsonProcessingException {
+    public void givenMapsAuthResponse_whenContainsCredentialError_thenSetsLoginErrorTrue() {
         // given
         String credentialErrorTemplate = "{\"response\":{\"flow_id\":\"%s\",\"token\":\"%s\",\"fields\":{\"login\":{\"errors\":{}},\"password\":{\"errors\":{}}}}}";
         String credentialErrorResponse = String.format(credentialErrorTemplate, FLOW_ID, TOKEN);
@@ -154,7 +154,7 @@ class IpkoMapperTest {
     }
 
     @Test
-    public void givenMapsAccountsResponse_thenReturnsAccountMap() throws JsonProcessingException {
+    public void givenMapsAccountsResponse_thenReturnsAccountMap() {
         // given
         String accountNumber = "123456789";
         double balance = 0.5;
