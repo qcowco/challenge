@@ -8,7 +8,6 @@ import pl.kontomatik.challenge.exception.InvalidCredentialsException;
 import pl.kontomatik.challenge.exception.NotAuthenticatedException;
 import pl.kontomatik.challenge.mockserver.MockNavigatorServer;
 
-import java.io.IOException;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -22,39 +21,13 @@ public class IpkoNavigatorTests extends MockNavigatorServer {
     private static final double ACCOUNT_BALANCE = 0.5;
 
     @Test
-    public void givenIsAuth_whenLoggedIn_thenReturnsTrue(MockServerClient mockServerClient) throws IOException {
+    public void givenLoggingIn_whenSuccessful_thenDoesNotThrow(MockServerClient mockServerClient) {
         // given
         mockSuccessfulLogin(mockServerClient);
 
         mockCookieRequest(mockServerClient);
 
-        bankNavigator.login(USERNAME, PASSWORD);
-
-        // when
-        boolean authenticated = bankNavigator.isAuthenticated();
-
-        // then
-        assertTrue(authenticated);
-    }
-
-    @Test
-    public void givenIsAuth_whenNotLoggedIn_thenReturnsFalse(MockServerClient mockServerClient) throws IOException {
-        // given
-        mockFailedLogin(mockServerClient);
-
-        mockCookieRequest(mockServerClient);
-
-        try {
-            bankNavigator.login(USERNAME, PASSWORD);
-        } catch (InvalidCredentialsException exception) {
-
-        }
-
-        // when
-        boolean authenticated = bankNavigator.isAuthenticated();
-
-        // then
-        assertFalse(authenticated);
+        assertDoesNotThrow(() -> bankNavigator.login(USERNAME, PASSWORD));
     }
 
     @Test
@@ -69,7 +42,7 @@ public class IpkoNavigatorTests extends MockNavigatorServer {
     }
 
     @Test
-    public void givenGettingAccounts_whenLoggedIn_thenReturnsAccounts(MockServerClient mockServerClient) throws IOException {
+    public void givenGettingAccounts_whenLoggedIn_thenReturnsAccounts(MockServerClient mockServerClient) {
         // given
         mockSuccessfulLogin(mockServerClient);
 

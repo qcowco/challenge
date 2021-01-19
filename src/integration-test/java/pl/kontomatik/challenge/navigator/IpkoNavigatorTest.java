@@ -8,8 +8,7 @@ import pl.kontomatik.challenge.mapper.IpkoMapperImpl;
 import java.io.IOException;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 public class IpkoNavigatorTest {
     private static IpkoNavigatorProperties ipkoNavigatorProperties;
@@ -20,7 +19,7 @@ public class IpkoNavigatorTest {
     }
 
     @Test
-    public void givenLoggingIn_whenCorrectCredentials_thenIsAuthenticated() throws IOException {
+    public void givenLoggingIn_whenCorrectCredentials_thenDoesntThrow() {
         // given
         IpkoMapper ipkoMapper = new IpkoMapperImpl();
         BankNavigator bankNavigator = new IpkoNavigator(ipkoMapper);
@@ -28,17 +27,12 @@ public class IpkoNavigatorTest {
         String username = ipkoNavigatorProperties.getUsername();
         String password = ipkoNavigatorProperties.getPassword();
 
-        bankNavigator.login(username, password);
-
-        // when
-        boolean authenticated = bankNavigator.isAuthenticated();
-
-        // then
-        assertTrue(authenticated);
+        // when/then
+        assertDoesNotThrow(() -> bankNavigator.login(username, password));
     }
 
     @Test
-    public void givenGettingAccounts_whenCorrectCredentials_thenReturnsAccounts() throws IOException {
+    public void givenGettingAccounts_whenCorrectCredentials_thenDoesntThrow() {
         // given
         IpkoMapper ipkoMapper = new IpkoMapperImpl();
         BankNavigator bankNavigator = new IpkoNavigator(ipkoMapper);
@@ -48,13 +42,8 @@ public class IpkoNavigatorTest {
 
         bankNavigator.login(username, password);
 
-        Map<String, Double> expectedAccounts = ipkoNavigatorProperties.getAccounts();
-
-        // when
-        Map<String, Double> actualAccounts = bankNavigator.getAccounts();
-
-        // then
-        assertEquals(expectedAccounts, actualAccounts);
+        // when/then
+        assertDoesNotThrow(bankNavigator::getAccounts);
     }
 
 }

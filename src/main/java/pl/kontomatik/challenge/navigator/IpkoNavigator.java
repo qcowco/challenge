@@ -10,6 +10,7 @@ import pl.kontomatik.challenge.navigator.dto.AuthResponse;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Objects;
 
 public class IpkoNavigator implements BankNavigator {
     public static final String FINGERPRINT = "6d95628f9a2a967148e1bce995e5b98a";
@@ -22,7 +23,6 @@ public class IpkoNavigator implements BankNavigator {
     private Map<String, String> cookies;
 
     private String sessionToken;
-    private boolean sessionTokenAuthorized;
 
     private String authFlowId;
     private String authFlowToken;
@@ -47,19 +47,19 @@ public class IpkoNavigator implements BankNavigator {
 
     @Override
     public void login(String username, String password) {
-        beginAuthentication(username);
-        authorizeSessionToken(password);
+        String sessionToken = beginAuthentication(username);
+        authorizeSessionToken(sessionToken, password);
     }
 
-    private void beginAuthentication(String username) {
+    private String beginAuthentication(String username) {
         Connection.Response response = sendAuthenticationRequest(username);
 
         AuthResponse authResponse = ipkoMapper.getAuthResponseFrom(response.body());
 
-        isLoginSuccessful(authResponse);
+        verifySuccessful(authResponse);
 
-        assignSessionToken(response.headers());
         assignFlowTokens(authResponse);
+        return getSessionToken(response.headers());
     }
 
     private Connection.Response sendAuthenticationRequest(String username) {
@@ -84,8 +84,8 @@ public class IpkoNavigator implements BankNavigator {
         }
     }
 
-    private void assignSessionToken(Map<String, String> headers) {
-        sessionToken = headers.get("X-Session-Id");
+    private String getSessionToken(Map<String, String> headers) {
+        return headers.get("X-Session-Id");
     }
 
     private void assignFlowTokens(AuthResponse authResponse) {
@@ -93,11 +93,9 @@ public class IpkoNavigator implements BankNavigator {
         authFlowToken = authResponse.getToken();
     }
 
-    private boolean isLoginSuccessful(AuthResponse authResponse) {
+    private void verifySuccessful(AuthResponse authResponse) {
         if (authResponse.isWrongCredentials())
             throw new InvalidCredentialsException("Couldn't login with provided credentials.");
-
-        return true;
     }
 
     private String getAuthenticationBody(String username) {
@@ -108,22 +106,24 @@ public class IpkoNavigator implements BankNavigator {
         return requestSequenceNumber++;
     }
 
-    private void authorizeSessionToken(String password) {
-        String jsonBody = sendAuthorizeSessionRequest(password)
+    private void authorizeSessionToken(String sessionToken, String password) {
+        String jsonBody = sendAuthorizeSessionRequest(sessionToken, password)
                 .body();
 
         AuthResponse authResponse = ipkoMapper.getAuthResponseFrom(jsonBody);
 
-        sessionTokenAuthorized = isLoginSuccessful(authResponse);
+        verifySuccessful(authResponse);
+
+        this.sessionToken = sessionToken;
     }
 
-    private Connection.Response sendAuthorizeSessionRequest(String password) {
-        Connection request = getAuthorizeSessionRequest(password);
+    private Connection.Response sendAuthorizeSessionRequest(String sessionToken, String password) {
+        Connection request = getAuthorizeSessionRequest(sessionToken, password);
 
         return trySendRequest(request);
     }
 
-    private Connection getAuthorizeSessionRequest(String password) {
+    private Connection getAuthorizeSessionRequest(String sessionToken, String password) {
         return Jsoup.connect(loginUrl)
                     .ignoreContentType(true)
                     .requestBody(getAuthorizeSessionBody(password))
@@ -135,11 +135,6 @@ public class IpkoNavigator implements BankNavigator {
     private String getAuthorizeSessionBody(String password) {
         return ipkoMapper.getSessionAuthRequestBodyFor(authFlowId, authFlowToken, password,
                 getAndIncrementSequence());
-    }
-
-    @Override
-    public boolean isAuthenticated() {
-        return sessionTokenAuthorized;
     }
 
     private Map<String, String> getCookies() {
@@ -163,13 +158,17 @@ public class IpkoNavigator implements BankNavigator {
 
     @Override
     public Map<String, Double> getAccounts() {
-        if (!isAuthenticated())
-            throw new NotAuthenticatedException("You're not authenticated. Log in first.");
+        verifyAuthenticated();
 
         String jsonResponse = sendAccountsRequest()
                 .body();
 
         return ipkoMapper.getAccountsFromJson(jsonResponse);
+    }
+
+    private void verifyAuthenticated() {
+        if (Objects.isNull(sessionToken))
+            throw new NotAuthenticatedException("You're not authenticated. Log in first.");
     }
 
     private Connection.Response sendAccountsRequest() {
