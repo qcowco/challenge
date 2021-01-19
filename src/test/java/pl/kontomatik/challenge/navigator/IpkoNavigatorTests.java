@@ -21,7 +21,7 @@ public class IpkoNavigatorTests extends MockNavigatorServer {
     private static final double ACCOUNT_BALANCE = 0.5;
 
     @Test
-    public void givenLoggingIn_whenSuccessful_thenDoesNotThrow(MockServerClient mockServerClient) {
+    public void signInSucceedsOnValidCredentials(MockServerClient mockServerClient) {
         // given
         mockSuccessfulLogin(mockServerClient);
 
@@ -31,7 +31,7 @@ public class IpkoNavigatorTests extends MockNavigatorServer {
     }
 
     @Test
-    public void givenLoggingIn_whenFails_thenThrows_LoginFailedException(MockServerClient mockServerClient) {
+    public void signInFailsOnInvalidCredentials(MockServerClient mockServerClient) {
         // given
         mockFailedLogin(mockServerClient);
 
@@ -42,7 +42,7 @@ public class IpkoNavigatorTests extends MockNavigatorServer {
     }
 
     @Test
-    public void givenGettingAccounts_whenLoggedIn_thenReturnsAccounts(MockServerClient mockServerClient) {
+    public void afterSignInCanFetchAccounts(MockServerClient mockServerClient) {
         // given
         mockSuccessfulLogin(mockServerClient);
 
@@ -62,7 +62,7 @@ public class IpkoNavigatorTests extends MockNavigatorServer {
     }
 
     @Test
-    public void givenGettingAccounts_whenNotLoggedIn_thenThrows_NotAuthenticatedException() {
+    public void accountFetchingFailsWhenNotAuthenticated() {
         // when/then
         assertThrows(NotAuthenticatedException.class, bankNavigator::getAccounts);
     }

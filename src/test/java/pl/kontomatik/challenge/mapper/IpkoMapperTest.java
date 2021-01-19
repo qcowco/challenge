@@ -30,7 +30,7 @@ class IpkoMapperTest {
     private ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
-    public void givenMapsAuthResponse_thenReturnsAuthResponse() {
+    public void mapsAuthResponseFromJson() {
         // given
         boolean hasErrors = false;
 
@@ -44,7 +44,7 @@ class IpkoMapperTest {
     }
 
     @Test
-    public void givenMapsAuthResponse_whenContainsGeneralError_thenSetsLoginErrorTrue() {
+    public void mapsAuthResponseWithErrorOnGeneralError() {
         // given
         String generalErrorTemplate = "{\"response\":{\"flow_id\":\"%s\",\"token\":\"%s\",\"fields\":{\"errors\":{}}}}";
         String generalErrorResponse = String.format(generalErrorTemplate, FLOW_ID, TOKEN);
@@ -61,7 +61,7 @@ class IpkoMapperTest {
     }
 
     @Test
-    public void givenMapsAuthResponse_whenContainsCredentialError_thenSetsLoginErrorTrue() {
+    public void mapsAuthResponseWithErrorOnCredentialError() {
         // given
         String credentialErrorTemplate = "{\"response\":{\"flow_id\":\"%s\",\"token\":\"%s\",\"fields\":{\"login\":{\"errors\":{}},\"password\":{\"errors\":{}}}}}";
         String credentialErrorResponse = String.format(credentialErrorTemplate, FLOW_ID, TOKEN);
@@ -79,7 +79,7 @@ class IpkoMapperTest {
 
 
     @Test
-    public void givenMapsStartAuthRequest_thenReturnsAuthRequestJson() throws JsonProcessingException {
+    public void mapsJsonFromAuthRequest() throws JsonProcessingException {
         // given
         String fingerprint = "fingerprint";
         String username = "username";
@@ -108,7 +108,7 @@ class IpkoMapperTest {
     }
 
     @Test
-    public void givenMapsSessionAuthRequest_thenReturnsAuthRequestJson() throws JsonProcessingException {
+    public void mapsJsonFromSessionAuthRequest() throws JsonProcessingException {
         // given
         String flowId = "password";
         String token = "token";
@@ -135,7 +135,7 @@ class IpkoMapperTest {
     }
 
     @Test
-    public void givenMapsAccountRequest_thenReturnsBaseRequestJson() throws JsonProcessingException {
+    public void mapsJsonFromBaseRequest() throws JsonProcessingException {
         // given
         BaseRequest accountsRequest = BaseRequest.builder()
                 .setVersion(VERSION)
@@ -154,7 +154,7 @@ class IpkoMapperTest {
     }
 
     @Test
-    public void givenMapsAccountsResponse_thenReturnsAccountMap() {
+    public void mapsAccountsFromJson() {
         // given
         String accountNumber = "123456789";
         double balance = 0.5;

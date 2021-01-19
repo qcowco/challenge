@@ -16,7 +16,7 @@ public class IpkoNavigatorTest {
     private final String RESOURCE_NAME = "application.properties";
 
     @Test
-    public void givenLoggingIn_whenCorrectCredentials_thenDoesntThrow() throws IOException {
+    public void continuesOnCorrectCredentials() throws IOException {
         // given
         IpkoMapper ipkoMapper = new IpkoMapperImpl();
         BankNavigator bankNavigator = new IpkoNavigator(ipkoMapper);
@@ -30,7 +30,7 @@ public class IpkoNavigatorTest {
     }
 
     @Test
-    public void givenGettingAccounts_whenCorrectCredentials_thenDoesntThrow() throws IOException {
+    public void afterSignInCanFetchAccounts() throws IOException {
         // given
         IpkoMapper ipkoMapper = new IpkoMapperImpl();
         BankNavigator bankNavigator = new IpkoNavigator(ipkoMapper);
