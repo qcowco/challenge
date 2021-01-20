@@ -74,7 +74,8 @@ public class IpkoNavigator implements BankNavigator {
                 .ignoreContentType(true)
                 .requestBody(getAuthenticationBody(username))
                 .cookies(getCookies())
-                .method(Connection.Method.POST);
+                .method(Connection.Method.POST)
+                .header("Content-Type", "application/json");
     }
 
     private Connection.Response trySendRequest(Connection request) {
@@ -131,7 +132,7 @@ public class IpkoNavigator implements BankNavigator {
                     .ignoreContentType(true)
                     .requestBody(getAuthorizeSessionBody(password))
                     .cookies(getCookies())
-                    .header("X-Session-Id", sessionToken)
+                    .headers(Map.of("X-Session-Id", sessionToken, "Content-Type", "application/json"))
                     .method(Connection.Method.POST);
     }
 

@@ -24,6 +24,10 @@ import static org.mockserver.model.HttpResponse.response;
 @ExtendWith(MockitoExtension.class)
 @MockServerSettings(ports = 1090)
 public abstract class MockNavigatorServer {
+    private static final String LOGIN_JSON_TEMPLATE = "{\"data\":{\"login\":\"%s\"}}";
+    private static final String USERNAME = "USERNAME";
+    private static final String WRONG_USERNAME = "WRONG_USERNAME";
+
     private static final String LOGIN_PATH = "/ipko3/login";
     private static final String NDCD_PATH = "/nudatasecurity/2.2/w/w-573441/init/js";
     private static final String INIT_PATH = "/ipko3/init";
@@ -62,7 +66,9 @@ public abstract class MockNavigatorServer {
         mockServerClient
                 .when(request()
                         .withMethod("POST")
-                        .withPath("/ipko3/login"))
+                        .withPath(LOGIN_PATH)
+                        .withBody(JsonBody.json(String.format(LOGIN_JSON_TEMPLATE, USERNAME),
+                                MatchType.ONLY_MATCHING_FIELDS)))
                 .respond(response()
                         .withStatusCode(200)
                         .withHeader(SESSION_HEADER, SESSION_TOKEN)
@@ -74,7 +80,9 @@ public abstract class MockNavigatorServer {
         mockServerClient
                 .when(request()
                         .withMethod("POST")
-                        .withPath("/ipko3/login"))
+                        .withPath(LOGIN_PATH)
+                        .withBody(JsonBody.json(String.format(LOGIN_JSON_TEMPLATE, WRONG_USERNAME),
+                                MatchType.ONLY_MATCHING_FIELDS)))
                 .respond(response()
                         .withStatusCode(200)
                         .withBody(BAD_LOGIN_RESPONSE_BODY)
