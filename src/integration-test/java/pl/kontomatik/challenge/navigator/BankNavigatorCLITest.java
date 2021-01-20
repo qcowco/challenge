@@ -2,7 +2,6 @@ package pl.kontomatik.challenge.navigator;
 
 import org.junit.jupiter.api.Test;
 import pl.kontomatik.challenge.commandline.BankNavigatorCLI;
-import pl.kontomatik.challenge.mapper.IpkoMapper;
 import pl.kontomatik.challenge.mapper.IpkoMapperImpl;
 
 import java.io.IOException;
@@ -22,7 +21,7 @@ public class BankNavigatorCLITest {
     @Test
     public void afterSignInCanFetchAccounts() throws IOException {
         // given
-        IpkoMapper ipkoMapper = new IpkoMapperImpl();
+        IpkoMapperImpl ipkoMapper = new IpkoMapperImpl();
         BankNavigator bankNavigator = new IpkoNavigator(ipkoMapper);
         Properties credentials = credentialsFromProperties();
         Iterator<String> input = inputFrom(credentials);

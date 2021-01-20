@@ -10,7 +10,7 @@ import pl.kontomatik.challenge.navigator.dto.BaseRequest;
 import java.util.HashMap;
 import java.util.Map;
 
-public class IpkoMapperImpl implements IpkoMapper {
+public class IpkoMapperImpl {
     private int version = 3;
     private String location = "";
     private String action = "submit";
@@ -23,7 +23,6 @@ public class IpkoMapperImpl implements IpkoMapper {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    @Override
     public AuthResponse getAuthResponseFrom(String responseBody) {
         JsonNode responseNode = tryGetJsonNodeFrom(responseBody);
 
@@ -63,7 +62,6 @@ public class IpkoMapperImpl implements IpkoMapper {
         return wrongLogin || wrongPassword;
     }
 
-    @Override
     public String getAuthRequestBodyFor(String fingerprint,
                                         String username, int sequenceNumber) {
         AuthRequest authRequest = getBaseRequest()
@@ -83,7 +81,6 @@ public class IpkoMapperImpl implements IpkoMapper {
                 .setAction(action);
     }
 
-    @Override
     public String getSessionAuthRequestBodyFor(String flowId, String token,
                                                String password, int sequenceNumber) {
         AuthRequest authRequest = getBaseRequest()
@@ -99,7 +96,6 @@ public class IpkoMapperImpl implements IpkoMapper {
         return tryWriteAsString(authRequest);
     }
 
-    @Override
     public String getAccountsRequestBodyFor(int sequenceNumber) {
         BaseRequest accountsRequest = BaseRequest.builder()
                 .setVersion(version)
@@ -121,7 +117,6 @@ public class IpkoMapperImpl implements IpkoMapper {
         return value;
     }
 
-    @Override
     public Map<String, Double> getAccountsFromJson(String jsonAccounts) {
         JsonNode accountsNode = findAccountsNode(jsonAccounts);
 

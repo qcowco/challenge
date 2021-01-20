@@ -26,7 +26,7 @@ class IpkoMapperTest {
     private final String FLOW_ID = "flow_id";
     private final String TOKEN = "token";
 
-    private IpkoMapper ipkoMapper = new IpkoMapperImpl();
+    private IpkoMapperImpl ipkoMapper = new IpkoMapperImpl();
     private ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
