@@ -17,24 +17,12 @@ public class AuthResponse {
         return flowId;
     }
 
-    public void setFlowId(String flowId) {
-        this.flowId = flowId;
-    }
-
     public String getToken() {
         return token;
     }
 
-    public void setToken(String token) {
-        this.token = token;
-    }
-
     public boolean isWrongCredentials() {
         return wrongCredentials;
-    }
-
-    public void setWrongCredentials(boolean wrongCredentials) {
-        this.wrongCredentials = wrongCredentials;
     }
 
     @Override

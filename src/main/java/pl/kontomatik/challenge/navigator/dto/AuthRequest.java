@@ -25,22 +25,6 @@ public class AuthRequest extends BaseRequest {
         this.action = action;
     }
 
-    public String getStateId() {
-        return stateId;
-    }
-
-    public String getFlowId() {
-        return flowId;
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public String getAction() {
-        return action;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
