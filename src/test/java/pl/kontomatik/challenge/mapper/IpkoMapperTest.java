@@ -1,5 +1,7 @@
 package pl.kontomatik.challenge.mapper;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -26,8 +28,12 @@ class IpkoMapperTest {
     private final String FLOW_ID = "flow_id";
     private final String TOKEN = "token";
 
-    private HttpBodyMapper mapper = new HttpBodyMapper();
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private final HttpBodyMapper mapper = new HttpBodyMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
+    public IpkoMapperTest() {
+        objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+    }
 
     @Test
     public void mapsAuthResponseFromJson() {

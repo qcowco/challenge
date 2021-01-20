@@ -1,5 +1,7 @@
 package pl.kontomatik.challenge.mapper;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,6 +24,10 @@ public class HttpBodyMapper {
     private int placement_page_no = 0;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    public HttpBodyMapper() {
+        objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+    }
 
     public AuthResponse getAuthResponseFrom(String responseBody) {
         JsonNode responseNode = tryGetJsonNodeFrom(responseBody);
