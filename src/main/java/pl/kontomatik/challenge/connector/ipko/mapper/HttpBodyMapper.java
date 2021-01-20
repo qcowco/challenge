@@ -13,139 +13,139 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class HttpBodyMapper {
-    private int version = 3;
-    private String location = "";
-    private String action = "submit";
+  private final int version = 3;
+  private final String location = "";
+  private final String action = "submit";
 
-    private String authStateId = "login";
-    private String sessionStateId = "password";
+  private final String authStateId = "login";
+  private final String sessionStateId = "password";
 
-    private String placement = "LoginPKO";
-    private int placement_page_no = 0;
+  private final String placement = "LoginPKO";
+  private final int placement_page_no = 0;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+  private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public HttpBodyMapper() {
-        objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+  public HttpBodyMapper() {
+    objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+  }
+
+  public AuthResponse getAuthResponseFrom(String responseBody) {
+    JsonNode responseNode = tryGetJsonNodeFrom(responseBody);
+    String flowId = responseNode.findPath("flow_id").asText();
+    String token = responseNode.findPath("token").asText();
+    boolean wrongCredential = containsLoginErrors(responseNode);
+    return new AuthResponse(flowId, token, wrongCredential);
+  }
+
+  private JsonNode tryGetJsonNodeFrom(String responseBody) {
+    try {
+      return objectMapper.readTree(responseBody);
+    } catch (JsonProcessingException e) {
+      throw new IllegalArgumentException("Cannot parse json in response", e);
     }
+  }
 
-    public AuthResponse getAuthResponseFrom(String responseBody) {
-        JsonNode responseNode = tryGetJsonNodeFrom(responseBody);
-        String flowId = responseNode.findPath("flow_id").asText();
-        String token = responseNode.findPath("token").asText();
-        boolean wrongCredential = containsLoginErrors(responseNode);
-        return new AuthResponse(flowId, token, wrongCredential);
+  private boolean containsLoginErrors(JsonNode responseNode) {
+    JsonNode fields = responseNode.with("response").with("fields");
+    boolean generalError = hasGeneralError(fields);
+    boolean wrongCredential = hasCredentialError(fields);
+    return generalError || wrongCredential;
+  }
+
+  private boolean hasGeneralError(JsonNode fields) {
+    return fields.hasNonNull("errors");
+  }
+
+  private boolean hasCredentialError(JsonNode fields) {
+    boolean wrongLogin = fields.with(authStateId).hasNonNull("errors");
+    boolean wrongPassword = fields.with(sessionStateId).hasNonNull("errors");
+    return wrongLogin || wrongPassword;
+  }
+
+  public String getAuthRequestBodyFor(String fingerprint,
+                                      String username, int sequenceNumber) {
+    AuthRequest authRequest = authRequestFor(fingerprint, username, sequenceNumber);
+    return tryWriteAsString(authRequest);
+  }
+
+  private AuthRequest authRequestFor(String fingerprint, String username, int sequenceNumber) {
+    return getBaseRequest()
+      .setSeq(sequenceNumber)
+      .setStateId(authStateId)
+      .putData("login", username)
+      .putData("fingerprint", fingerprint)
+      .build();
+  }
+
+  private AuthRequest.Builder getBaseRequest() {
+    return AuthRequest.authBuilder()
+      .setVersion(version)
+      .setLocation(location)
+      .setAction(action);
+  }
+
+  public String getSessionAuthRequestBodyFor(String flowId, String token,
+                                             String password, int sequenceNumber) {
+    AuthRequest authRequest = sessionAuthRequestFor(flowId, token, password, sequenceNumber);
+    return tryWriteAsString(authRequest);
+  }
+
+  private AuthRequest sessionAuthRequestFor(String flowId, String token, String password, int sequenceNumber) {
+    return getBaseRequest()
+      .setSeq(sequenceNumber)
+      .setStateId(sessionStateId)
+      .setFlowId(flowId)
+      .setToken(token)
+      .putData("password", password)
+      .putData("placement", placement)
+      .putData("placement_page_no", placement_page_no)
+      .build();
+  }
+
+  public String getAccountsRequestBodyFor(int sequenceNumber) {
+    BaseRequest accountsRequest = accountsRequestFor(sequenceNumber);
+    return tryWriteAsString(accountsRequest);
+  }
+
+  private BaseRequest accountsRequestFor(int sequenceNumber) {
+    return BaseRequest.builder()
+      .setVersion(version)
+      .setLocation(location)
+      .setSeq(sequenceNumber)
+      .putData("accounts", Map.of())
+      .build();
+  }
+
+  private String tryWriteAsString(BaseRequest accountsRequest) {
+    String value;
+    try {
+      value = objectMapper.writeValueAsString(accountsRequest);
+    } catch (JsonProcessingException e) {
+      throw new IllegalArgumentException("Couldn't parse given node as String", e);
     }
+    return value;
+  }
 
-    private JsonNode tryGetJsonNodeFrom(String responseBody) {
-        try {
-            return objectMapper.readTree(responseBody);
-        } catch (JsonProcessingException e) {
-            throw new IllegalArgumentException("Cannot parse json in response", e);
-        }
-    }
+  public Map<String, Double> getAccountsFromJson(String jsonAccounts) {
+    JsonNode accountsNode = findAccountsNode(jsonAccounts);
+    return getAccountsFrom(accountsNode);
+  }
 
-    private boolean containsLoginErrors(JsonNode responseNode) {
-        JsonNode fields = responseNode.with("response").with("fields");
-        boolean generalError = hasGeneralError(fields);
-        boolean wrongCredential = hasCredentialError(fields);
-        return generalError || wrongCredential;
-    }
+  private JsonNode findAccountsNode(String jsonAccounts) {
+    JsonNode accountsTree = tryGetJsonNodeFrom(jsonAccounts);
+    return accountsTree.findPath("accounts");
+  }
 
-    private boolean hasGeneralError(JsonNode fields) {
-        return fields.hasNonNull("errors");
-    }
+  private Map<String, Double> getAccountsFrom(JsonNode accountsNode) {
+    Map<String, Double> accountMap = new HashMap<>();
+    accountsNode.forEach(accountNode -> {
+      String account = accountNode.with("number")
+        .get("value").asText();
+      Double balance = accountNode.get("balance")
+        .asDouble();
 
-    private boolean hasCredentialError(JsonNode fields) {
-        boolean wrongLogin = fields.with(authStateId).hasNonNull("errors");
-        boolean wrongPassword = fields.with(sessionStateId).hasNonNull("errors");
-        return wrongLogin || wrongPassword;
-    }
-
-    public String getAuthRequestBodyFor(String fingerprint,
-                                        String username, int sequenceNumber) {
-        AuthRequest authRequest = authRequestFor(fingerprint, username, sequenceNumber);
-        return tryWriteAsString(authRequest);
-    }
-
-    private AuthRequest authRequestFor(String fingerprint, String username, int sequenceNumber) {
-        return getBaseRequest()
-                .setSeq(sequenceNumber)
-                .setStateId(authStateId)
-                .putData("login", username)
-                .putData("fingerprint", fingerprint)
-                .build();
-    }
-
-    private AuthRequest.Builder getBaseRequest() {
-        return AuthRequest.authBuilder()
-                .setVersion(version)
-                .setLocation(location)
-                .setAction(action);
-    }
-
-    public String getSessionAuthRequestBodyFor(String flowId, String token,
-                                               String password, int sequenceNumber) {
-        AuthRequest authRequest = sessionAuthRequestFor(flowId, token, password, sequenceNumber);
-        return tryWriteAsString(authRequest);
-    }
-
-    private AuthRequest sessionAuthRequestFor(String flowId, String token, String password, int sequenceNumber) {
-        return getBaseRequest()
-                .setSeq(sequenceNumber)
-                .setStateId(sessionStateId)
-                .setFlowId(flowId)
-                .setToken(token)
-                .putData("password", password)
-                .putData("placement", placement)
-                .putData("placement_page_no", placement_page_no)
-                .build();
-    }
-
-    public String getAccountsRequestBodyFor(int sequenceNumber) {
-        BaseRequest accountsRequest = accountsRequestFor(sequenceNumber);
-        return tryWriteAsString(accountsRequest);
-    }
-
-    private BaseRequest accountsRequestFor(int sequenceNumber) {
-        return BaseRequest.builder()
-                .setVersion(version)
-                .setLocation(location)
-                .setSeq(sequenceNumber)
-                .putData("accounts", Map.of())
-                .build();
-    }
-
-    private String tryWriteAsString(BaseRequest accountsRequest) {
-        String value;
-        try {
-            value = objectMapper.writeValueAsString(accountsRequest);
-        } catch (JsonProcessingException e) {
-            throw new IllegalArgumentException("Couldn't parse given node as String", e);
-        }
-        return value;
-    }
-
-    public Map<String, Double> getAccountsFromJson(String jsonAccounts) {
-        JsonNode accountsNode = findAccountsNode(jsonAccounts);
-        return getAccountsFrom(accountsNode);
-    }
-
-    private JsonNode findAccountsNode(String jsonAccounts) {
-        JsonNode accountsTree = tryGetJsonNodeFrom(jsonAccounts);
-        return accountsTree.findPath("accounts");
-    }
-
-    private Map<String, Double> getAccountsFrom(JsonNode accountsNode) {
-        Map<String, Double> accountMap = new HashMap<>();
-        accountsNode.forEach(accountNode -> {
-            String account = accountNode.with("number")
-                    .get("value").asText();
-            Double balance = accountNode.get("balance")
-                    .asDouble();
-
-            accountMap.put(account, balance);
-        });
-        return accountMap;
-    }
+      accountMap.put(account, balance);
+    });
+    return accountMap;
+  }
 }
