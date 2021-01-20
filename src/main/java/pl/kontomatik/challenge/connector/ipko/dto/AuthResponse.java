@@ -1,4 +1,4 @@
-package pl.kontomatik.challenge.connector.dto;
+package pl.kontomatik.challenge.connector.ipko.dto;
 
 import java.util.Objects;
 

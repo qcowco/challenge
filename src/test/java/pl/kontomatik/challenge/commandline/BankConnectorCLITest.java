@@ -6,10 +6,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockserver.client.MockServerClient;
 import pl.kontomatik.challenge.connector.BankConnector;
-import pl.kontomatik.challenge.connector.IpkoConnector;
-import pl.kontomatik.challenge.exception.InvalidCredentials;
-import pl.kontomatik.challenge.mapper.HttpBodyMapper;
-import pl.kontomatik.challenge.mockserver.MockConnectorServer;
+import pl.kontomatik.challenge.connector.exception.InvalidCredentials;
+import pl.kontomatik.challenge.connector.ipko.IpkoConnector;
+import pl.kontomatik.challenge.connector.ipko.mapper.HttpBodyMapper;
+import pl.kontomatik.challenge.connector.ipko.mockserver.MockConnectorServer;
 
 import java.util.Arrays;
 import java.util.Iterator;

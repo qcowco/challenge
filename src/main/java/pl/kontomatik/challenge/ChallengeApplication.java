@@ -1,8 +1,8 @@
 package pl.kontomatik.challenge;
 
 import pl.kontomatik.challenge.commandline.BankConnectorCLI;
-import pl.kontomatik.challenge.connector.IpkoConnector;
-import pl.kontomatik.challenge.mapper.HttpBodyMapper;
+import pl.kontomatik.challenge.connector.ipko.IpkoConnector;
+import pl.kontomatik.challenge.connector.ipko.mapper.HttpBodyMapper;
 
 import java.util.Scanner;
 import java.util.function.Consumer;

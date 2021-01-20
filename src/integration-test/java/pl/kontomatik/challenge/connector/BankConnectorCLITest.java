@@ -2,7 +2,8 @@ package pl.kontomatik.challenge.connector;
 
 import org.junit.jupiter.api.Test;
 import pl.kontomatik.challenge.commandline.BankConnectorCLI;
-import pl.kontomatik.challenge.mapper.HttpBodyMapper;
+import pl.kontomatik.challenge.connector.ipko.IpkoConnector;
+import pl.kontomatik.challenge.connector.ipko.mapper.HttpBodyMapper;
 
 import java.io.IOException;
 import java.io.InputStream;

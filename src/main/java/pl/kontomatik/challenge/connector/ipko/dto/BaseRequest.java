@@ -1,4 +1,4 @@
-package pl.kontomatik.challenge.connector.dto;
+package pl.kontomatik.challenge.connector.ipko.dto;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,6 +16,7 @@ public class BaseRequest {
         this.location = location;
         this.data = data;
     }
+
 
     @Override
     public boolean equals(Object o) {

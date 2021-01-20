@@ -1,12 +1,13 @@
-package pl.kontomatik.challenge.connector;
+package pl.kontomatik.challenge.connector.ipko;
 
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
-import pl.kontomatik.challenge.connector.dto.AuthResponse;
-import pl.kontomatik.challenge.exception.ConnectionFailed;
-import pl.kontomatik.challenge.exception.InvalidCredentials;
-import pl.kontomatik.challenge.exception.NotAuthenticated;
-import pl.kontomatik.challenge.mapper.HttpBodyMapper;
+import pl.kontomatik.challenge.connector.BankConnector;
+import pl.kontomatik.challenge.connector.exception.ConnectionFailed;
+import pl.kontomatik.challenge.connector.exception.InvalidCredentials;
+import pl.kontomatik.challenge.connector.exception.NotAuthenticated;
+import pl.kontomatik.challenge.connector.ipko.dto.AuthResponse;
+import pl.kontomatik.challenge.connector.ipko.mapper.HttpBodyMapper;
 
 import java.io.IOException;
 import java.net.Proxy;

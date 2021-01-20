@@ -1,4 +1,4 @@
-package pl.kontomatik.challenge.mockserver;
+package pl.kontomatik.challenge.connector.ipko.mockserver;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.extension.ExtendWith;
