@@ -9,7 +9,7 @@ import pl.kontomatik.challenge.connector.BankConnector;
 import pl.kontomatik.challenge.connector.exception.InvalidCredentials;
 import pl.kontomatik.challenge.connector.ipko.IpkoConnector;
 import pl.kontomatik.challenge.connector.ipko.mapper.HttpBodyMapper;
-import pl.kontomatik.challenge.connector.ipko.mockserver.MockConnectorServer;
+import pl.kontomatik.challenge.connector.ipko.mockserver.MockIpkoServer;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -19,7 +19,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
-public class BankConnectorCLITest extends MockConnectorServer {
+public class BankConnectorCLITest extends MockIpkoServer {
   private static final String USERNAME = "USERNAME";
   private static final String PASSWORD = "PASSWORD";
   private static final String WRONG_USERNAME = "WRONG_USERNAME";

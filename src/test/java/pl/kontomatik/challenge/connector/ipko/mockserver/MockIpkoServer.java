@@ -19,7 +19,7 @@ import static org.mockserver.model.HttpResponse.response;
 
 @ExtendWith(MockitoExtension.class)
 @MockServerSettings(ports = 1090)
-public abstract class MockConnectorServer {
+public abstract class MockIpkoServer {
   private static final String LOGIN_JSON_TEMPLATE = "{\"data\":{\"login\":\"%s\"}}";
   private static final String USERNAME = "USERNAME";
   private static final String WRONG_USERNAME = "WRONG_USERNAME";
