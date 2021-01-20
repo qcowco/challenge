@@ -1,4 +1,4 @@
-package pl.kontomatik.challenge.navigator;
+package pl.kontomatik.challenge.connector;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -8,14 +8,14 @@ import org.mockserver.client.MockServerClient;
 import pl.kontomatik.challenge.exception.InvalidCredentials;
 import pl.kontomatik.challenge.exception.NotAuthenticated;
 import pl.kontomatik.challenge.mapper.HttpBodyMapper;
-import pl.kontomatik.challenge.mockserver.MockNavigatorServer;
+import pl.kontomatik.challenge.mockserver.MockConnectorServer;
 
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
-public class IpkoNavigatorTest extends MockNavigatorServer {
+public class IpkoConnectorTest extends MockConnectorServer {
     private static final String USERNAME = "USERNAME";
     private static final String PASSWORD = "PASSWORD";
     private static final String WRONG_USERNAME = "WRONG_USERNAME";
@@ -30,33 +30,33 @@ public class IpkoNavigatorTest extends MockNavigatorServer {
 
     @Test
     public void signInSucceedsOnValidCredentials() {
-        BankNavigator bankNavigator = getProxiedNavigator();
-        assertDoesNotThrow(() -> bankNavigator.login(USERNAME, PASSWORD));
+        BankConnector bankConnector = getProxiedConnector();
+        assertDoesNotThrow(() -> bankConnector.login(USERNAME, PASSWORD));
     }
 
     @Test
     public void signInFailsOnInvalidCredentials() {
-        BankNavigator bankNavigator = getProxiedNavigator();
-        assertThrows(InvalidCredentials.class, () -> bankNavigator.login(WRONG_USERNAME, WRONG_PASSWORD));
+        BankConnector bankConnector = getProxiedConnector();
+        assertThrows(InvalidCredentials.class, () -> bankConnector.login(WRONG_USERNAME, WRONG_PASSWORD));
     }
 
     @Test
     public void afterSignInCanFetchAccounts() {
-        BankNavigator bankNavigator = getProxiedNavigator();
+        BankConnector bankConnector = getProxiedConnector();
         Map<String, Double> expectedAccounts = Map.of(ACCOUNT_NUMBER, ACCOUNT_BALANCE);
-        bankNavigator.login(USERNAME, PASSWORD);
-        Map<String, Double> accounts = bankNavigator.getAccounts();
+        bankConnector.login(USERNAME, PASSWORD);
+        Map<String, Double> accounts = bankConnector.getAccounts();
         assertEquals(expectedAccounts, accounts);
     }
 
     @Test
     public void accountFetchingFailsWhenNotAuthenticated() {
-        BankNavigator bankNavigator = getProxiedNavigator();
-        assertThrows(NotAuthenticated.class, bankNavigator::getAccounts);
+        BankConnector bankConnector = getProxiedConnector();
+        assertThrows(NotAuthenticated.class, bankConnector::getAccounts);
     }
 
-    private BankNavigator getProxiedNavigator() {
-        return new IpkoNavigator(new HttpBodyMapper(), proxy);
+    private BankConnector getProxiedConnector() {
+        return new IpkoConnector(new HttpBodyMapper(), proxy);
     }
 
 }

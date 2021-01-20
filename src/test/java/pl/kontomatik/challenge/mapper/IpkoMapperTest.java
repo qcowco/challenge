@@ -5,9 +5,9 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
-import pl.kontomatik.challenge.navigator.dto.AuthRequest;
-import pl.kontomatik.challenge.navigator.dto.AuthResponse;
-import pl.kontomatik.challenge.navigator.dto.BaseRequest;
+import pl.kontomatik.challenge.connector.dto.AuthRequest;
+import pl.kontomatik.challenge.connector.dto.AuthResponse;
+import pl.kontomatik.challenge.connector.dto.BaseRequest;
 
 import java.util.Map;
 

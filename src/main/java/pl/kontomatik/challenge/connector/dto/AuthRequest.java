@@ -1,4 +1,4 @@
-package pl.kontomatik.challenge.navigator.dto;
+package pl.kontomatik.challenge.connector.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;

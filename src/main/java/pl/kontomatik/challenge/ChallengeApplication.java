@@ -1,8 +1,8 @@
 package pl.kontomatik.challenge;
 
-import pl.kontomatik.challenge.commandline.BankNavigatorCLI;
+import pl.kontomatik.challenge.commandline.BankConnectorCLI;
+import pl.kontomatik.challenge.connector.IpkoConnector;
 import pl.kontomatik.challenge.mapper.HttpBodyMapper;
-import pl.kontomatik.challenge.navigator.IpkoNavigator;
 
 import java.util.Scanner;
 import java.util.function.Consumer;
@@ -12,12 +12,12 @@ public class ChallengeApplication {
 
     public static void main(String[] args) {
         HttpBodyMapper mapper = new HttpBodyMapper();
-        IpkoNavigator ipkoNavigator = new IpkoNavigator(mapper);
+        IpkoConnector ipkoConnector = new IpkoConnector(mapper);
 
         Supplier<String> supplier = () -> new Scanner(System.in).nextLine();
         Consumer<String> consumer = System.out::println;
 
-        BankNavigatorCLI cli = new BankNavigatorCLI(ipkoNavigator, supplier, consumer);
+        BankConnectorCLI cli = new BankConnectorCLI(ipkoConnector, supplier, consumer);
         cli.run();
     }
 

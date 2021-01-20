@@ -1,4 +1,4 @@
-# BankNavigator
+# BankConnector
 ### A web client that performs operations on Your bank account through the API.
 Banks expose APIs that allow their websites to perform any kind of operations reliant on data. Through the magic of reverse-engineering, this client performs those operations using the bare minimal data required replacing the browser in the process. Just like the browser, this client uses HTTPS to communicate with the APIs. No additional requests are made, no data retained at any point. Supports ipko.pl
 

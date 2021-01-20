@@ -1,7 +1,7 @@
-package pl.kontomatik.challenge.navigator;
+package pl.kontomatik.challenge.connector;
 
 import org.junit.jupiter.api.Test;
-import pl.kontomatik.challenge.commandline.BankNavigatorCLI;
+import pl.kontomatik.challenge.commandline.BankConnectorCLI;
 import pl.kontomatik.challenge.mapper.HttpBodyMapper;
 
 import java.io.IOException;
@@ -15,21 +15,21 @@ import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
-public class BankNavigatorCLITest {
+public class BankConnectorCLITest {
     private final String RESOURCE_NAME = "application.properties";
 
     @Test
     public void afterSignInCanFetchAccounts() throws IOException {
         // given
         HttpBodyMapper mapper = new HttpBodyMapper();
-        BankNavigator bankNavigator = new IpkoNavigator(mapper);
+        BankConnector bankConnector = new IpkoConnector(mapper);
         Properties credentials = credentialsFromProperties();
         Iterator<String> input = inputFrom(credentials);
         List<String> output = new LinkedList<>();
-        BankNavigatorCLI bankNavigatorCLI = new BankNavigatorCLI(bankNavigator, input::next, output::add);
+        BankConnectorCLI bankConnectorCLI = new BankConnectorCLI(bankConnector, input::next, output::add);
 
         // when/then
-        assertDoesNotThrow(bankNavigatorCLI::run);
+        assertDoesNotThrow(bankConnectorCLI::run);
     }
 
     private Iterator<String> inputFrom(Properties credentials) {

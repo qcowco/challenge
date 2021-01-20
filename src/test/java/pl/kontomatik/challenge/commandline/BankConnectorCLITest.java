@@ -5,11 +5,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockserver.client.MockServerClient;
+import pl.kontomatik.challenge.connector.BankConnector;
+import pl.kontomatik.challenge.connector.IpkoConnector;
 import pl.kontomatik.challenge.exception.InvalidCredentials;
 import pl.kontomatik.challenge.mapper.HttpBodyMapper;
-import pl.kontomatik.challenge.mockserver.MockNavigatorServer;
-import pl.kontomatik.challenge.navigator.BankNavigator;
-import pl.kontomatik.challenge.navigator.IpkoNavigator;
+import pl.kontomatik.challenge.mockserver.MockConnectorServer;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -19,7 +19,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
-public class BankNavigatorCLITest extends MockNavigatorServer {
+public class BankConnectorCLITest extends MockConnectorServer {
     private static final String USERNAME = "USERNAME";
     private static final String PASSWORD = "PASSWORD";
     private static final String WRONG_USERNAME = "WRONG_USERNAME";
@@ -36,32 +36,32 @@ public class BankNavigatorCLITest extends MockNavigatorServer {
     public void signInFailsOnInvalidCredentials() {
         Iterator<String> input = iterate(WRONG_USERNAME, WRONG_PASSWORD);
         List<String> output = new LinkedList<>();
-        BankNavigatorCLI bankNavigatorCLI = getProxiedCli(input, output);
-        assertThrows(InvalidCredentials.class, bankNavigatorCLI::run);
+        BankConnectorCLI bankConnectorCLI = getProxiedCli(input, output);
+        assertThrows(InvalidCredentials.class, bankConnectorCLI::run);
     }
 
     @Test
     public void signInSucceedsOnValidCredentials() {
         Iterator<String> input = iterate(USERNAME, PASSWORD);
         List<String> output = new LinkedList<>();
-        BankNavigatorCLI bankNavigatorCLI = getProxiedCli(input, output);
-        assertDoesNotThrow(bankNavigatorCLI::run);
+        BankConnectorCLI bankConnectorCLI = getProxiedCli(input, output);
+        assertDoesNotThrow(bankConnectorCLI::run);
     }
 
     @Test
     public void afterSigningInDisplaysAccounts() {
         Iterator<String> input = iterate(USERNAME, PASSWORD);
         List<String> output = new LinkedList<>();
-        BankNavigatorCLI bankNavigatorCLI = getProxiedCli(input, output);
-        bankNavigatorCLI.run();
+        BankConnectorCLI bankConnectorCLI = getProxiedCli(input, output);
+        bankConnectorCLI.run();
         assertTrue(outputContains(ACCOUNT_NUMBER, output));
         assertTrue(outputContains(String.valueOf(ACCOUNT_VALUE), output));
     }
 
-    private BankNavigatorCLI getProxiedCli(Iterator<String> input, List<String> output) {
+    private BankConnectorCLI getProxiedCli(Iterator<String> input, List<String> output) {
         HttpBodyMapper mapper = new HttpBodyMapper();
-        BankNavigator bankNavigator = new IpkoNavigator(mapper, proxy);
-        return new BankNavigatorCLI(bankNavigator, input::next, output::add);
+        BankConnector bankConnector = new IpkoConnector(mapper, proxy);
+        return new BankConnectorCLI(bankConnector, input::next, output::add);
     }
 
     private Iterator<String> iterate(String... inputs) {

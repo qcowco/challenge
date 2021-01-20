@@ -1,4 +1,4 @@
-package pl.kontomatik.challenge.navigator.dto;
+package pl.kontomatik.challenge.connector.dto;
 
 import java.util.HashMap;
 import java.util.Map;
