@@ -13,15 +13,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class HttpBodyMapper {
-  private final int version = 3;
-  private final String location = "";
-  private final String action = "submit";
-
-  private final String authStateId = "login";
-  private final String sessionStateId = "password";
-
-  private final String placement = "LoginPKO";
-  private final int placement_page_no = 0;
+  private static final int VERSION = 3;
+  private static final String LOCATION = "";
+  private static final String ACTION = "submit";
+  private static final String AUTH_STATE_ID = "login";
+  private static final String SESSION_STATE_ID = "password";
+  private static final String PLACEMENT = "LoginPKO";
+  private static final int PLACEMENT_PAGE_NO = 0;
 
   private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -57,8 +55,8 @@ public class HttpBodyMapper {
   }
 
   private boolean hasCredentialError(JsonNode fields) {
-    boolean wrongLogin = fields.with(authStateId).hasNonNull("errors");
-    boolean wrongPassword = fields.with(sessionStateId).hasNonNull("errors");
+    boolean wrongLogin = fields.with(AUTH_STATE_ID).hasNonNull("errors");
+    boolean wrongPassword = fields.with(SESSION_STATE_ID).hasNonNull("errors");
     return wrongLogin || wrongPassword;
   }
 
@@ -71,7 +69,7 @@ public class HttpBodyMapper {
   private AuthRequest authRequestFor(String fingerprint, String username, int sequenceNumber) {
     return getBaseRequest()
       .setSeq(sequenceNumber)
-      .setStateId(authStateId)
+      .setStateId(AUTH_STATE_ID)
       .putData("login", username)
       .putData("fingerprint", fingerprint)
       .build();
@@ -79,9 +77,9 @@ public class HttpBodyMapper {
 
   private AuthRequest.Builder getBaseRequest() {
     return AuthRequest.authBuilder()
-      .setVersion(version)
-      .setLocation(location)
-      .setAction(action);
+      .setVersion(VERSION)
+      .setLocation(LOCATION)
+      .setAction(ACTION);
   }
 
   public String getSessionAuthRequestBodyFor(String flowId, String token,
@@ -93,12 +91,12 @@ public class HttpBodyMapper {
   private AuthRequest sessionAuthRequestFor(String flowId, String token, String password, int sequenceNumber) {
     return getBaseRequest()
       .setSeq(sequenceNumber)
-      .setStateId(sessionStateId)
+      .setStateId(SESSION_STATE_ID)
       .setFlowId(flowId)
       .setToken(token)
       .putData("password", password)
-      .putData("placement", placement)
-      .putData("placement_page_no", placement_page_no)
+      .putData("placement", PLACEMENT)
+      .putData("placement_page_no", PLACEMENT_PAGE_NO)
       .build();
   }
 
@@ -109,8 +107,8 @@ public class HttpBodyMapper {
 
   private BaseRequest accountsRequestFor(int sequenceNumber) {
     return BaseRequest.builder()
-      .setVersion(version)
-      .setLocation(location)
+      .setVersion(VERSION)
+      .setLocation(LOCATION)
       .setSeq(sequenceNumber)
       .putData("accounts", Map.of())
       .build();
@@ -143,7 +141,6 @@ public class HttpBodyMapper {
         .get("value").asText();
       Double balance = accountNode.get("balance")
         .asDouble();
-
       accountMap.put(account, balance);
     });
     return accountMap;
