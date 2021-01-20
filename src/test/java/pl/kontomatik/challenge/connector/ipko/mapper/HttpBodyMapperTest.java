@@ -13,7 +13,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class IpkoMapperTest {
+class HttpBodyMapperTest {
     private static final String FLOW_ID = "flow_id";
     private static final String TOKEN = "token";
     private static final String FINGERPRINT = "fingerprint";
@@ -26,7 +26,7 @@ class IpkoMapperTest {
     private final HttpBodyMapper mapper = new HttpBodyMapper();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public IpkoMapperTest() {
+    public HttpBodyMapperTest() {
         objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
     }
 
