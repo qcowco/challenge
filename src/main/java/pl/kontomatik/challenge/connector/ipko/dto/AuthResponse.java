@@ -3,26 +3,14 @@ package pl.kontomatik.challenge.connector.ipko.dto;
 import java.util.Objects;
 
 public class AuthResponse {
-  private final String flowId;
-  private final String token;
-  private final boolean wrongCredentials;
+  public final String flowId;
+  public final String token;
+  public final boolean wrongCredentials;
 
   public AuthResponse(String flowId, String token, boolean wrongCredentials) {
     this.flowId = flowId;
     this.token = token;
     this.wrongCredentials = wrongCredentials;
-  }
-
-  public String getFlowId() {
-    return flowId;
-  }
-
-  public String getToken() {
-    return token;
-  }
-
-  public boolean isWrongCredentials() {
-    return wrongCredentials;
   }
 
   @Override

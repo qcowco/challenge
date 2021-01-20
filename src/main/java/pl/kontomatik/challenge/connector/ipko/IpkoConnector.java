@@ -82,12 +82,12 @@ public class IpkoConnector implements BankConnector {
   }
 
   private void assignFlowTokens(AuthResponse authResponse) {
-    authFlowId = authResponse.getFlowId();
-    authFlowToken = authResponse.getToken();
+    authFlowId = authResponse.flowId;
+    authFlowToken = authResponse.token;
   }
 
   private void verifySuccessful(AuthResponse authResponse) {
-    if (authResponse.isWrongCredentials())
+    if (authResponse.wrongCredentials)
       throw new InvalidCredentials("Couldn't login with provided credentials.");
   }
 
