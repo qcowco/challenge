@@ -19,36 +19,29 @@ public class BankConnectorCLI {
 
     public void run() {
         performLogin();
-
         displayAccounts();
     }
 
     private void performLogin() {
         String username = askForInput("Type in Your username:");
         String password = askForInput("Type in Your password:");
-
         bankConnector.login(username, password);
     }
 
     private String askForInput(String message) {
         consumer.accept(message);
-
         return supplier.get();
     }
 
     private void displayAccounts() {
         Map<String, Double> accounts = bankConnector.getAccounts();
-
         consumer.accept(stringFrom(accounts));
     }
 
     private String stringFrom(Map<String, Double> accounts) {
         StringBuilder accountsListed = new StringBuilder();
-
         accountsListed.append("Accounts:\n");
-
         accounts.forEach((s, aDouble) -> accountsListed.append(String.format("Account number: %s, Value %f\n", s, aDouble)));
-
         return accountsListed.toString();
     }
 }
