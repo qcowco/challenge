@@ -31,14 +31,11 @@ $ ./gradlew test
 ```
 
 ## Populating test data
-To run integration tests, create a file with valid credentials and bank account/value pairs such as this.
+To run integration tests, populate the existing 'src/integration-test/resources/application.properties' file with valid credentials such as this.
 ```text
-username=password
-
-987654321=250.0
-123456789=2000.0
+username=your-username
+password=your-password
 ```
-Then save it as application.properties over at 'src/integration-test/resources'
 
 
 ## Integration tests [(test data required)](#populating-test-data)
