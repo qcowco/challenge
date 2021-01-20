@@ -13,10 +13,8 @@ public class ChallengeApplication {
     public static void main(String[] args) {
         HttpBodyMapper mapper = new HttpBodyMapper();
         IpkoConnector ipkoConnector = new IpkoConnector(mapper);
-
         Supplier<String> supplier = () -> new Scanner(System.in).nextLine();
         Consumer<String> consumer = System.out::println;
-
         BankConnectorCLI cli = new BankConnectorCLI(ipkoConnector, supplier, consumer);
         cli.run();
     }

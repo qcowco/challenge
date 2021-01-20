@@ -31,12 +31,9 @@ public class HttpBodyMapper {
 
     public AuthResponse getAuthResponseFrom(String responseBody) {
         JsonNode responseNode = tryGetJsonNodeFrom(responseBody);
-
         String flowId = responseNode.findPath("flow_id").asText();
         String token = responseNode.findPath("token").asText();
-
         boolean wrongCredential = containsLoginErrors(responseNode);
-
         return new AuthResponse(flowId, token, wrongCredential);
     }
 
@@ -50,10 +47,8 @@ public class HttpBodyMapper {
 
     private boolean containsLoginErrors(JsonNode responseNode) {
         JsonNode fields = responseNode.with("response").with("fields");
-
         boolean generalError = hasGeneralError(fields);
         boolean wrongCredential = hasCredentialError(fields);
-
         return generalError || wrongCredential;
     }
 
@@ -64,7 +59,6 @@ public class HttpBodyMapper {
     private boolean hasCredentialError(JsonNode fields) {
         boolean wrongLogin = fields.with(authStateId).hasNonNull("errors");
         boolean wrongPassword = fields.with(sessionStateId).hasNonNull("errors");
-
         return wrongLogin || wrongPassword;
     }
 
@@ -125,19 +119,16 @@ public class HttpBodyMapper {
 
     public Map<String, Double> getAccountsFromJson(String jsonAccounts) {
         JsonNode accountsNode = findAccountsNode(jsonAccounts);
-
         return getAccountsFrom(accountsNode);
     }
 
     private JsonNode findAccountsNode(String jsonAccounts) {
         JsonNode accountsTree = tryGetJsonNodeFrom(jsonAccounts);
-
         return accountsTree.findPath("accounts");
     }
 
     private Map<String, Double> getAccountsFrom(JsonNode accountsNode) {
         Map<String, Double> accountMap = new HashMap<>();
-
         accountsNode.forEach(accountNode -> {
             String account = accountNode.with("number")
                     .get("value").asText();
@@ -146,7 +137,6 @@ public class HttpBodyMapper {
 
             accountMap.put(account, balance);
         });
-
         return accountMap;
     }
 }
