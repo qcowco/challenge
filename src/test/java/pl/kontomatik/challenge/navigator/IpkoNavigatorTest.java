@@ -30,44 +30,28 @@ public class IpkoNavigatorTest extends MockNavigatorServer {
 
     @Test
     public void signInSucceedsOnValidCredentials() {
-        // given
         BankNavigator bankNavigator = getProxiedNavigator();
-
-        // when/then
         assertDoesNotThrow(() -> bankNavigator.login(USERNAME, PASSWORD));
     }
 
     @Test
     public void signInFailsOnInvalidCredentials() {
-        // given
         BankNavigator bankNavigator = getProxiedNavigator();
-
-        // when/then
         assertThrows(InvalidCredentials.class, () -> bankNavigator.login(WRONG_USERNAME, WRONG_PASSWORD));
     }
 
     @Test
     public void afterSignInCanFetchAccounts() {
-        // given
         BankNavigator bankNavigator = getProxiedNavigator();
-
         Map<String, Double> expectedAccounts = Map.of(ACCOUNT_NUMBER, ACCOUNT_BALANCE);
-
         bankNavigator.login(USERNAME, PASSWORD);
-
-        // when
         Map<String, Double> accounts = bankNavigator.getAccounts();
-
-        // then
         assertEquals(expectedAccounts, accounts);
     }
 
     @Test
     public void accountFetchingFailsWhenNotAuthenticated() {
-        // given
         BankNavigator bankNavigator = getProxiedNavigator();
-
-        // when/then
         assertThrows(NotAuthenticated.class, bankNavigator::getAccounts);
     }
 

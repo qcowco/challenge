@@ -34,37 +34,26 @@ public class BankNavigatorCLITest extends MockNavigatorServer {
 
     @Test
     public void signInFailsOnInvalidCredentials() {
-        // given
         Iterator<String> input = iterate(WRONG_USERNAME, WRONG_PASSWORD);
         List<String> output = new LinkedList<>();
         BankNavigatorCLI bankNavigatorCLI = getProxiedCli(input, output);
-
-        // when/then
         assertThrows(InvalidCredentials.class, bankNavigatorCLI::run);
     }
 
     @Test
     public void signInSucceedsOnValidCredentials() {
-        // given
         Iterator<String> input = iterate(USERNAME, PASSWORD);
         List<String> output = new LinkedList<>();
         BankNavigatorCLI bankNavigatorCLI = getProxiedCli(input, output);
-
-        // when/then
         assertDoesNotThrow(bankNavigatorCLI::run);
     }
 
     @Test
     public void afterSigningInDisplaysAccounts() {
-        // given
         Iterator<String> input = iterate(USERNAME, PASSWORD);
         List<String> output = new LinkedList<>();
         BankNavigatorCLI bankNavigatorCLI = getProxiedCli(input, output);
-
-        // when
         bankNavigatorCLI.run();
-
-        // then
         assertTrue(outputContains(ACCOUNT_NUMBER, output));
         assertTrue(outputContains(String.valueOf(ACCOUNT_VALUE), output));
     }
