@@ -52,10 +52,8 @@ public class BankConnectorCLITest extends MockConnectorServer {
     public void afterSigningInDisplaysAccounts() {
         Iterator<String> input = iterate(USERNAME, PASSWORD);
         List<String> output = new LinkedList<>();
-        BankConnectorCLI bankConnectorCLI = getProxiedCli(input, output);
-        bankConnectorCLI.run();
-        assertTrue(outputContains(ACCOUNT_NUMBER, output));
-        assertTrue(outputContains(String.valueOf(ACCOUNT_VALUE), output));
+        getProxiedCli(input, output).run();
+        assertContainsEveryElement(output, ACCOUNT_NUMBER, String.valueOf(ACCOUNT_VALUE));
     }
 
     private BankConnectorCLI getProxiedCli(Iterator<String> input, List<String> output) {
@@ -64,11 +62,16 @@ public class BankConnectorCLITest extends MockConnectorServer {
         return new BankConnectorCLI(bankConnector, input::next, output::add);
     }
 
-    private Iterator<String> iterate(String... inputs) {
-        return Arrays.asList(inputs).iterator();
+    private void assertContainsEveryElement(List<String> output, String... elements) {
+        assertTrue(containsEveryElement(output, elements));
     }
 
-    private boolean outputContains(String expected, List<String> actual) {
-        return actual.stream().anyMatch(s -> s.toLowerCase().contains(expected));
+    private boolean containsEveryElement(List<String> output, String[] values) {
+        return Arrays.stream(values)
+                .allMatch(value -> output.stream().anyMatch(outputValue -> outputValue.contains(value)));
+    }
+
+    private Iterator<String> iterate(String... inputs) {
+        return Arrays.asList(inputs).iterator();
     }
 }

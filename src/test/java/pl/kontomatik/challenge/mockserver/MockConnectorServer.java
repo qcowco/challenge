@@ -23,14 +23,11 @@ public abstract class MockConnectorServer {
     private static final String LOGIN_JSON_TEMPLATE = "{\"data\":{\"login\":\"%s\"}}";
     private static final String USERNAME = "USERNAME";
     private static final String WRONG_USERNAME = "WRONG_USERNAME";
-
     private static final String LOGIN_PATH = "/ipko3/login";
     private static final String NDCD_PATH = "/nudatasecurity/2.2/w/w-573441/init/js";
     private static final String INIT_PATH = "/ipko3/init";
-
     private static final String SESSION_HEADER = "X-Session-Id";
     private static final String SESSION_TOKEN = "TOKEN";
-
     private static final String LOGIN_RESPONSE_BODY = "{\"response\":{\"flow_id\":\"flow_id\",\"token\":\"token\",\"finished\":true}}";
     private static final String BAD_LOGIN_RESPONSE_BODY = "{\"response\":{\"flow_id\":\"flow_id\",\"token\":\"token\",\"fields\":{\"errors\":{\"description\":\"An error!\"}}}}";
     private static final String ACCOUNT_RESPONSE_BODY = "{\"accounts\":{\"acc1\":{\"number\":{\"value\":\"123456789\"},\"balance\":0.5}}}";

@@ -43,10 +43,10 @@ public class IpkoConnectorTest extends MockConnectorServer {
     @Test
     public void afterSignInCanFetchAccounts() {
         BankConnector bankConnector = getProxiedConnector();
-        Map<String, Double> expectedAccounts = Map.of(ACCOUNT_NUMBER, ACCOUNT_BALANCE);
         bankConnector.login(USERNAME, PASSWORD);
-        Map<String, Double> accounts = bankConnector.getAccounts();
-        assertEquals(expectedAccounts, accounts);
+        Map<String, Double> expectedAccounts = Map.of(ACCOUNT_NUMBER, ACCOUNT_BALANCE);
+        Map<String, Double> actualAccounts = bankConnector.getAccounts();
+        assertEquals(expectedAccounts, actualAccounts);
     }
 
     @Test

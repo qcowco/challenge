@@ -14,19 +14,14 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class IpkoMapperTest {
-    private static final String LOGIN_RESPONSE_BODY = "{\"flow_id\":\"flow_id\",\"token\":\"token\",\"finished\":true}";
-
-    private final int VERSION = 3;
-    private final String LOCATION = "";
-    private final String ACTION = "submit";
-    private final int SEQUENCE_NUMBER = 0;
-
-    private final String AUTH_STATE_ID = "login";
-
-    private final String SESSION_STATE_ID = "password";
-
-    private final String FLOW_ID = "flow_id";
-    private final String TOKEN = "token";
+    private static final String FLOW_ID = "flow_id";
+    private static final String TOKEN = "token";
+    private static final String FINGERPRINT = "fingerprint";
+    private static final String USERNAME = "username";
+    private static final String PASSWORD = "password";
+    private static final int SEQUENCE_NUMBER = 0;
+    private static final int VERSION = 3;
+    private static final String LOCATION = "";
 
     private final HttpBodyMapper mapper = new HttpBodyMapper();
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -39,43 +34,44 @@ class IpkoMapperTest {
     public void mapsAuthResponseFromJson() {
         boolean hasErrors = false;
         AuthResponse expectedResponse = new AuthResponse(FLOW_ID, TOKEN, hasErrors);
-        AuthResponse actualResponse = mapper.getAuthResponseFrom(LOGIN_RESPONSE_BODY);
+        String loginResponse = "{\"flow_id\":\"flow_id\",\"token\":\"token\",\"finished\":true}";
+        AuthResponse actualResponse = mapper.getAuthResponseFrom(loginResponse);
         assertEquals(expectedResponse, actualResponse);
     }
 
     @Test
     public void mapsAuthResponseWithErrorOnGeneralError() {
-        String generalErrorTemplate = "{\"response\":{\"flow_id\":\"%s\",\"token\":\"%s\",\"fields\":{\"errors\":{}}}}";
-        String generalErrorResponse = String.format(generalErrorTemplate, FLOW_ID, TOKEN);
         boolean hasErrors = true;
         AuthResponse expectedResponse = new AuthResponse(FLOW_ID, TOKEN, hasErrors);
-        AuthResponse actualResponse = mapper.getAuthResponseFrom(generalErrorResponse);
+        String errorResponse = "{\"response\":{\"flow_id\":\"flow_id\",\"token\":\"token\",\"fields\":{\"errors\":{}}}}";
+        AuthResponse actualResponse = mapper.getAuthResponseFrom(errorResponse);
         assertEquals(expectedResponse, actualResponse);
     }
 
     @Test
     public void mapsAuthResponseWithErrorOnCredentialError() {
-        String credentialErrorTemplate = "{\"response\":{\"flow_id\":\"%s\",\"token\":\"%s\",\"fields\":{\"login\":{\"errors\":{}},\"password\":{\"errors\":{}}}}}";
-        String credentialErrorResponse = String.format(credentialErrorTemplate, FLOW_ID, TOKEN);
         boolean hasErrors = true;
         AuthResponse expectedResponse = new AuthResponse(FLOW_ID, TOKEN, hasErrors);
-        AuthResponse actualResponse = mapper.getAuthResponseFrom(credentialErrorResponse);
+        String errorResponse = "{\"response\":" +
+                "{\"flow_id\":\"flow_id\",\"token\":\"token\",\"fields\":" +
+                "{\"login\":{\"errors\":{}},\"password\":{\"errors\":{}}}" +
+                "}" +
+                "}";
+        AuthResponse actualResponse = mapper.getAuthResponseFrom(errorResponse);
         assertEquals(expectedResponse, actualResponse);
     }
 
 
     @Test
     public void mapsJsonFromAuthRequest() throws JsonProcessingException {
-        String fingerprint = "fingerprint";
-        String username = "username";
         AuthRequest expectedRequest = getBaseRequest()
-                .setStateId(AUTH_STATE_ID)
-                .putData("login", username)
-                .putData("fingerprint", fingerprint)
+                .setStateId("login")
+                .putData("login", USERNAME)
+                .putData(FINGERPRINT, FINGERPRINT)
                 .build();
-        String expectedJsonBody = objectMapper.writeValueAsString(expectedRequest);
-        String actualJsonBody = mapper.getAuthRequestBodyFor(fingerprint, username, SEQUENCE_NUMBER);
-        assertEquals(expectedJsonBody, actualJsonBody);
+        String expectedRequestJson = objectMapper.writeValueAsString(expectedRequest);
+        String actualRequestJson = mapper.getAuthRequestBodyFor(FINGERPRINT, USERNAME, SEQUENCE_NUMBER);
+        assertEquals(expectedRequestJson, actualRequestJson);
     }
 
     private AuthRequest.Builder getBaseRequest() {
@@ -83,26 +79,22 @@ class IpkoMapperTest {
                 .setVersion(VERSION)
                 .setSeq(SEQUENCE_NUMBER)
                 .setLocation(LOCATION)
-                .setAction(ACTION);
+                .setAction("submit");
     }
 
     @Test
     public void mapsJsonFromSessionAuthRequest() throws JsonProcessingException {
-        String flowId = "password";
-        String token = "token";
-        String password = "password";
-        String placement = "LoginPKO";
-        int placement_page_no = 0;
+        String sessionStateId = "password";
         AuthRequest expectedRequest = getBaseRequest()
-                .setStateId(SESSION_STATE_ID)
-                .setFlowId(flowId)
-                .setToken(token)
-                .putData("password", password)
-                .putData("placement", placement)
-                .putData("placement_page_no", placement_page_no)
+                .setStateId(sessionStateId)
+                .setFlowId(FLOW_ID)
+                .setToken(TOKEN)
+                .putData(PASSWORD, PASSWORD)
+                .putData("placement", "LoginPKO")
+                .putData("placement_page_no", 0)
                 .build();
         String expectedJsonBody = objectMapper.writeValueAsString(expectedRequest);
-        String actualJsonBody = mapper.getSessionAuthRequestBodyFor(flowId, token, password, SEQUENCE_NUMBER);
+        String actualJsonBody = mapper.getSessionAuthRequestBodyFor(FLOW_ID, TOKEN, PASSWORD, SEQUENCE_NUMBER);
         assertEquals(expectedJsonBody, actualJsonBody);
     }
 
@@ -121,11 +113,10 @@ class IpkoMapperTest {
 
     @Test
     public void mapsAccountsFromJson() {
+        Double balance = 0.5;
         String accountNumber = "123456789";
-        double balance = 0.5;
-        String jsonAccounts = String.format("{\"accounts\":{\"acc1\":{\"number\":{\"value\":\"%s\"},\"balance\":%f}}}",
-                accountNumber, balance);
         Map<String, Double> expectedAccounts = Map.of(accountNumber, balance);
+        String jsonAccounts = "{\"accounts\":{\"acc1\":{\"number\":{\"value\":\"123456789\"},\"balance\":0.5}}}";
         Map<String, Double> actualAccounts = mapper.getAccountsFromJson(jsonAccounts);
         assertEquals(expectedAccounts, actualAccounts);
     }
