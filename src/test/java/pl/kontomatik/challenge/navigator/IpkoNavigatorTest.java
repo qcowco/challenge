@@ -7,7 +7,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockserver.client.MockServerClient;
 import pl.kontomatik.challenge.exception.InvalidCredentials;
 import pl.kontomatik.challenge.exception.NotAuthenticated;
-import pl.kontomatik.challenge.mapper.IpkoMapperImpl;
+import pl.kontomatik.challenge.mapper.HttpBodyMapper;
 import pl.kontomatik.challenge.mockserver.MockNavigatorServer;
 
 import java.util.Map;
@@ -72,7 +72,7 @@ public class IpkoNavigatorTest extends MockNavigatorServer {
     }
 
     private BankNavigator getProxiedNavigator() {
-        return new IpkoNavigator(new IpkoMapperImpl(), proxy);
+        return new IpkoNavigator(new HttpBodyMapper(), proxy);
     }
 
 }

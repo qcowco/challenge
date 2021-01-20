@@ -26,7 +26,7 @@ class IpkoMapperTest {
     private final String FLOW_ID = "flow_id";
     private final String TOKEN = "token";
 
-    private IpkoMapperImpl ipkoMapper = new IpkoMapperImpl();
+    private HttpBodyMapper mapper = new HttpBodyMapper();
     private ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
@@ -37,7 +37,7 @@ class IpkoMapperTest {
         AuthResponse expectedResponse = new AuthResponse(FLOW_ID, TOKEN, hasErrors);
 
         // when
-        AuthResponse actualResponse = ipkoMapper.getAuthResponseFrom(LOGIN_RESPONSE_BODY);
+        AuthResponse actualResponse = mapper.getAuthResponseFrom(LOGIN_RESPONSE_BODY);
 
         // then
         assertEquals(expectedResponse, actualResponse);
@@ -54,7 +54,7 @@ class IpkoMapperTest {
         AuthResponse expectedResponse = new AuthResponse(FLOW_ID, TOKEN, hasErrors);
 
         // when
-        AuthResponse actualResponse = ipkoMapper.getAuthResponseFrom(generalErrorResponse);
+        AuthResponse actualResponse = mapper.getAuthResponseFrom(generalErrorResponse);
 
         // then
         assertEquals(expectedResponse, actualResponse);
@@ -71,7 +71,7 @@ class IpkoMapperTest {
         AuthResponse expectedResponse = new AuthResponse(FLOW_ID, TOKEN, hasErrors);
 
         // when
-        AuthResponse actualResponse = ipkoMapper.getAuthResponseFrom(credentialErrorResponse);
+        AuthResponse actualResponse = mapper.getAuthResponseFrom(credentialErrorResponse);
 
         // then
         assertEquals(expectedResponse, actualResponse);
@@ -93,7 +93,7 @@ class IpkoMapperTest {
         String expectedJsonBody = objectMapper.writeValueAsString(expectedRequest);
 
         // when
-        String actualJsonBody = ipkoMapper.getAuthRequestBodyFor(fingerprint, username, SEQUENCE_NUMBER);
+        String actualJsonBody = mapper.getAuthRequestBodyFor(fingerprint, username, SEQUENCE_NUMBER);
 
         // then
         assertEquals(expectedJsonBody, actualJsonBody);
@@ -128,7 +128,7 @@ class IpkoMapperTest {
         String expectedJsonBody = objectMapper.writeValueAsString(expectedRequest);
 
         // when
-        String actualJsonBody = ipkoMapper.getSessionAuthRequestBodyFor(flowId, token, password, SEQUENCE_NUMBER);
+        String actualJsonBody = mapper.getSessionAuthRequestBodyFor(flowId, token, password, SEQUENCE_NUMBER);
 
         // then
         assertEquals(expectedJsonBody, actualJsonBody);
@@ -147,7 +147,7 @@ class IpkoMapperTest {
         String expectedJsonBody = objectMapper.writeValueAsString(accountsRequest);
 
         // when
-        String actualJsonBody = ipkoMapper.getAccountsRequestBodyFor(SEQUENCE_NUMBER);
+        String actualJsonBody = mapper.getAccountsRequestBodyFor(SEQUENCE_NUMBER);
 
         // then
         assertEquals(expectedJsonBody, actualJsonBody);
@@ -164,7 +164,7 @@ class IpkoMapperTest {
         Map<String, Double> expectedAccounts = Map.of(accountNumber, balance);
 
         // when
-        Map<String, Double> actualAccounts = ipkoMapper.getAccountsFromJson(jsonAccounts);
+        Map<String, Double> actualAccounts = mapper.getAccountsFromJson(jsonAccounts);
 
         // then
         assertEquals(expectedAccounts, actualAccounts);

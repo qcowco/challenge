@@ -10,7 +10,7 @@ import pl.kontomatik.challenge.navigator.dto.BaseRequest;
 import java.util.HashMap;
 import java.util.Map;
 
-public class IpkoMapperImpl {
+public class HttpBodyMapper {
     private int version = 3;
     private String location = "";
     private String action = "submit";
