@@ -64,14 +64,17 @@ public class HttpBodyMapper {
 
     public String getAuthRequestBodyFor(String fingerprint,
                                         String username, int sequenceNumber) {
-        AuthRequest authRequest = getBaseRequest()
+        AuthRequest authRequest = authRequestFor(fingerprint, username, sequenceNumber);
+        return tryWriteAsString(authRequest);
+    }
+
+    private AuthRequest authRequestFor(String fingerprint, String username, int sequenceNumber) {
+        return getBaseRequest()
                 .setSeq(sequenceNumber)
                 .setStateId(authStateId)
                 .putData("login", username)
                 .putData("fingerprint", fingerprint)
                 .build();
-
-        return tryWriteAsString(authRequest);
     }
 
     private AuthRequest.Builder getBaseRequest() {
@@ -83,7 +86,12 @@ public class HttpBodyMapper {
 
     public String getSessionAuthRequestBodyFor(String flowId, String token,
                                                String password, int sequenceNumber) {
-        AuthRequest authRequest = getBaseRequest()
+        AuthRequest authRequest = sessionAuthRequestFor(flowId, token, password, sequenceNumber);
+        return tryWriteAsString(authRequest);
+    }
+
+    private AuthRequest sessionAuthRequestFor(String flowId, String token, String password, int sequenceNumber) {
+        return getBaseRequest()
                 .setSeq(sequenceNumber)
                 .setStateId(sessionStateId)
                 .setFlowId(flowId)
@@ -92,19 +100,20 @@ public class HttpBodyMapper {
                 .putData("placement", placement)
                 .putData("placement_page_no", placement_page_no)
                 .build();
-
-        return tryWriteAsString(authRequest);
     }
 
     public String getAccountsRequestBodyFor(int sequenceNumber) {
-        BaseRequest accountsRequest = BaseRequest.builder()
+        BaseRequest accountsRequest = accountsRequestFor(sequenceNumber);
+        return tryWriteAsString(accountsRequest);
+    }
+
+    private BaseRequest accountsRequestFor(int sequenceNumber) {
+        return BaseRequest.builder()
                 .setVersion(version)
                 .setLocation(location)
                 .setSeq(sequenceNumber)
                 .putData("accounts", Map.of())
                 .build();
-
-        return tryWriteAsString(accountsRequest);
     }
 
     private String tryWriteAsString(BaseRequest accountsRequest) {
