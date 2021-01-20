@@ -1,20 +1,29 @@
 package pl.kontomatik.challenge.mockserver;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockserver.client.MockServerClient;
 import org.mockserver.integration.ClientAndServer;
-import org.mockserver.junit.jupiter.MockServerExtension;
+import org.mockserver.junit.jupiter.MockServerSettings;
+import org.mockserver.logging.MockServerLogger;
+import org.mockserver.model.JsonBody;
+import org.mockserver.socket.tls.KeyStoreFactory;
 import pl.kontomatik.challenge.mapper.IpkoMapper;
 import pl.kontomatik.challenge.mapper.IpkoMapperImpl;
 import pl.kontomatik.challenge.navigator.IpkoNavigator;
 
+import javax.net.ssl.HttpsURLConnection;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 
-@ExtendWith(MockServerExtension.class)
-public class MockNavigatorServer {
-    private static final String MOCK_URL_TEMPLATE = "http://localhost:%d%s";
+@ExtendWith(MockitoExtension.class)
+@MockServerSettings(ports = 1090)
+public abstract class MockNavigatorServer {
     private static final String LOGIN_PATH = "/ipko3/login";
     private static final String NDCD_PATH = "/nudatasecurity/2.2/w/w-573441/init/js";
     private static final String INIT_PATH = "/ipko3/init";
@@ -32,27 +41,21 @@ public class MockNavigatorServer {
     protected static IpkoNavigator bankNavigator;
     private static IpkoMapper ipkoMapper = new IpkoMapperImpl();
 
+
     @BeforeEach
     public void setupEach(MockServerClient client, ClientAndServer clientAndServer) {
-        setupBankNavigator(clientAndServer);
+        String proxyHost = "localhost";
+        int proxyPort = clientAndServer.getPort();
+
+        Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, proxyPort));
+        bankNavigator = new IpkoNavigator(ipkoMapper, proxy);
 
         client.clear(request());
     }
 
-    private void setupBankNavigator(ClientAndServer clientAndServer) {
-        bankNavigator = new IpkoNavigator(ipkoMapper);
-
-        setupMockUrls(clientAndServer.getPort());
-    }
-
-    private void setupMockUrls(Integer port) {
-        bankNavigator.setLoginUrl(getMockUrl(port, LOGIN_PATH));
-        bankNavigator.setNdcdUrl(getMockUrl(port, NDCD_PATH));
-        bankNavigator.setInitUrl(getMockUrl(port, INIT_PATH));
-    }
-
-    private static String getMockUrl(Integer port, String path) {
-        return String.format(MOCK_URL_TEMPLATE, port, path);
+    @BeforeAll
+    public static void setupHttps() {
+        HttpsURLConnection.setDefaultSSLSocketFactory(new KeyStoreFactory(new MockServerLogger()).sslContext().getSocketFactory());
     }
 
     protected void mockSuccessfulLogin(MockServerClient mockServerClient) {
