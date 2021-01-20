@@ -1,11 +1,13 @@
 package pl.kontomatik.challenge.navigator;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockserver.client.MockServerClient;
 import pl.kontomatik.challenge.exception.InvalidCredentials;
 import pl.kontomatik.challenge.exception.NotAuthenticated;
+import pl.kontomatik.challenge.mapper.IpkoMapperImpl;
 import pl.kontomatik.challenge.mockserver.MockNavigatorServer;
 
 import java.util.Map;
@@ -16,39 +18,38 @@ import static org.junit.jupiter.api.Assertions.*;
 public class IpkoNavigatorTest extends MockNavigatorServer {
     private static final String USERNAME = "USERNAME";
     private static final String PASSWORD = "PASSWORD";
-
+    private static final String WRONG_USERNAME = "WRONG_USERNAME";
+    private static final String WRONG_PASSWORD = "WRONG_PASSWORD";
     private static final String ACCOUNT_NUMBER = "123456789";
     private static final double ACCOUNT_BALANCE = 0.5;
 
+    @BeforeAll
+    public static void setupMocks(MockServerClient mockServerClient) {
+        setupMockedServer(mockServerClient);
+    }
+
     @Test
-    public void signInSucceedsOnValidCredentials(MockServerClient mockServerClient) {
+    public void signInSucceedsOnValidCredentials() {
         // given
-        mockSuccessfulLogin(mockServerClient);
+        BankNavigator bankNavigator = getProxiedNavigator();
 
-        mockCookieRequest(mockServerClient);
-
+        // when/then
         assertDoesNotThrow(() -> bankNavigator.login(USERNAME, PASSWORD));
     }
 
     @Test
-    public void signInFailsOnInvalidCredentials(MockServerClient mockServerClient) {
+    public void signInFailsOnInvalidCredentials() {
         // given
-        mockFailedLogin(mockServerClient);
-
-        mockCookieRequest(mockServerClient);
+        BankNavigator bankNavigator = getProxiedNavigator();
 
         // when/then
-        assertThrows(InvalidCredentials.class, () -> bankNavigator.login(USERNAME, PASSWORD));
+        assertThrows(InvalidCredentials.class, () -> bankNavigator.login(WRONG_USERNAME, WRONG_PASSWORD));
     }
 
     @Test
-    public void afterSignInCanFetchAccounts(MockServerClient mockServerClient) {
+    public void afterSignInCanFetchAccounts() {
         // given
-        mockSuccessfulLogin(mockServerClient);
-
-        mockCookieRequest(mockServerClient);
-
-        mockAccountsRequest(mockServerClient);
+        BankNavigator bankNavigator = getProxiedNavigator();
 
         Map<String, Double> expectedAccounts = Map.of(ACCOUNT_NUMBER, ACCOUNT_BALANCE);
 
@@ -63,8 +64,15 @@ public class IpkoNavigatorTest extends MockNavigatorServer {
 
     @Test
     public void accountFetchingFailsWhenNotAuthenticated() {
+        // given
+        BankNavigator bankNavigator = getProxiedNavigator();
+
         // when/then
         assertThrows(NotAuthenticated.class, bankNavigator::getAccounts);
+    }
+
+    private BankNavigator getProxiedNavigator() {
+        return new IpkoNavigator(new IpkoMapperImpl(), proxy);
     }
 
 }

@@ -1,21 +1,17 @@
 package pl.kontomatik.challenge.mockserver;
 
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockserver.client.MockServerClient;
 import org.mockserver.integration.ClientAndServer;
 import org.mockserver.junit.jupiter.MockServerSettings;
 import org.mockserver.logging.MockServerLogger;
+import org.mockserver.matchers.MatchType;
 import org.mockserver.model.JsonBody;
 import org.mockserver.socket.tls.KeyStoreFactory;
-import pl.kontomatik.challenge.mapper.IpkoMapper;
-import pl.kontomatik.challenge.mapper.IpkoMapperImpl;
-import pl.kontomatik.challenge.navigator.IpkoNavigator;
 
 import javax.net.ssl.HttpsURLConnection;
-import java.net.InetSocketAddress;
 import java.net.Proxy;
 
 import static org.mockserver.model.HttpRequest.request;
@@ -39,30 +35,28 @@ public abstract class MockNavigatorServer {
     private static final String BAD_LOGIN_RESPONSE_BODY = "{\"response\":{\"flow_id\":\"flow_id\",\"token\":\"token\",\"fields\":{\"errors\":{\"description\":\"An error!\"}}}}";
     private static final String ACCOUNT_RESPONSE_BODY = "{\"accounts\":{\"acc1\":{\"number\":{\"value\":\"123456789\"},\"balance\":0.5}}}";
 
-    protected static final String ACCOUNT_NUMBER = "123456789";
-    protected static final Double ACCOUNT_VALUE = 0.5;
-
-    protected static IpkoNavigator bankNavigator;
-    private static IpkoMapper ipkoMapper = new IpkoMapperImpl();
-
-
-    @BeforeEach
-    public void setupEach(MockServerClient client, ClientAndServer clientAndServer) {
-        String proxyHost = "localhost";
-        int proxyPort = clientAndServer.getPort();
-
-        Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, proxyPort));
-        bankNavigator = new IpkoNavigator(ipkoMapper, proxy);
-
-        client.clear(request());
-    }
+    protected static Proxy proxy;
 
     @BeforeAll
     public static void setupHttps() {
-        HttpsURLConnection.setDefaultSSLSocketFactory(new KeyStoreFactory(new MockServerLogger()).sslContext().getSocketFactory());
+        HttpsURLConnection.setDefaultSSLSocketFactory(
+                new KeyStoreFactory(new MockServerLogger()).sslContext().getSocketFactory()
+        );
     }
 
-    protected void mockSuccessfulLogin(MockServerClient mockServerClient) {
+    @BeforeAll
+    public static void setupProxy(ClientAndServer clientAndServer) {
+        proxy = new Proxy(Proxy.Type.HTTP, clientAndServer.remoteAddress());
+    }
+
+    protected static void setupMockedServer(MockServerClient mockServerClient) {
+        mockSuccessfulLogin(mockServerClient);
+        mockFailedLogin(mockServerClient);
+        mockCookieRequest(mockServerClient);
+        mockAccountsRequest(mockServerClient);
+    }
+
+    private static void mockSuccessfulLogin(MockServerClient mockServerClient) {
         mockServerClient
                 .when(request()
                         .withMethod("POST")
@@ -76,7 +70,7 @@ public abstract class MockNavigatorServer {
                 );
     }
 
-    protected void mockFailedLogin(MockServerClient mockServerClient) {
+    private static void mockFailedLogin(MockServerClient mockServerClient) {
         mockServerClient
                 .when(request()
                         .withMethod("POST")
@@ -89,7 +83,7 @@ public abstract class MockNavigatorServer {
                 );
     }
 
-    protected void mockCookieRequest(MockServerClient mockServerClient) {
+    private static void mockCookieRequest(MockServerClient mockServerClient) {
         mockServerClient
                 .when(request()
                         .withMethod("GET")
@@ -98,7 +92,7 @@ public abstract class MockNavigatorServer {
                         .withStatusCode(200));
     }
 
-    protected void mockAccountsRequest(MockServerClient mockServerClient) {
+    private static void mockAccountsRequest(MockServerClient mockServerClient) {
         mockServerClient
                 .when(request()
                         .withMethod("POST")
