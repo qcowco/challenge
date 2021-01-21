@@ -24,15 +24,14 @@ public class IpkoConnector implements BankConnector {
   private String authFlowId;
   private String authFlowToken;
   private int requestSequenceNumber;
-  private final HttpBodyMapper mapper;
+  private final HttpBodyMapper mapper = new HttpBodyMapper();
   private final Proxy proxy;
 
-  public IpkoConnector(HttpBodyMapper mapper) {
-    this(mapper, null);
+  public IpkoConnector() {
+    this(null);
   }
 
-  public IpkoConnector(HttpBodyMapper mapper, Proxy proxy) {
-    this.mapper = mapper;
+  public IpkoConnector(Proxy proxy) {
     this.proxy = proxy;
   }
 

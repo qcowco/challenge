@@ -3,7 +3,6 @@ package pl.kontomatik.challenge.connector;
 import org.junit.jupiter.api.Test;
 import pl.kontomatik.challenge.commandline.BankConnectorCLI;
 import pl.kontomatik.challenge.connector.ipko.IpkoConnector;
-import pl.kontomatik.challenge.connector.ipko.mapper.HttpBodyMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,7 +20,7 @@ public class BankConnectorCLITest {
 
   @Test
   public void afterSignInCanFetchAccounts() throws IOException {
-    BankConnector bankConnector = new IpkoConnector(new HttpBodyMapper());
+    BankConnector bankConnector = new IpkoConnector();
     Iterator<String> input = inputFrom(credentialsFromProperties());
     List<String> output = new LinkedList<>();
     BankConnectorCLI bankConnectorCLI = new BankConnectorCLI(bankConnector, input::next, output::add);

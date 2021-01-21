@@ -8,7 +8,6 @@ import org.mockserver.client.MockServerClient;
 import pl.kontomatik.challenge.connector.BankConnector;
 import pl.kontomatik.challenge.connector.exception.InvalidCredentials;
 import pl.kontomatik.challenge.connector.exception.NotAuthenticated;
-import pl.kontomatik.challenge.connector.ipko.mapper.HttpBodyMapper;
 import pl.kontomatik.challenge.connector.ipko.mockserver.MockIpkoServer;
 
 import java.util.Map;
@@ -31,19 +30,19 @@ public class IpkoConnectorTest extends MockIpkoServer {
 
   @Test
   public void signInSucceedsOnValidCredentials() {
-    BankConnector bankConnector = getProxiedConnector();
+    BankConnector bankConnector = new IpkoConnector(proxy);
     assertDoesNotThrow(() -> bankConnector.login(USERNAME, PASSWORD));
   }
 
   @Test
   public void signInFailsOnInvalidCredentials() {
-    BankConnector bankConnector = getProxiedConnector();
+    BankConnector bankConnector = new IpkoConnector(proxy);
     assertThrows(InvalidCredentials.class, () -> bankConnector.login(WRONG_USERNAME, WRONG_PASSWORD));
   }
 
   @Test
   public void afterSignInCanFetchAccounts() {
-    BankConnector bankConnector = getProxiedConnector();
+    BankConnector bankConnector = new IpkoConnector(proxy);
     bankConnector.login(USERNAME, PASSWORD);
     Map<String, Double> expectedAccounts = Map.of(ACCOUNT_NUMBER, ACCOUNT_BALANCE);
     Map<String, Double> actualAccounts = bankConnector.getAccounts();
@@ -52,12 +51,8 @@ public class IpkoConnectorTest extends MockIpkoServer {
 
   @Test
   public void accountFetchingFailsWhenNotAuthenticated() {
-    BankConnector bankConnector = getProxiedConnector();
+    BankConnector bankConnector = new IpkoConnector(proxy);
     assertThrows(NotAuthenticated.class, bankConnector::getAccounts);
-  }
-
-  private BankConnector getProxiedConnector() {
-    return new IpkoConnector(new HttpBodyMapper(), proxy);
   }
 
 }

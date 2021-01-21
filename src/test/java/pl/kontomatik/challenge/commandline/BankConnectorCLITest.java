@@ -8,7 +8,6 @@ import org.mockserver.client.MockServerClient;
 import pl.kontomatik.challenge.connector.BankConnector;
 import pl.kontomatik.challenge.connector.exception.InvalidCredentials;
 import pl.kontomatik.challenge.connector.ipko.IpkoConnector;
-import pl.kontomatik.challenge.connector.ipko.mapper.HttpBodyMapper;
 import pl.kontomatik.challenge.connector.ipko.mockserver.MockIpkoServer;
 
 import java.util.Arrays;
@@ -57,7 +56,7 @@ public class BankConnectorCLITest extends MockIpkoServer {
   }
 
   private BankConnectorCLI proxiedCliFor(Iterator<String> input, List<String> output) {
-    BankConnector proxiedConnector = new IpkoConnector(new HttpBodyMapper(), proxy);
+    BankConnector proxiedConnector = new IpkoConnector(proxy);
     return new BankConnectorCLI(proxiedConnector, input::next, output::add);
   }
 
