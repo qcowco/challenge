@@ -10,7 +10,7 @@ public class BaseRequest {
   private final String location;
   private final Map<String, Object> data;
 
-  public BaseRequest(int version, int seq, String location, Map<String, Object> data) {
+  BaseRequest(int version, int seq, String location, Map<String, Object> data) {
     this.version = version;
     this.seq = seq;
     this.location = location;

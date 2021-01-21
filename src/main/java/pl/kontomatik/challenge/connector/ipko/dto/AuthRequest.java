@@ -16,7 +16,7 @@ public class AuthRequest extends BaseRequest {
   private final String token;
   private final String action;
 
-  public AuthRequest(int version, int seq, String location, Map<String, Object> data, String stateId,
+  AuthRequest(int version, int seq, String location, Map<String, Object> data, String stateId,
                      String flowId, String token, String action) {
     super(version, seq, location, data);
     this.stateId = stateId;
