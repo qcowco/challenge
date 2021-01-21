@@ -36,7 +36,7 @@ public class BankConnectorCLITest extends MockIpkoServer {
   public void signInFailsOnInvalidCredentials() {
     Iterator<String> input = iterate(WRONG_USERNAME, WRONG_PASSWORD);
     List<String> output = new LinkedList<>();
-    BankConnectorCLI bankConnectorCLI = getProxiedCli(input, output);
+    BankConnectorCLI bankConnectorCLI = proxiedCliFor(input, output);
     assertThrows(InvalidCredentials.class, bankConnectorCLI::run);
   }
 
@@ -44,7 +44,7 @@ public class BankConnectorCLITest extends MockIpkoServer {
   public void signInSucceedsOnValidCredentials() {
     Iterator<String> input = iterate(USERNAME, PASSWORD);
     List<String> output = new LinkedList<>();
-    BankConnectorCLI bankConnectorCLI = getProxiedCli(input, output);
+    BankConnectorCLI bankConnectorCLI = proxiedCliFor(input, output);
     assertDoesNotThrow(bankConnectorCLI::run);
   }
 
@@ -52,14 +52,13 @@ public class BankConnectorCLITest extends MockIpkoServer {
   public void afterSigningInDisplaysAccounts() {
     Iterator<String> input = iterate(USERNAME, PASSWORD);
     List<String> output = new LinkedList<>();
-    getProxiedCli(input, output).run();
+    proxiedCliFor(input, output).run();
     assertContainsEveryElement(output, ACCOUNT_NUMBER, String.valueOf(ACCOUNT_VALUE));
   }
 
-  private BankConnectorCLI getProxiedCli(Iterator<String> input, List<String> output) {
-    HttpBodyMapper mapper = new HttpBodyMapper();
-    BankConnector bankConnector = new IpkoConnector(mapper, proxy);
-    return new BankConnectorCLI(bankConnector, input::next, output::add);
+  private BankConnectorCLI proxiedCliFor(Iterator<String> input, List<String> output) {
+    BankConnector proxiedConnector = new IpkoConnector(new HttpBodyMapper(), proxy);
+    return new BankConnectorCLI(proxiedConnector, input::next, output::add);
   }
 
   private void assertContainsEveryElement(List<String> output, String... elements) {

@@ -115,13 +115,11 @@ public class HttpBodyMapper {
   }
 
   private String tryWriteAsString(BaseRequest accountsRequest) {
-    String value;
     try {
-      value = objectMapper.writeValueAsString(accountsRequest);
+      return objectMapper.writeValueAsString(accountsRequest);
     } catch (JsonProcessingException e) {
       throw new IllegalArgumentException("Couldn't parse given node as String", e);
     }
-    return value;
   }
 
   public Map<String, Double> getAccountsFromJson(String jsonAccounts) {

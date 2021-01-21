@@ -67,7 +67,7 @@ class HttpBodyMapperTest {
     AuthRequest expectedRequest = getBaseRequest()
       .setStateId("login")
       .putData("login", USERNAME)
-      .putData(FINGERPRINT, FINGERPRINT)
+      .putData("fingerprint", FINGERPRINT)
       .build();
     String expectedRequestJson = objectMapper.writeValueAsString(expectedRequest);
     String actualRequestJson = mapper.getAuthRequestBodyFor(FINGERPRINT, USERNAME, SEQUENCE_NUMBER);
@@ -89,7 +89,7 @@ class HttpBodyMapperTest {
       .setStateId(sessionStateId)
       .setFlowId(FLOW_ID)
       .setToken(TOKEN)
-      .putData(PASSWORD, PASSWORD)
+      .putData("password", PASSWORD)
       .putData("placement", "LoginPKO")
       .putData("placement_page_no", 0)
       .build();

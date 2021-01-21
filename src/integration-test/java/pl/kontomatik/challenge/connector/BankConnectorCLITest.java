@@ -21,10 +21,8 @@ public class BankConnectorCLITest {
 
   @Test
   public void afterSignInCanFetchAccounts() throws IOException {
-    HttpBodyMapper mapper = new HttpBodyMapper();
-    BankConnector bankConnector = new IpkoConnector(mapper);
-    Properties credentials = credentialsFromProperties();
-    Iterator<String> input = inputFrom(credentials);
+    BankConnector bankConnector = new IpkoConnector(new HttpBodyMapper());
+    Iterator<String> input = inputFrom(credentialsFromProperties());
     List<String> output = new LinkedList<>();
     BankConnectorCLI bankConnectorCLI = new BankConnectorCLI(bankConnector, input::next, output::add);
     assertDoesNotThrow(bankConnectorCLI::run);

@@ -41,7 +41,9 @@ public class BankConnectorCLI {
   private String stringFrom(Map<String, Double> accounts) {
     StringBuilder accountsListed = new StringBuilder();
     accountsListed.append("Accounts:\n");
-    accounts.forEach((s, aDouble) -> accountsListed.append(String.format("Account number: %s, Value %f\n", s, aDouble)));
+    accounts.forEach((number, value) ->
+      accountsListed.append(String.format("Account number: %s, Value %f\n", number, value))
+    );
     return accountsListed.toString();
   }
 }
