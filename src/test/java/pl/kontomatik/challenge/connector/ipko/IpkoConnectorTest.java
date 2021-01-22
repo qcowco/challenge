@@ -41,14 +41,14 @@ public class IpkoConnectorTest extends MockIpkoServer {
     BankConnector bankConnector = new IpkoConnector(proxy);
     bankConnector.login(USERNAME, PASSWORD);
     Map<String, Double> expectedAccounts = Map.of(ACCOUNT_NUMBER, ACCOUNT_BALANCE);
-    Map<String, Double> actualAccounts = bankConnector.getAccounts();
+    Map<String, Double> actualAccounts = bankConnector.fetchAccounts();
     assertEquals(expectedAccounts, actualAccounts);
   }
 
   @Test
   public void accountFetchingFailsWhenNotAuthenticated() {
     BankConnector bankConnector = new IpkoConnector(proxy);
-    assertThrows(NotAuthenticated.class, bankConnector::getAccounts);
+    assertThrows(NotAuthenticated.class, bankConnector::fetchAccounts);
   }
 
 }

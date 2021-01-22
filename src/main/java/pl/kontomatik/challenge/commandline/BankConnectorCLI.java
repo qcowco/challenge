@@ -34,7 +34,7 @@ public class BankConnectorCLI {
   }
 
   private void displayAccounts() {
-    Map<String, Double> accounts = bankConnector.getAccounts();
+    Map<String, Double> accounts = bankConnector.fetchAccounts();
     consumer.accept(stringFrom(accounts));
   }
 

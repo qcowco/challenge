@@ -37,46 +37,43 @@ public class IpkoConnector implements BankConnector {
 
   @Override
   public void login(String username, String password) {
-    String sessionToken = beginAuthentication(username);
+    String sessionToken = submitLogin(username);
     authorizeSessionToken(sessionToken, password);
   }
 
-  private String beginAuthentication(String username) {
-    Connection.Response response = sendAuthenticationRequest(username);
+  private String submitLogin(String username) {
+    Connection.Response response = submitLoginRequest(username);
     AuthResponse authResponse = mapper.getAuthResponseFrom(response.body());
     verifySuccessful(authResponse);
     assignFlowTokens(authResponse);
-    return getSessionToken(response.headers());
+    return sessionTokenFrom(response.headers());
   }
 
-  private Connection.Response sendAuthenticationRequest(String username) {
-    Connection request = getAuthenticationRequest(username);
-    applyProxy(request);
-    return trySendRequest(request);
+  private Connection.Response submitLoginRequest(String username) {
+    Connection request = loginRequestFor(username);
+    return handleSend(request);
   }
 
-  private void applyProxy(Connection request) {
-    request.proxy(proxy);
-  }
-
-  private Connection getAuthenticationRequest(String username) {
+  private Connection loginRequestFor(String username) {
     return Jsoup.connect(LOGIN_URL)
       .ignoreContentType(true)
-      .requestBody(getAuthenticationBody(username))
+      .requestBody(loginRequestBodyFor(username))
       .cookies(getCookies())
       .method(Connection.Method.POST)
       .header("Content-Type", "application/json");
   }
 
-  private Connection.Response trySendRequest(Connection request) {
+  private Connection.Response handleSend(Connection request) {
     try {
-      return request.execute();
+      return request
+        .proxy(proxy)
+        .execute();
     } catch (IOException e) {
       throw new ConnectionFailed(e);
     }
   }
 
-  private String getSessionToken(Map<String, String> headers) {
+  private String sessionTokenFrom(Map<String, String> headers) {
     return headers.get("X-Session-Id");
   }
 
@@ -90,11 +87,11 @@ public class IpkoConnector implements BankConnector {
       throw new InvalidCredentials("Couldn't login with provided credentials.");
   }
 
-  private String getAuthenticationBody(String username) {
+  private String loginRequestBodyFor(String username) {
     return mapper.getAuthRequestBodyFor(FINGERPRINT, username, getAndIncrementSequence());
   }
 
-  public int getAndIncrementSequence() {
+  private int getAndIncrementSequence() {
     return requestSequenceNumber++;
   }
 
@@ -108,45 +105,43 @@ public class IpkoConnector implements BankConnector {
 
   private Connection.Response sendAuthorizeSessionRequest(String sessionToken, String password) {
     Connection request = getAuthorizeSessionRequest(sessionToken, password);
-    applyProxy(request);
-    return trySendRequest(request);
+    return handleSend(request);
   }
 
   private Connection getAuthorizeSessionRequest(String sessionToken, String password) {
     return Jsoup.connect(LOGIN_URL)
       .ignoreContentType(true)
-      .requestBody(getAuthorizeSessionBody(password))
+      .requestBody(sessionRequestBodyFor(password))
       .cookies(getCookies())
       .headers(Map.of("X-Session-Id", sessionToken, "Content-Type", "application/json"))
       .method(Connection.Method.POST);
   }
 
-  private String getAuthorizeSessionBody(String password) {
+  private String sessionRequestBodyFor(String password) {
     return mapper.getSessionAuthRequestBodyFor(authFlowId, authFlowToken, password,
       getAndIncrementSequence());
   }
 
   private Map<String, String> getCookies() {
     if (cookies == null)
-      cookies = sendCookieRequest()
-        .cookies();
+      cookies = fetchCookies();
     return cookies;
   }
 
-  private Connection.Response sendCookieRequest() {
-    Connection request = getCookieRequest();
-    applyProxy(request);
-    return trySendRequest(request);
+  private Map<String, String> fetchCookies() {
+    Connection request = cookieRequest();
+    return handleSend(request)
+      .cookies();
   }
 
-  private Connection getCookieRequest() {
+  private Connection cookieRequest() {
     return Jsoup.connect(NDCD_URL)
       .ignoreContentType(true)
       .ignoreHttpErrors(true);
   }
 
   @Override
-  public Map<String, Double> getAccounts() {
+  public Map<String, Double> fetchAccounts() {
     verifyAuthenticated();
     String jsonResponse = sendAccountsRequest()
       .body();
@@ -159,21 +154,20 @@ public class IpkoConnector implements BankConnector {
   }
 
   private Connection.Response sendAccountsRequest() {
-    Connection request = getAccountsRequest();
-    applyProxy(request);
-    return trySendRequest(request);
+    Connection request = accountsRequest();
+    return handleSend(request);
   }
 
-  private Connection getAccountsRequest() {
+  private Connection accountsRequest() {
     return Jsoup.connect(INIT_URL)
       .ignoreContentType(true)
-      .requestBody(getAccountsBody())
+      .requestBody(accountsBody())
       .cookies(getCookies())
       .header("X-Session-Id", sessionToken)
       .method(Connection.Method.POST);
   }
 
-  private String getAccountsBody() {
+  private String accountsBody() {
     return mapper.getAccountsRequestBodyFor(getAndIncrementSequence());
   }
 
