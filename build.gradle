@@ -22,8 +22,6 @@ sourceSets {
 dependencies {
     compile 'org.jsoup:jsoup:1.13.1'
     compile 'com.fasterxml.jackson.core:jackson-databind:2.11.4'
-    testCompile 'org.mockito:mockito-inline:3.7.0'
-    testCompile 'org.mockito:mockito-junit-jupiter:3.7.0'
     testCompile 'org.junit.jupiter:junit-jupiter:5.6.3'
     testCompile 'org.mock-server:mockserver-junit-jupiter:5.11.2'
 }

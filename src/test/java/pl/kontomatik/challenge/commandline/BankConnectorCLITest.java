@@ -2,8 +2,6 @@ package pl.kontomatik.challenge.commandline;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockserver.client.MockServerClient;
 import pl.kontomatik.challenge.connector.BankConnector;
 import pl.kontomatik.challenge.connector.exception.InvalidCredentials;
@@ -17,7 +15,6 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(MockitoExtension.class)
 public class BankConnectorCLITest extends MockIpkoServer {
   private static final String USERNAME = "USERNAME";
   private static final String PASSWORD = "PASSWORD";
