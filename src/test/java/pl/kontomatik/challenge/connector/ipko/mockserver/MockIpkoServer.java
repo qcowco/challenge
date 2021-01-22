@@ -18,7 +18,7 @@ import static org.mockserver.model.HttpResponse.response;
 @MockServerSettings(ports = 1090)
 public abstract class MockIpkoServer {
   private static final String LOGIN_JSON_TEMPLATE = "{\"data\":{\"login\":\"%s\"}}";
-  private static final String USERNAME = "USERNAME";
+  protected static final String USERNAME = "USERNAME";
   private static final String WRONG_USERNAME = "WRONG_USERNAME";
   private static final String LOGIN_PATH = "/ipko3/login";
   private static final String NDCD_PATH = "/nudatasecurity/2.2/w/w-573441/init/js";
