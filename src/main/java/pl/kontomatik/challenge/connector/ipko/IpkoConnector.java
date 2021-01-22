@@ -141,7 +141,8 @@ public class IpkoConnector implements BankConnector {
 
   private Connection getCookieRequest() {
     return Jsoup.connect(NDCD_URL)
-      .ignoreContentType(true);
+      .ignoreContentType(true)
+      .ignoreHttpErrors(true);
   }
 
   @Override
