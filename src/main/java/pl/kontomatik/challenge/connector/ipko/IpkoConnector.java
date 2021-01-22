@@ -69,7 +69,7 @@ public class IpkoConnector implements BankConnector {
         .proxy(proxy)
         .execute();
     } catch (IOException e) {
-      throw new ConnectionFailed(e);
+      throw new UncheckedIOException(e);
     }
   }
 
