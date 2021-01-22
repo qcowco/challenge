@@ -6,9 +6,6 @@ Banks expose APIs that allow their websites to perform any kind of operations re
 * Java 11 JDK
 * Gradle for building and running
 
-## Setup
-There are no external dependencies. This is a simple commandline application that just needs to be built.
-
 ## Running the application
 ```shell
 $ ./gradlew run --console=plain
@@ -36,7 +33,6 @@ To run integration tests, populate the existing 'src/integration-test/resources/
 username=your-username
 password=your-password
 ```
-
 
 ## Integration tests [(test data required)](#populating-test-data)
 ```shell
