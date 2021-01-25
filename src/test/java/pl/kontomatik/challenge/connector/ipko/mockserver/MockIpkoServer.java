@@ -18,15 +18,18 @@ import static org.mockserver.model.HttpResponse.response;
 @MockServerSettings(ports = 1090)
 public abstract class MockIpkoServer {
   private static final String LOGIN_JSON_TEMPLATE = "{\"data\":{\"login\":\"%s\"}}";
+  private static final String PASSWORD_JSON_TEMPLATE = "{\"data\":{\"password\":\"%s\"}}";
   protected static final String USERNAME = "USERNAME";
-  private static final String WRONG_USERNAME = "WRONG_USERNAME";
+  protected static final String WRONG_USERNAME = "WRONG_USERNAME";
+  protected static final String PASSWORD = "PASSWORD";
+  protected static final String WRONG_PASSWORD = "WRONG_PASSWORD";
   private static final String LOGIN_PATH = "/ipko3/login";
   private static final String NDCD_PATH = "/nudatasecurity/2.2/w/w-573441/init/js";
   private static final String INIT_PATH = "/ipko3/init";
   private static final String SESSION_HEADER = "X-Session-Id";
   private static final String SESSION_TOKEN = "TOKEN";
   private static final String LOGIN_RESPONSE_BODY = "{\"response\":{\"flow_id\":\"flow_id\",\"token\":\"token\",\"finished\":true}}";
-  private static final String BAD_LOGIN_RESPONSE_BODY = "{\"response\":{\"flow_id\":\"flow_id\",\"token\":\"token\",\"fields\":{\"errors\":{\"description\":\"An error!\"}}}}";
+  private static final String BAD_AUTH_RESPONSE_BODY = "{\"response\":{\"flow_id\":\"flow_id\",\"token\":\"token\",\"fields\":{\"errors\":{\"description\":\"An error!\"}}}}";
   private static final String ACCOUNT_RESPONSE_BODY = "{\"accounts\":{\"acc1\":{\"number\":{\"value\":\"123456789\"},\"balance\":0.5}}}";
 
   protected static Proxy proxy;
@@ -44,10 +47,16 @@ public abstract class MockIpkoServer {
   }
 
   protected static void setupMockedServer(MockServerClient mockServerClient) {
-    mockSuccessfulLogin(mockServerClient);
-    mockFailedLogin(mockServerClient);
+    mockSuccessfulAuthentication(mockServerClient);
+    mockFailedAuthentication(mockServerClient);
     mockCookieRequest(mockServerClient);
     mockAccountsRequest(mockServerClient);
+    mockNotFound(mockServerClient);
+  }
+
+  private static void mockSuccessfulAuthentication(MockServerClient mockServerClient) {
+    mockSuccessfulLogin(mockServerClient);
+    mockSuccessfulSessionAuthorization(mockServerClient);
   }
 
   private static void mockSuccessfulLogin(MockServerClient mockServerClient) {
@@ -64,6 +73,25 @@ public abstract class MockIpkoServer {
       );
   }
 
+  private static void mockSuccessfulSessionAuthorization(MockServerClient mockServerClient) {
+    mockServerClient
+      .when(request()
+        .withMethod("POST")
+        .withPath(LOGIN_PATH)
+        .withBody(JsonBody.json(String.format(PASSWORD_JSON_TEMPLATE, PASSWORD),
+          MatchType.ONLY_MATCHING_FIELDS)))
+      .respond(response()
+        .withStatusCode(200)
+        .withHeader(SESSION_HEADER, SESSION_TOKEN)
+        .withBody(LOGIN_RESPONSE_BODY)
+      );
+  }
+
+  private static void mockFailedAuthentication(MockServerClient mockServerClient) {
+    mockFailedLogin(mockServerClient);
+    mockFailedSessionAuthorization(mockServerClient);
+  }
+
   private static void mockFailedLogin(MockServerClient mockServerClient) {
     mockServerClient
       .when(request()
@@ -73,7 +101,21 @@ public abstract class MockIpkoServer {
           MatchType.ONLY_MATCHING_FIELDS)))
       .respond(response()
         .withStatusCode(200)
-        .withBody(BAD_LOGIN_RESPONSE_BODY)
+        .withBody(BAD_AUTH_RESPONSE_BODY)
+      );
+  }
+
+  private static void mockFailedSessionAuthorization(MockServerClient mockServerClient) {
+    mockServerClient
+      .when(request()
+        .withMethod("POST")
+        .withPath(LOGIN_PATH)
+        .withBody(JsonBody.json(String.format(PASSWORD_JSON_TEMPLATE, WRONG_PASSWORD),
+          MatchType.ONLY_MATCHING_FIELDS)))
+      .respond(response()
+        .withStatusCode(200)
+        .withHeader(SESSION_HEADER, SESSION_TOKEN)
+        .withBody(BAD_AUTH_RESPONSE_BODY)
       );
   }
 
@@ -94,5 +136,11 @@ public abstract class MockIpkoServer {
       .respond(response()
         .withStatusCode(200)
         .withBody(ACCOUNT_RESPONSE_BODY));
+  }
+
+  private static void mockNotFound(MockServerClient mockServerClient) {
+    mockServerClient.when(request())
+      .respond(response()
+        .withStatusCode(404));
   }
 }
