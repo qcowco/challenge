@@ -16,11 +16,6 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class BankConnectorCLITest extends MockIpkoServer {
-  private static final String PASSWORD = "PASSWORD";
-  private static final String WRONG_USERNAME = "WRONG_USERNAME";
-  private static final String WRONG_PASSWORD = "WRONG_PASSWORD";
-  private static final String ACCOUNT_NUMBER = "123456789";
-  private static final Double ACCOUNT_VALUE = 0.5;
 
   @BeforeAll
   public static void setupMocks(MockServerClient mockServerClient) {
@@ -48,7 +43,7 @@ public class BankConnectorCLITest extends MockIpkoServer {
     Iterator<String> input = iterate(USERNAME, PASSWORD);
     List<String> output = new LinkedList<>();
     proxiedCliFor(input, output).run();
-    assertContainsEveryElement(output, ACCOUNT_NUMBER, String.valueOf(ACCOUNT_VALUE));
+    assertContainsEveryElement(output, ACCOUNT_NUMBER, String.valueOf(ACCOUNT_BALANCE));
   }
 
   private BankConnectorCLI proxiedCliFor(Iterator<String> input, List<String> output) {

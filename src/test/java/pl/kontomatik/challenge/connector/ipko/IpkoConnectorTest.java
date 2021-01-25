@@ -13,11 +13,6 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class IpkoConnectorTest extends MockIpkoServer {
-  private static final String PASSWORD = "PASSWORD";
-  private static final String WRONG_USERNAME = "WRONG_USERNAME";
-  private static final String WRONG_PASSWORD = "WRONG_PASSWORD";
-  private static final String ACCOUNT_NUMBER = "123456789";
-  private static final double ACCOUNT_BALANCE = 0.5;
 
   @BeforeAll
   public static void setupMocks(MockServerClient mockServerClient) {

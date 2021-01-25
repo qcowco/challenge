@@ -23,6 +23,8 @@ public abstract class MockIpkoServer {
   protected static final String WRONG_USERNAME = "WRONG_USERNAME";
   protected static final String PASSWORD = "PASSWORD";
   protected static final String WRONG_PASSWORD = "WRONG_PASSWORD";
+  protected static final String ACCOUNT_NUMBER = "123456789";
+  protected static final double ACCOUNT_BALANCE = 0.5;
   private static final String LOGIN_PATH = "/ipko3/login";
   private static final String NDCD_PATH = "/nudatasecurity/2.2/w/w-573441/init/js";
   private static final String INIT_PATH = "/ipko3/init";
@@ -30,7 +32,7 @@ public abstract class MockIpkoServer {
   private static final String SESSION_TOKEN = "TOKEN";
   private static final String LOGIN_RESPONSE_BODY = "{\"response\":{\"flow_id\":\"flow_id\",\"token\":\"token\",\"finished\":true}}";
   private static final String BAD_AUTH_RESPONSE_BODY = "{\"response\":{\"flow_id\":\"flow_id\",\"token\":\"token\",\"fields\":{\"errors\":{\"description\":\"An error!\"}}}}";
-  private static final String ACCOUNT_RESPONSE_BODY = "{\"accounts\":{\"acc1\":{\"number\":{\"value\":\"123456789\"},\"balance\":0.5}}}";
+  private static final String ACCOUNT_RESPONSE_TEMPLATE = "{\"accounts\":{\"acc1\":{\"number\":{\"value\":\"%s\"},\"balance\":%f}}}";
 
   protected static Proxy proxy;
 
@@ -135,7 +137,7 @@ public abstract class MockIpkoServer {
         .withPath(INIT_PATH))
       .respond(response()
         .withStatusCode(200)
-        .withBody(ACCOUNT_RESPONSE_BODY));
+        .withBody(String.format(ACCOUNT_RESPONSE_TEMPLATE, ACCOUNT_NUMBER, ACCOUNT_BALANCE)));
   }
 
   private static void mockNotFound(MockServerClient mockServerClient) {
