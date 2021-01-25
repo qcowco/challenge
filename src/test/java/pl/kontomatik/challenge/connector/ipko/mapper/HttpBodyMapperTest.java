@@ -14,8 +14,10 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class HttpBodyMapperTest {
+  private static final String SESSION_TOKEN_HEADER = "X-Session-Id";
+  private static final String SESSION_TOKEN = "session_token";
   private static final String FLOW_ID = "flow_id";
-  private static final String TOKEN = "token";
+  private static final String FLOW_TOKEN = "token";
   private static final String FINGERPRINT = "fingerprint";
   private static final String USERNAME = "username";
   private static final String PASSWORD = "password";
@@ -33,31 +35,31 @@ class HttpBodyMapperTest {
   @Test
   public void mapsAuthResponseFromJson() {
     boolean hasErrors = false;
-    AuthResponse expectedResponse = new AuthResponse(FLOW_ID, TOKEN, hasErrors);
+    AuthResponse expectedResponse = new AuthResponse(SESSION_TOKEN, FLOW_ID, FLOW_TOKEN, hasErrors);
     String loginResponse = "{\"flow_id\":\"flow_id\",\"token\":\"token\",\"finished\":true}";
-    AuthResponse actualResponse = mapper.getAuthResponseFrom(loginResponse);
+    AuthResponse actualResponse = mapper.getAuthResponseFrom(Map.of(SESSION_TOKEN_HEADER, SESSION_TOKEN), loginResponse);
     assertEquals(expectedResponse, actualResponse);
   }
 
   @Test
   public void mapsAuthResponseWithErrorOnGeneralError() {
     boolean hasErrors = true;
-    AuthResponse expectedResponse = new AuthResponse(FLOW_ID, TOKEN, hasErrors);
+    AuthResponse expectedResponse = new AuthResponse(SESSION_TOKEN, FLOW_ID, FLOW_TOKEN, hasErrors);
     String errorResponse = "{\"response\":{\"flow_id\":\"flow_id\",\"token\":\"token\",\"fields\":{\"errors\":{}}}}";
-    AuthResponse actualResponse = mapper.getAuthResponseFrom(errorResponse);
+    AuthResponse actualResponse = mapper.getAuthResponseFrom(Map.of(SESSION_TOKEN_HEADER, SESSION_TOKEN), errorResponse);
     assertEquals(expectedResponse, actualResponse);
   }
 
   @Test
   public void mapsAuthResponseWithErrorOnCredentialError() {
     boolean hasErrors = true;
-    AuthResponse expectedResponse = new AuthResponse(FLOW_ID, TOKEN, hasErrors);
+    AuthResponse expectedResponse = new AuthResponse(SESSION_TOKEN, FLOW_ID, FLOW_TOKEN, hasErrors);
     String errorResponse = "{\"response\":" +
       "{\"flow_id\":\"flow_id\",\"token\":\"token\",\"fields\":" +
       "{\"login\":{\"errors\":{}},\"password\":{\"errors\":{}}}" +
       "}" +
       "}";
-    AuthResponse actualResponse = mapper.getAuthResponseFrom(errorResponse);
+    AuthResponse actualResponse = mapper.getAuthResponseFrom(Map.of(SESSION_TOKEN_HEADER, SESSION_TOKEN), errorResponse);
     assertEquals(expectedResponse, actualResponse);
   }
 
@@ -88,13 +90,13 @@ class HttpBodyMapperTest {
     AuthRequest expectedRequest = getBaseRequest()
       .setStateId(sessionStateId)
       .setFlowId(FLOW_ID)
-      .setToken(TOKEN)
+      .setToken(FLOW_TOKEN)
       .putData("password", PASSWORD)
       .putData("placement", "LoginPKO")
       .putData("placement_page_no", 0)
       .build();
     String expectedJsonBody = objectMapper.writeValueAsString(expectedRequest);
-    String actualJsonBody = mapper.getSessionAuthRequestBodyFor(FLOW_ID, TOKEN, PASSWORD, SEQUENCE_NUMBER);
+    String actualJsonBody = mapper.getSessionAuthRequestBodyFor(FLOW_ID, FLOW_TOKEN, PASSWORD, SEQUENCE_NUMBER);
     assertEquals(expectedJsonBody, actualJsonBody);
   }
 

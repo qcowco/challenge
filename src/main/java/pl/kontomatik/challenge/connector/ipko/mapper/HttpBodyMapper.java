@@ -27,12 +27,17 @@ public class HttpBodyMapper {
     objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
   }
 
-  public AuthResponse getAuthResponseFrom(String responseBody) {
-    JsonNode responseNode = tryGetJsonNodeFrom(responseBody);
+  public AuthResponse getAuthResponseFrom(Map<String, String> headers, String body) {
+    JsonNode responseNode = tryGetJsonNodeFrom(body);
+    return authResponseFrom(headers, responseNode);
+  }
+
+  private AuthResponse authResponseFrom(Map<String, String> headers, JsonNode responseNode) {
+    String sessionToken = headers.get("X-Session-Id");
     String flowId = responseNode.findPath("flow_id").asText();
     String token = responseNode.findPath("token").asText();
     boolean wrongCredential = containsLoginErrors(responseNode);
-    return new AuthResponse(flowId, token, wrongCredential);
+    return new AuthResponse(sessionToken, flowId, token, wrongCredential);
   }
 
   private JsonNode tryGetJsonNodeFrom(String responseBody) {

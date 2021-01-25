@@ -3,13 +3,15 @@ package pl.kontomatik.challenge.connector.ipko.dto;
 import java.util.Objects;
 
 public class AuthResponse {
+  public final String sessionToken;
   public final String flowId;
-  public final String token;
+  public final String flowToken;
   public final boolean wrongCredentials;
 
-  public AuthResponse(String flowId, String token, boolean wrongCredentials) {
+  public AuthResponse(String sessionToken, String flowId, String flowToken, boolean wrongCredentials) {
+    this.sessionToken = sessionToken;
     this.flowId = flowId;
-    this.token = token;
+    this.flowToken = flowToken;
     this.wrongCredentials = wrongCredentials;
   }
 
@@ -18,11 +20,12 @@ public class AuthResponse {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     AuthResponse that = (AuthResponse) o;
-    return wrongCredentials == that.wrongCredentials && flowId.equals(that.flowId) && token.equals(that.token);
+    return wrongCredentials == that.wrongCredentials && sessionToken.equals(that.sessionToken) &&
+      flowId.equals(that.flowId) && flowToken.equals(that.flowToken);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(flowId, token, wrongCredentials);
+    return Objects.hash(sessionToken, flowId, flowToken, wrongCredentials);
   }
 }

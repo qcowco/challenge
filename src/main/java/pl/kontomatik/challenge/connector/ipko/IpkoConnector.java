@@ -3,13 +3,13 @@ package pl.kontomatik.challenge.connector.ipko;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import pl.kontomatik.challenge.connector.BankConnector;
-import pl.kontomatik.challenge.connector.exception.ConnectionFailed;
 import pl.kontomatik.challenge.connector.exception.InvalidCredentials;
 import pl.kontomatik.challenge.connector.exception.NotAuthenticated;
 import pl.kontomatik.challenge.connector.ipko.dto.AuthResponse;
 import pl.kontomatik.challenge.connector.ipko.mapper.HttpBodyMapper;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.net.Proxy;
 import java.util.Map;
 import java.util.Objects;
@@ -21,8 +21,6 @@ public class IpkoConnector implements BankConnector {
   private static final String INIT_URL = "https://www.ipko.pl/ipko3/init";
   private Map<String, String> cookies;
   private String sessionToken;
-  private String authFlowId;
-  private String authFlowToken;
   private int requestSequenceNumber;
   private final HttpBodyMapper mapper = new HttpBodyMapper();
   private final Proxy proxy;
@@ -37,16 +35,15 @@ public class IpkoConnector implements BankConnector {
 
   @Override
   public void login(String username, String password) {
-    String sessionToken = submitLogin(username);
-    authorizeSessionToken(sessionToken, password);
+    AuthResponse authResponse = submitLogin(username);
+    authorizeSessionToken(authResponse, password);
   }
 
-  private String submitLogin(String username) {
+  private AuthResponse submitLogin(String username) {
     Connection.Response response = submitLoginRequest(username);
-    AuthResponse authResponse = mapper.getAuthResponseFrom(response.body());
+    AuthResponse authResponse = mapper.getAuthResponseFrom(response.headers(), response.body());
     verifySuccessful(authResponse);
-    assignFlowTokens(authResponse);
-    return sessionTokenFrom(response.headers());
+    return authResponse;
   }
 
   private Connection.Response submitLoginRequest(String username) {
@@ -73,15 +70,6 @@ public class IpkoConnector implements BankConnector {
     }
   }
 
-  private String sessionTokenFrom(Map<String, String> headers) {
-    return headers.get("X-Session-Id");
-  }
-
-  private void assignFlowTokens(AuthResponse authResponse) {
-    authFlowId = authResponse.flowId;
-    authFlowToken = authResponse.token;
-  }
-
   private void verifySuccessful(AuthResponse authResponse) {
     if (authResponse.wrongCredentials)
       throw new InvalidCredentials("Couldn't login with provided credentials.");
@@ -95,30 +83,30 @@ public class IpkoConnector implements BankConnector {
     return requestSequenceNumber++;
   }
 
-  private void authorizeSessionToken(String sessionToken, String password) {
-    String jsonBody = sendAuthorizeSessionRequest(sessionToken, password)
-      .body();
-    AuthResponse authResponse = mapper.getAuthResponseFrom(jsonBody);
-    verifySuccessful(authResponse);
-    this.sessionToken = sessionToken;
+  private void authorizeSessionToken(AuthResponse authResponse, String password) {
+    Connection.Response authorizationResponse = sendAuthorizeSessionRequest(authResponse, password);
+    AuthResponse sessionResponse = mapper.getAuthResponseFrom(authorizationResponse.headers(), authorizationResponse.body());
+    verifySuccessful(sessionResponse);
+    this.sessionToken = sessionResponse.sessionToken;
   }
 
-  private Connection.Response sendAuthorizeSessionRequest(String sessionToken, String password) {
-    Connection request = getAuthorizeSessionRequest(sessionToken, password);
+  private Connection.Response sendAuthorizeSessionRequest(AuthResponse authResponse, String password) {
+    Connection request = getAuthorizeSessionRequest(authResponse, password);
     return handleSend(request);
   }
 
-  private Connection getAuthorizeSessionRequest(String sessionToken, String password) {
+  private Connection getAuthorizeSessionRequest(AuthResponse authResponse, String password) {
     return Jsoup.connect(LOGIN_URL)
       .ignoreContentType(true)
-      .requestBody(sessionRequestBodyFor(password))
+      .requestBody(sessionRequestBodyFor(authResponse, password))
       .cookies(getCookies())
-      .headers(Map.of("X-Session-Id", sessionToken, "Content-Type", "application/json"))
+      .headers(Map.of("X-Session-Id", authResponse.sessionToken, "Content-Type", "application/json"))
+      .proxy(proxy)
       .method(Connection.Method.POST);
   }
 
-  private String sessionRequestBodyFor(String password) {
-    return mapper.getSessionAuthRequestBodyFor(authFlowId, authFlowToken, password,
+  private String sessionRequestBodyFor(AuthResponse authResponse, String password) {
+    return mapper.getSessionAuthRequestBodyFor(authResponse.flowId, authResponse.flowToken, password,
       getAndIncrementSequence());
   }
 
