@@ -39,5 +39,4 @@ public class IpkoClientTest extends MockIpkoServer {
     assertEquals(expectedAccounts, actualAccounts);
   }
 
-
 }

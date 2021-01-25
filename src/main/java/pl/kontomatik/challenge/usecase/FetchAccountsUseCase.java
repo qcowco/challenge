@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class BankClientCLI {
+
   private final BankClient bankClient;
   private final Supplier<String> supplier;
   private final Consumer<String> consumer;
@@ -39,7 +40,7 @@ public class BankClientCLI {
     consumer.accept(formattedAccounts);
   }
 
-  private String stringFrom(Map<String, Double> accounts) {
+  private static String format(Map<String, Double> accounts) {
     StringBuilder accountsListed = new StringBuilder();
     accountsListed.append("Accounts:\n");
     accounts.forEach((number, value) ->
@@ -47,4 +48,5 @@ public class BankClientCLI {
     );
     return accountsListed.toString();
   }
+
 }

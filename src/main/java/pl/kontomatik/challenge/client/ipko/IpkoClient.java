@@ -13,6 +13,7 @@ import java.net.Proxy;
 import java.util.Map;
 
 public class IpkoClient implements BankClient {
+
   private static final String LOGIN_URL = "https://www.ipko.pl/ipko3/login";
   private static final String INIT_URL = "https://www.ipko.pl/ipko3/init";
   private static final HttpBodyMapper mapper = new HttpBodyMapper();
@@ -52,6 +53,10 @@ public class IpkoClient implements BankClient {
       .header("Content-Type", "application/json");
   }
 
+  private String loginRequestBodyFor(String username) {
+    return mapper.getAuthRequestBodyFor(username);
+  }
+
   private Connection.Response handleSend(Connection request) {
     try {
       return request
@@ -65,10 +70,6 @@ public class IpkoClient implements BankClient {
   private void verifySuccessful(AuthResponse authResponse) {
     if (authResponse.wrongCredentials)
       throw new InvalidCredentials("Couldn't login with provided credentials.");
-  }
-
-  private String loginRequestBodyFor(String username) {
-    return mapper.getAuthRequestBodyFor(username);
   }
 
   private AuthorizedSession authorizeSessionToken(AuthResponse authResponse, String password) {

@@ -30,6 +30,15 @@ public class BankClientCLITest extends MockIpkoServer {
     assertThrows(InvalidCredentials.class, bankClientCLI::run);
   }
 
+  private Iterator<String> iterate(String... inputs) {
+    return Arrays.asList(inputs).iterator();
+  }
+
+  private BankClientCLI proxiedCliFor(Iterator<String> input, List<String> output) {
+    BankClient proxiedClient = new IpkoClient(proxy);
+    return new BankClientCLI(proxiedClient, input::next, output::add);
+  }
+
   @Test
   public void signInSucceedsOnValidCredentials() {
     Iterator<String> input = iterate(USERNAME, PASSWORD);
@@ -46,11 +55,6 @@ public class BankClientCLITest extends MockIpkoServer {
     assertContainsEveryElement(output, ACCOUNT_NUMBER, String.valueOf(ACCOUNT_BALANCE));
   }
 
-  private BankClientCLI proxiedCliFor(Iterator<String> input, List<String> output) {
-    BankClient proxiedClient = new IpkoClient(proxy);
-    return new BankClientCLI(proxiedClient, input::next, output::add);
-  }
-
   private void assertContainsEveryElement(List<String> output, String... elements) {
     assertTrue(containsEveryElement(output, elements));
   }
@@ -60,7 +64,4 @@ public class BankClientCLITest extends MockIpkoServer {
       .allMatch(value -> output.stream().anyMatch(outputValue -> outputValue.contains(value)));
   }
 
-  private Iterator<String> iterate(String... inputs) {
-    return Arrays.asList(inputs).iterator();
-  }
 }

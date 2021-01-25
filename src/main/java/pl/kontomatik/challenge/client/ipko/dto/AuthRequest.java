@@ -8,6 +8,7 @@ import java.util.Map;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AuthRequest extends BaseRequest {
+
   @JsonProperty("state_id")
   private final String stateId;
   @JsonProperty("flow_id")
@@ -28,6 +29,7 @@ public class AuthRequest extends BaseRequest {
   }
 
   public static class Builder {
+
     private final Map<String, Object> data;
     private String stateId;
     private String flowId;
@@ -60,5 +62,7 @@ public class AuthRequest extends BaseRequest {
     public AuthRequest build() {
       return new AuthRequest(data, stateId, flowId, token);
     }
+
   }
+
 }

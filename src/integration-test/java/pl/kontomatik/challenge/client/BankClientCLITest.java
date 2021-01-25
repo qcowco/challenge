@@ -27,6 +27,30 @@ public class BankClientCLITest {
     assertContains(output, "Account number:");
   }
 
+  private Iterator<String> loadCredentials() throws IOException {
+    return inputFrom(credentialProperties());
+  }
+
+  private Properties credentialProperties() throws IOException {
+    Properties properties = new Properties();
+    properties.load(resourceStream());
+    return properties;
+  }
+
+  private InputStream resourceStream() {
+    return BankClientCLITest.class.getResourceAsStream("/application.properties");
+  }
+
+  private Iterator<String> inputFrom(Properties credentials) {
+    String username = credentials.getProperty("username");
+    String password = credentials.getProperty("password");
+    return iterate(username, password);
+  }
+
+  private Iterator<String> iterate(String username, String password) {
+    return List.of(username, password).iterator();
+  }
+
   private void assertContains(List<String> output, String message) {
     assertTrue(anyLineContains(output, message));
   }
@@ -43,30 +67,6 @@ public class BankClientCLITest {
     List<String> output = new LinkedList<>();
     BankClientCLI bankClientCLI = new BankClientCLI(bankClient, input::next, output::add);
     assertThrows(InvalidCredentials.class, bankClientCLI::run);
-  }
-
-  private Iterator<String> loadCredentials() throws IOException {
-    return inputFrom(credentialProperties());
-  }
-
-  private Iterator<String> inputFrom(Properties credentials) {
-    String username = credentials.getProperty("username");
-    String password = credentials.getProperty("password");
-    return iterate(username, password);
-  }
-
-  private Iterator<String> iterate(String username, String password) {
-    return List.of(username, password).iterator();
-  }
-
-  private Properties credentialProperties() throws IOException {
-    Properties properties = new Properties();
-    properties.load(resourceStream());
-    return properties;
-  }
-
-  private InputStream resourceStream() {
-    return BankClientCLITest.class.getResourceAsStream("/application.properties");
   }
 
 }

@@ -13,9 +13,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class HttpBodyMapper {
+
   private static final String AUTH_STATE_ID = "login";
   private static final String SESSION_STATE_ID = "password";
-
   private final ObjectMapper objectMapper = new ObjectMapper();
 
   public HttpBodyMapper() {
@@ -27,20 +27,20 @@ public class HttpBodyMapper {
     return authResponseFrom(headers, responseNode);
   }
 
-  private AuthResponse authResponseFrom(Map<String, String> headers, JsonNode responseNode) {
-    String sessionToken = headers.get("X-Session-Id");
-    String flowId = responseNode.findPath("flow_id").asText();
-    String token = responseNode.findPath("token").asText();
-    boolean wrongCredential = containsLoginErrors(responseNode);
-    return new AuthResponse(sessionToken, flowId, token, wrongCredential);
-  }
-
   private JsonNode tryGetJsonNodeFrom(String responseBody) {
     try {
       return objectMapper.readTree(responseBody);
     } catch (JsonProcessingException e) {
       throw new IllegalArgumentException("Cannot parse json in response", e);
     }
+  }
+
+  private AuthResponse authResponseFrom(Map<String, String> headers, JsonNode responseNode) {
+    String sessionToken = headers.get("X-Session-Id");
+    String flowId = responseNode.findPath("flow_id").asText();
+    String token = responseNode.findPath("token").asText();
+    boolean wrongCredential = containsLoginErrors(responseNode);
+    return new AuthResponse(sessionToken, flowId, token, wrongCredential);
   }
 
   private boolean containsLoginErrors(JsonNode responseNode) {
@@ -87,16 +87,16 @@ public class HttpBodyMapper {
       .build();
   }
 
-  public String accountsRequestBody() {
-    return tryWriteAsString(BaseRequest.accountsRequest());
-  }
-
   private String tryWriteAsString(BaseRequest accountsRequest) {
     try {
       return objectMapper.writeValueAsString(accountsRequest);
     } catch (JsonProcessingException e) {
       throw new IllegalArgumentException("Couldn't parse given node as String", e);
     }
+  }
+
+  public String accountsRequestBody() {
+    return tryWriteAsString(BaseRequest.accountsRequest());
   }
 
   public Map<String, Double> getAccountsFromJson(String jsonAccounts) {
@@ -120,4 +120,5 @@ public class HttpBodyMapper {
     });
     return accountMap;
   }
+
 }

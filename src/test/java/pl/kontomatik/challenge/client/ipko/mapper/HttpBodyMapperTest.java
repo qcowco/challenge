@@ -14,6 +14,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class HttpBodyMapperTest {
+
   private static final String SESSION_TOKEN_HEADER = "X-Session-Id";
   private static final String SESSION_TOKEN = "session_token";
   private static final String FLOW_ID = "flow_id";
@@ -101,4 +102,5 @@ class HttpBodyMapperTest {
     Map<String, Double> actualAccounts = mapper.getAccountsFromJson(jsonAccounts);
     assertEquals(expectedAccounts, actualAccounts);
   }
+
 }

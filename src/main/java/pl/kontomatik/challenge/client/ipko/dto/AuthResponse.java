@@ -3,6 +3,7 @@ package pl.kontomatik.challenge.client.ipko.dto;
 import java.util.Objects;
 
 public class AuthResponse {
+
   public final String sessionToken;
   public final String flowId;
   public final String flowToken;
@@ -28,4 +29,5 @@ public class AuthResponse {
   public int hashCode() {
     return Objects.hash(sessionToken, flowId, flowToken, wrongCredentials);
   }
+
 }

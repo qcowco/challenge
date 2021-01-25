@@ -17,6 +17,7 @@ import static org.mockserver.model.HttpResponse.response;
 
 @MockServerSettings(ports = 1090)
 public abstract class MockIpkoServer {
+
   private static final String LOGIN_JSON_TEMPLATE = "{\"data\":{\"login\":\"%s\"}}";
   private static final String PASSWORD_JSON_TEMPLATE = "{\"data\":{\"password\":\"%s\"}}";
   protected static final String USERNAME = "USERNAME";
@@ -145,4 +146,5 @@ public abstract class MockIpkoServer {
       .respond(response()
         .withStatusCode(404));
   }
+
 }
