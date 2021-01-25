@@ -41,7 +41,7 @@ public class BankClientCLITest {
   }
 
   private InputStream resourceStream() {
-    return BankClientCLITest.class.getResourceAsStream("application.properties");
+    return BankClientCLITest.class.getResourceAsStream("/application.properties");
   }
 
 }
