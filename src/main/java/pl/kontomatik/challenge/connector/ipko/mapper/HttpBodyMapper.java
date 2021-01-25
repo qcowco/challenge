@@ -13,13 +13,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class HttpBodyMapper {
-  private static final int VERSION = 3;
-  private static final String LOCATION = "";
-  private static final String ACTION = "submit";
   private static final String AUTH_STATE_ID = "login";
   private static final String SESSION_STATE_ID = "password";
-  private static final String PLACEMENT = "LoginPKO";
-  private static final int PLACEMENT_PAGE_NO = 0;
 
   private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -65,58 +60,35 @@ public class HttpBodyMapper {
     return wrongLogin || wrongPassword;
   }
 
-  public String getAuthRequestBodyFor(String fingerprint,
-                                      String username, int sequenceNumber) {
-    AuthRequest authRequest = authRequestFor(fingerprint, username, sequenceNumber);
+  public String getAuthRequestBodyFor(String username) {
+    AuthRequest authRequest = authRequestFor(username);
     return tryWriteAsString(authRequest);
   }
 
-  private AuthRequest authRequestFor(String fingerprint, String username, int sequenceNumber) {
-    return getBaseRequest()
-      .setSeq(sequenceNumber)
+  private AuthRequest authRequestFor(String username) {
+    return AuthRequest.authBuilder()
       .setStateId(AUTH_STATE_ID)
       .putData("login", username)
-      .putData("fingerprint", fingerprint)
       .build();
   }
 
-  private AuthRequest.Builder getBaseRequest() {
-    return AuthRequest.authBuilder()
-      .setVersion(VERSION)
-      .setLocation(LOCATION)
-      .setAction(ACTION);
-  }
-
   public String getSessionAuthRequestBodyFor(String flowId, String token,
-                                             String password, int sequenceNumber) {
-    AuthRequest authRequest = sessionAuthRequestFor(flowId, token, password, sequenceNumber);
+                                             String password) {
+    AuthRequest authRequest = sessionAuthRequestFor(flowId, token, password);
     return tryWriteAsString(authRequest);
   }
 
-  private AuthRequest sessionAuthRequestFor(String flowId, String token, String password, int sequenceNumber) {
-    return getBaseRequest()
-      .setSeq(sequenceNumber)
+  private AuthRequest sessionAuthRequestFor(String flowId, String token, String password) {
+    return AuthRequest.authBuilder()
       .setStateId(SESSION_STATE_ID)
       .setFlowId(flowId)
       .setToken(token)
       .putData("password", password)
-      .putData("placement", PLACEMENT)
-      .putData("placement_page_no", PLACEMENT_PAGE_NO)
       .build();
   }
 
-  public String getAccountsRequestBodyFor(int sequenceNumber) {
-    BaseRequest accountsRequest = accountsRequestFor(sequenceNumber);
-    return tryWriteAsString(accountsRequest);
-  }
-
-  private BaseRequest accountsRequestFor(int sequenceNumber) {
-    return BaseRequest.builder()
-      .setVersion(VERSION)
-      .setLocation(LOCATION)
-      .setSeq(sequenceNumber)
-      .putData("accounts", Map.of())
-      .build();
+  public String accountsRequestBody() {
+    return tryWriteAsString(BaseRequest.accountsRequest());
   }
 
   private String tryWriteAsString(BaseRequest accountsRequest) {

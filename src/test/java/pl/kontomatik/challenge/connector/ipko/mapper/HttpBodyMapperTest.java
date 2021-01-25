@@ -18,12 +18,8 @@ class HttpBodyMapperTest {
   private static final String SESSION_TOKEN = "session_token";
   private static final String FLOW_ID = "flow_id";
   private static final String FLOW_TOKEN = "token";
-  private static final String FINGERPRINT = "fingerprint";
   private static final String USERNAME = "username";
   private static final String PASSWORD = "password";
-  private static final int SEQUENCE_NUMBER = 0;
-  private static final int VERSION = 3;
-  private static final String LOCATION = "";
 
   private final HttpBodyMapper mapper = new HttpBodyMapper();
   private final ObjectMapper objectMapper = new ObjectMapper();
@@ -66,50 +62,33 @@ class HttpBodyMapperTest {
 
   @Test
   public void mapsJsonFromAuthRequest() throws JsonProcessingException {
-    AuthRequest expectedRequest = getBaseRequest()
+    AuthRequest expectedRequest = AuthRequest.authBuilder()
       .setStateId("login")
       .putData("login", USERNAME)
-      .putData("fingerprint", FINGERPRINT)
       .build();
     String expectedRequestJson = objectMapper.writeValueAsString(expectedRequest);
-    String actualRequestJson = mapper.getAuthRequestBodyFor(FINGERPRINT, USERNAME, SEQUENCE_NUMBER);
+    String actualRequestJson = mapper.getAuthRequestBodyFor(USERNAME);
     assertEquals(expectedRequestJson, actualRequestJson);
-  }
-
-  private AuthRequest.Builder getBaseRequest() {
-    return AuthRequest.authBuilder()
-      .setVersion(VERSION)
-      .setSeq(SEQUENCE_NUMBER)
-      .setLocation(LOCATION)
-      .setAction("submit");
   }
 
   @Test
   public void mapsJsonFromSessionAuthRequest() throws JsonProcessingException {
-    String sessionStateId = "password";
-    AuthRequest expectedRequest = getBaseRequest()
-      .setStateId(sessionStateId)
+    AuthRequest expectedRequest = AuthRequest.authBuilder()
+      .setStateId("password")
       .setFlowId(FLOW_ID)
       .setToken(FLOW_TOKEN)
       .putData("password", PASSWORD)
-      .putData("placement", "LoginPKO")
-      .putData("placement_page_no", 0)
       .build();
     String expectedJsonBody = objectMapper.writeValueAsString(expectedRequest);
-    String actualJsonBody = mapper.getSessionAuthRequestBodyFor(FLOW_ID, FLOW_TOKEN, PASSWORD, SEQUENCE_NUMBER);
+    String actualJsonBody = mapper.getSessionAuthRequestBodyFor(FLOW_ID, FLOW_TOKEN, PASSWORD);
     assertEquals(expectedJsonBody, actualJsonBody);
   }
 
   @Test
   public void mapsJsonFromBaseRequest() throws JsonProcessingException {
-    BaseRequest accountsRequest = BaseRequest.builder()
-      .setVersion(VERSION)
-      .setSeq(SEQUENCE_NUMBER)
-      .setLocation(LOCATION)
-      .putData("accounts", objectMapper.createObjectNode())
-      .build();
+    BaseRequest accountsRequest = BaseRequest.accountsRequest();
     String expectedJsonBody = objectMapper.writeValueAsString(accountsRequest);
-    String actualJsonBody = mapper.getAccountsRequestBodyFor(SEQUENCE_NUMBER);
+    String actualJsonBody = mapper.accountsRequestBody();
     assertEquals(expectedJsonBody, actualJsonBody);
   }
 
