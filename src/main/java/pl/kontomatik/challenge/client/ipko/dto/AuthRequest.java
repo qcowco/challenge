@@ -1,4 +1,4 @@
-package pl.kontomatik.challenge.connector.ipko.dto;
+package pl.kontomatik.challenge.client.ipko.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;

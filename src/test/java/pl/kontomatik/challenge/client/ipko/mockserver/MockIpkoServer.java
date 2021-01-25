@@ -1,4 +1,4 @@
-package pl.kontomatik.challenge.connector.ipko.mockserver;
+package pl.kontomatik.challenge.client.ipko.mockserver;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.mockserver.client.MockServerClient;

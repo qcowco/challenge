@@ -1,8 +1,8 @@
-package pl.kontomatik.challenge.connector;
+package pl.kontomatik.challenge.client;
 
 import java.util.Map;
 
-public interface BankConnector {
+public interface BankClient {
   void login(String username, String password);
   Map<String, Double> fetchAccounts();
 }

@@ -1,13 +1,13 @@
-package pl.kontomatik.challenge.connector.ipko.mapper;
+package pl.kontomatik.challenge.client.ipko.mapper;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import pl.kontomatik.challenge.connector.ipko.dto.AuthRequest;
-import pl.kontomatik.challenge.connector.ipko.dto.AuthResponse;
-import pl.kontomatik.challenge.connector.ipko.dto.BaseRequest;
+import pl.kontomatik.challenge.client.ipko.dto.AuthRequest;
+import pl.kontomatik.challenge.client.ipko.dto.AuthResponse;
+import pl.kontomatik.challenge.client.ipko.dto.BaseRequest;
 
 import java.util.HashMap;
 import java.util.Map;

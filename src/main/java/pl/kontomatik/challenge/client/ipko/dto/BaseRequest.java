@@ -1,4 +1,4 @@
-package pl.kontomatik.challenge.connector.ipko.dto;
+package pl.kontomatik.challenge.client.ipko.dto;
 
 import java.util.Map;
 

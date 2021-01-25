@@ -1,18 +1,18 @@
 package pl.kontomatik.challenge.commandline;
 
-import pl.kontomatik.challenge.connector.BankConnector;
+import pl.kontomatik.challenge.client.BankClient;
 
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class BankConnectorCLI {
-  private final BankConnector bankConnector;
+public class BankClientCLI {
+  private final BankClient bankClient;
   private final Supplier<String> supplier;
   private final Consumer<String> consumer;
 
-  public BankConnectorCLI(BankConnector bankConnector, Supplier<String> supplier, Consumer<String> consumer) {
-    this.bankConnector = bankConnector;
+  public BankClientCLI(BankClient bankClient, Supplier<String> supplier, Consumer<String> consumer) {
+    this.bankClient = bankClient;
     this.supplier = supplier;
     this.consumer = consumer;
   }
@@ -25,7 +25,7 @@ public class BankConnectorCLI {
   private void performLogin() {
     String username = askForInput("Type in Your username:");
     String password = askForInput("Type in Your password:");
-    bankConnector.login(username, password);
+    bankClient.login(username, password);
   }
 
   private String askForInput(String message) {
@@ -34,8 +34,8 @@ public class BankConnectorCLI {
   }
 
   private void displayAccounts() {
-    Map<String, Double> accounts = bankConnector.fetchAccounts();
-    consumer.accept(stringFrom(accounts));
+    Map<String, Double> accounts = bankClient.fetchAccounts();
+    consumer.accept(format(accounts));
   }
 
   private String stringFrom(Map<String, Double> accounts) {

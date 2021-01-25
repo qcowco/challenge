@@ -1,12 +1,12 @@
-package pl.kontomatik.challenge.connector.ipko;
+package pl.kontomatik.challenge.client.ipko;
 
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
-import pl.kontomatik.challenge.connector.BankConnector;
-import pl.kontomatik.challenge.connector.exception.InvalidCredentials;
-import pl.kontomatik.challenge.connector.exception.NotAuthenticated;
-import pl.kontomatik.challenge.connector.ipko.dto.AuthResponse;
-import pl.kontomatik.challenge.connector.ipko.mapper.HttpBodyMapper;
+import pl.kontomatik.challenge.client.BankClient;
+import pl.kontomatik.challenge.client.exception.InvalidCredentials;
+import pl.kontomatik.challenge.client.exception.NotAuthenticated;
+import pl.kontomatik.challenge.client.ipko.dto.AuthResponse;
+import pl.kontomatik.challenge.client.ipko.mapper.HttpBodyMapper;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -14,18 +14,18 @@ import java.net.Proxy;
 import java.util.Map;
 import java.util.Objects;
 
-public class IpkoConnector implements BankConnector {
+public class IpkoClient implements BankClient {
   private static final String LOGIN_URL = "https://www.ipko.pl/ipko3/login";
   private static final String INIT_URL = "https://www.ipko.pl/ipko3/init";
   private String sessionToken;
   private final HttpBodyMapper mapper = new HttpBodyMapper();
   private final Proxy proxy;
 
-  public IpkoConnector() {
+  public IpkoClient() {
     this(null);
   }
 
-  public IpkoConnector(Proxy proxy) {
+  public IpkoClient(Proxy proxy) {
     this.proxy = proxy;
   }
 

@@ -1,8 +1,8 @@
-package pl.kontomatik.challenge.connector;
+package pl.kontomatik.challenge.client;
 
 import org.junit.jupiter.api.Test;
-import pl.kontomatik.challenge.commandline.BankConnectorCLI;
-import pl.kontomatik.challenge.connector.ipko.IpkoConnector;
+import pl.kontomatik.challenge.client.ipko.IpkoClient;
+import pl.kontomatik.challenge.commandline.BankClientCLI;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,15 +13,15 @@ import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
-public class BankConnectorCLITest {
+public class BankClientCLITest {
 
   @Test
   public void afterSignInCanFetchAccounts() throws IOException {
-    BankConnector bankConnector = new IpkoConnector();
+    BankClient bankClient = new IpkoClient();
     Iterator<String> input = loadCredentials();
     List<String> output = new LinkedList<>();
-    BankConnectorCLI bankConnectorCLI = new BankConnectorCLI(bankConnector, input::next, output::add);
-    assertDoesNotThrow(bankConnectorCLI::run);
+    BankClientCLI bankClientCLI = new BankClientCLI(bankClient, input::next, output::add);
+    assertDoesNotThrow(bankClientCLI::run);
   }
 
   private Iterator<String> loadCredentials() throws IOException {
@@ -41,7 +41,7 @@ public class BankConnectorCLITest {
   }
 
   private InputStream resourceStream() {
-    return BankConnectorCLITest.class.getResourceAsStream("application.properties");
+    return BankClientCLITest.class.getResourceAsStream("application.properties");
   }
 
 }
