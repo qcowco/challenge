@@ -1,7 +1,7 @@
 package pl.kontomatik.challenge;
 
 import pl.kontomatik.challenge.client.ipko.IpkoClient;
-import pl.kontomatik.challenge.commandline.BankClientCLI;
+import pl.kontomatik.challenge.usecase.FetchAccountsUseCase;
 
 import java.util.Scanner;
 import java.util.function.Consumer;
@@ -13,8 +13,8 @@ public class ChallengeApplication {
     IpkoClient ipkoClient = new IpkoClient();
     Supplier<String> supplier = () -> new Scanner(System.in).nextLine();
     Consumer<String> consumer = System.out::println;
-    BankClientCLI cli = new BankClientCLI(ipkoClient, supplier, consumer);
-    cli.run();
+    FetchAccountsUseCase useCase = new FetchAccountsUseCase(ipkoClient, supplier, consumer);
+    useCase.execute();
   }
 
 }

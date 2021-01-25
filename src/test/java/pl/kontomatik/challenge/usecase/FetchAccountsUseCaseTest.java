@@ -1,4 +1,4 @@
-package pl.kontomatik.challenge.commandline;
+package pl.kontomatik.challenge.usecase;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -15,7 +15,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class BankClientCLITest extends MockIpkoServer {
+public class FetchAccountsUseCaseTest extends MockIpkoServer {
 
   @BeforeAll
   public static void setupMocks(MockServerClient mockServerClient) {
@@ -26,32 +26,32 @@ public class BankClientCLITest extends MockIpkoServer {
   public void signInFailsOnInvalidCredentials() {
     Iterator<String> input = iterate(WRONG_USERNAME, WRONG_PASSWORD);
     List<String> output = new LinkedList<>();
-    BankClientCLI bankClientCLI = proxiedCliFor(input, output);
-    assertThrows(InvalidCredentials.class, bankClientCLI::run);
+    FetchAccountsUseCase useCase = proxiedCliFor(input, output);
+    assertThrows(InvalidCredentials.class, useCase::execute);
   }
 
   private Iterator<String> iterate(String... inputs) {
     return Arrays.asList(inputs).iterator();
   }
 
-  private BankClientCLI proxiedCliFor(Iterator<String> input, List<String> output) {
+  private FetchAccountsUseCase proxiedCliFor(Iterator<String> input, List<String> output) {
     BankClient proxiedClient = new IpkoClient(proxy);
-    return new BankClientCLI(proxiedClient, input::next, output::add);
+    return new FetchAccountsUseCase(proxiedClient, input::next, output::add);
   }
 
   @Test
   public void signInSucceedsOnValidCredentials() {
     Iterator<String> input = iterate(USERNAME, PASSWORD);
     List<String> output = new LinkedList<>();
-    BankClientCLI bankClientCLI = proxiedCliFor(input, output);
-    assertDoesNotThrow(bankClientCLI::run);
+    FetchAccountsUseCase useCase = proxiedCliFor(input, output);
+    assertDoesNotThrow(useCase::execute);
   }
 
   @Test
   public void afterSigningInDisplaysAccounts() {
     Iterator<String> input = iterate(USERNAME, PASSWORD);
     List<String> output = new LinkedList<>();
-    proxiedCliFor(input, output).run();
+    proxiedCliFor(input, output).execute();
     assertContainsEveryElement(output, ACCOUNT_NUMBER, String.valueOf(ACCOUNT_BALANCE));
   }
 

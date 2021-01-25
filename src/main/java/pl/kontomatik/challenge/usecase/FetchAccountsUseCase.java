@@ -1,4 +1,4 @@
-package pl.kontomatik.challenge.commandline;
+package pl.kontomatik.challenge.usecase;
 
 import pl.kontomatik.challenge.client.BankClient;
 
@@ -6,19 +6,19 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class BankClientCLI {
+public class FetchAccountsUseCase {
 
   private final BankClient bankClient;
   private final Supplier<String> supplier;
   private final Consumer<String> consumer;
 
-  public BankClientCLI(BankClient bankClient, Supplier<String> supplier, Consumer<String> consumer) {
+  public FetchAccountsUseCase(BankClient bankClient, Supplier<String> supplier, Consumer<String> consumer) {
     this.bankClient = bankClient;
     this.supplier = supplier;
     this.consumer = consumer;
   }
 
-  public void run() {
+  public void execute() {
     BankClient.AuthorizedSession authorizedSession = performLogin();
     Map<String, Double> accounts = authorizedSession.fetchAccounts();
     display(accounts);

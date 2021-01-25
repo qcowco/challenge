@@ -3,7 +3,7 @@ package pl.kontomatik.challenge.client;
 import org.junit.jupiter.api.Test;
 import pl.kontomatik.challenge.client.exception.InvalidCredentials;
 import pl.kontomatik.challenge.client.ipko.IpkoClient;
-import pl.kontomatik.challenge.commandline.BankClientCLI;
+import pl.kontomatik.challenge.usecase.FetchAccountsUseCase;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,15 +15,15 @@ import java.util.Properties;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class BankClientCLITest {
+public class FetchAccountsUseCaseTest {
 
   @Test
   public void afterSignInCanFetchAccounts() throws IOException {
     BankClient bankClient = new IpkoClient();
     Iterator<String> input = loadCredentials();
     List<String> output = new LinkedList<>();
-    BankClientCLI bankClientCLI = new BankClientCLI(bankClient, input::next, output::add);
-    bankClientCLI.run();
+    FetchAccountsUseCase useCase = new FetchAccountsUseCase(bankClient, input::next, output::add);
+    useCase.execute();
     assertContains(output, "Account number:");
   }
 
@@ -38,7 +38,7 @@ public class BankClientCLITest {
   }
 
   private InputStream resourceStream() {
-    return BankClientCLITest.class.getResourceAsStream("/application.properties");
+    return FetchAccountsUseCaseTest.class.getResourceAsStream("/application.properties");
   }
 
   private Iterator<String> inputFrom(Properties credentials) {
@@ -65,8 +65,8 @@ public class BankClientCLITest {
     BankClient bankClient = new IpkoClient();
     Iterator<String> input = iterate("qwerty", "azerty");
     List<String> output = new LinkedList<>();
-    BankClientCLI bankClientCLI = new BankClientCLI(bankClient, input::next, output::add);
-    assertThrows(InvalidCredentials.class, bankClientCLI::run);
+    FetchAccountsUseCase useCase = new FetchAccountsUseCase(bankClient, input::next, output::add);
+    assertThrows(InvalidCredentials.class, useCase::execute);
   }
 
 }
