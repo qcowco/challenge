@@ -18,14 +18,15 @@ public class BankClientCLI {
   }
 
   public void run() {
-    performLogin();
-    displayAccounts();
+    BankClient.AuthorizedSession authorizedSession = performLogin();
+    Map<String, Double> accounts = authorizedSession.fetchAccounts();
+    display(accounts);
   }
 
-  private void performLogin() {
+  private BankClient.AuthorizedSession performLogin() {
     String username = askForInput("Type in Your username:");
     String password = askForInput("Type in Your password:");
-    bankClient.login(username, password);
+    return bankClient.login(username, password);
   }
 
   private String askForInput(String message) {
@@ -33,9 +34,9 @@ public class BankClientCLI {
     return supplier.get();
   }
 
-  private void displayAccounts() {
-    Map<String, Double> accounts = bankClient.fetchAccounts();
-    consumer.accept(format(accounts));
+  private void display(Map<String, Double> accounts) {
+    String formattedAccounts = format(accounts);
+    consumer.accept(formattedAccounts);
   }
 
   private String stringFrom(Map<String, Double> accounts) {

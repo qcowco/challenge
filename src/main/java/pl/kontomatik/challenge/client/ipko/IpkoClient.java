@@ -4,7 +4,6 @@ import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import pl.kontomatik.challenge.client.BankClient;
 import pl.kontomatik.challenge.client.exception.InvalidCredentials;
-import pl.kontomatik.challenge.client.exception.NotAuthenticated;
 import pl.kontomatik.challenge.client.ipko.dto.AuthResponse;
 import pl.kontomatik.challenge.client.ipko.mapper.HttpBodyMapper;
 
@@ -12,13 +11,11 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.Proxy;
 import java.util.Map;
-import java.util.Objects;
 
 public class IpkoClient implements BankClient {
   private static final String LOGIN_URL = "https://www.ipko.pl/ipko3/login";
   private static final String INIT_URL = "https://www.ipko.pl/ipko3/init";
-  private String sessionToken;
-  private final HttpBodyMapper mapper = new HttpBodyMapper();
+  private static final HttpBodyMapper mapper = new HttpBodyMapper();
   private final Proxy proxy;
 
   public IpkoClient() {
@@ -30,9 +27,9 @@ public class IpkoClient implements BankClient {
   }
 
   @Override
-  public void login(String username, String password) {
+  public AuthorizedSession login(String username, String password) {
     AuthResponse authResponse = submitLogin(username);
-    authorizeSessionToken(authResponse, password);
+    return authorizeSessionToken(authResponse, password);
   }
 
   private AuthResponse submitLogin(String username) {
@@ -74,11 +71,11 @@ public class IpkoClient implements BankClient {
     return mapper.getAuthRequestBodyFor(username);
   }
 
-  private void authorizeSessionToken(AuthResponse authResponse, String password) {
+  private AuthorizedSession authorizeSessionToken(AuthResponse authResponse, String password) {
     Connection.Response authorizationResponse = sendAuthorizeSessionRequest(authResponse, password);
     AuthResponse sessionResponse = mapper.getAuthResponseFrom(authorizationResponse.headers(), authorizationResponse.body());
     verifySuccessful(sessionResponse);
-    this.sessionToken = sessionResponse.sessionToken;
+    return new IpkoSession(sessionResponse.sessionToken);
   }
 
   private Connection.Response sendAuthorizeSessionRequest(AuthResponse authResponse, String password) {
@@ -99,30 +96,34 @@ public class IpkoClient implements BankClient {
     return mapper.getSessionAuthRequestBodyFor(authResponse.flowId, authResponse.flowToken, password);
   }
 
-  @Override
-  public Map<String, Double> fetchAccounts() {
-    verifyAuthenticated();
-    String jsonResponse = sendAccountsRequest()
-      .body();
-    return mapper.getAccountsFromJson(jsonResponse);
-  }
+  public class IpkoSession implements AuthorizedSession {
 
-  private void verifyAuthenticated() {
-    if (Objects.isNull(sessionToken))
-      throw new NotAuthenticated("You're not authenticated. Log in first.");
-  }
+    private final String sessionToken;
 
-  private Connection.Response sendAccountsRequest() {
-    Connection request = accountsRequest();
-    return handleSend(request);
-  }
+    private IpkoSession(String sessionToken) {
+      this.sessionToken = sessionToken;
+    }
 
-  private Connection accountsRequest() {
-    return Jsoup.connect(INIT_URL)
-      .ignoreContentType(true)
-      .requestBody(mapper.accountsRequestBody())
-      .header("X-Session-Id", sessionToken)
-      .method(Connection.Method.POST);
+    @Override
+    public Map<String, Double> fetchAccounts() {
+      String jsonResponse = sendAccountsRequest()
+        .body();
+      return mapper.getAccountsFromJson(jsonResponse);
+    }
+
+    private Connection.Response sendAccountsRequest() {
+      Connection request = accountsRequest();
+      return handleSend(request);
+    }
+
+    private Connection accountsRequest() {
+      return Jsoup.connect(INIT_URL)
+        .ignoreContentType(true)
+        .requestBody(mapper.accountsRequestBody())
+        .header("X-Session-Id", sessionToken)
+        .method(Connection.Method.POST);
+    }
+
   }
 
 }

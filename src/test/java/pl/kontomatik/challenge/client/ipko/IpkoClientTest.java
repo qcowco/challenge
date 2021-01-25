@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.mockserver.client.MockServerClient;
 import pl.kontomatik.challenge.client.BankClient;
 import pl.kontomatik.challenge.client.exception.InvalidCredentials;
-import pl.kontomatik.challenge.client.exception.NotAuthenticated;
 import pl.kontomatik.challenge.client.ipko.mockserver.MockIpkoServer;
 
 import java.util.Map;
@@ -34,16 +33,11 @@ public class IpkoClientTest extends MockIpkoServer {
   @Test
   public void afterSignInCanFetchAccounts() {
     BankClient bankClient = new IpkoClient(proxy);
-    bankClient.login(USERNAME, PASSWORD);
+    BankClient.AuthorizedSession authorizedSession = bankClient.login(USERNAME, PASSWORD);
     Map<String, Double> expectedAccounts = Map.of(ACCOUNT_NUMBER, ACCOUNT_BALANCE);
-    Map<String, Double> actualAccounts = bankClient.fetchAccounts();
+    Map<String, Double> actualAccounts = authorizedSession.fetchAccounts();
     assertEquals(expectedAccounts, actualAccounts);
   }
 
-  @Test
-  public void accountFetchingFailsWhenNotAuthenticated() {
-    BankClient bankClient = new IpkoClient(proxy);
-    assertThrows(NotAuthenticated.class, bankClient::fetchAccounts);
-  }
 
 }

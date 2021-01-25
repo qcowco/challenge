@@ -3,6 +3,9 @@ package pl.kontomatik.challenge.client;
 import java.util.Map;
 
 public interface BankClient {
-  void login(String username, String password);
-  Map<String, Double> fetchAccounts();
+  AuthorizedSession login(String username, String password);
+
+  interface AuthorizedSession {
+    Map<String, Double> fetchAccounts();
+  }
 }
