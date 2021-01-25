@@ -11,7 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BankClientCLITest {
 
@@ -21,7 +21,17 @@ public class BankClientCLITest {
     Iterator<String> input = loadCredentials();
     List<String> output = new LinkedList<>();
     BankClientCLI bankClientCLI = new BankClientCLI(bankClient, input::next, output::add);
-    assertDoesNotThrow(bankClientCLI::run);
+    bankClientCLI.run();
+    assertContains(output, "Account number:");
+  }
+
+  private void assertContains(List<String> output, String message) {
+    assertTrue(anyLineContains(output, message));
+  }
+
+  private boolean anyLineContains(List<String> output, String message) {
+    return output.stream()
+      .anyMatch(outputLine -> outputLine.contains(message));
   }
 
   private Iterator<String> loadCredentials() throws IOException {
