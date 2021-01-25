@@ -1,6 +1,7 @@
 package pl.kontomatik.challenge.client;
 
 import org.junit.jupiter.api.Test;
+import pl.kontomatik.challenge.client.exception.InvalidCredentials;
 import pl.kontomatik.challenge.client.ipko.IpkoClient;
 import pl.kontomatik.challenge.commandline.BankClientCLI;
 
@@ -11,6 +12,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BankClientCLITest {
@@ -34,6 +36,15 @@ public class BankClientCLITest {
       .anyMatch(outputLine -> outputLine.contains(message));
   }
 
+  @Test
+  public void failsOnInvalidCredentials() {
+    BankClient bankClient = new IpkoClient();
+    Iterator<String> input = iterate("qwerty", "azerty");
+    List<String> output = new LinkedList<>();
+    BankClientCLI bankClientCLI = new BankClientCLI(bankClient, input::next, output::add);
+    assertThrows(InvalidCredentials.class, bankClientCLI::run);
+  }
+
   private Iterator<String> loadCredentials() throws IOException {
     return inputFrom(credentialProperties());
   }
@@ -41,6 +52,10 @@ public class BankClientCLITest {
   private Iterator<String> inputFrom(Properties credentials) {
     String username = credentials.getProperty("username");
     String password = credentials.getProperty("password");
+    return iterate(username, password);
+  }
+
+  private Iterator<String> iterate(String username, String password) {
     return List.of(username, password).iterator();
   }
 
