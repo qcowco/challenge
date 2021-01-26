@@ -11,6 +11,7 @@ import java.net.Proxy;
 
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
+import static org.mockserver.model.Not.not;
 import static pl.kontomatik.challenge.client.ipko.mockserver.MockIpkoServer.MockData.*;
 
 public class MockIpkoServer {
@@ -18,9 +19,7 @@ public class MockIpkoServer {
   public static class MockData {
 
     public static final String USERNAME = "USERNAME";
-    public static final String WRONG_USERNAME = "WRONG_USERNAME";
     public static final String PASSWORD = "PASSWORD";
-    public static final String WRONG_PASSWORD = "WRONG_PASSWORD";
     public static final String ACCOUNT_NUMBER = "123456789";
     public static final double ACCOUNT_BALANCE = 0.5;
 
@@ -115,8 +114,8 @@ public class MockIpkoServer {
       .when(request()
         .withMethod("POST")
         .withPath(LOGIN_PATH)
-        .withBody(JsonBody.json(String.format(LOGIN_JSON_TEMPLATE, WRONG_USERNAME),
-          MatchType.ONLY_MATCHING_FIELDS)))
+        .withBody(not(JsonBody.json(String.format(LOGIN_JSON_TEMPLATE, USERNAME),
+          MatchType.ONLY_MATCHING_FIELDS))))
       .respond(response()
         .withStatusCode(200)
         .withBody(BAD_AUTH_RESPONSE_BODY)
@@ -128,8 +127,8 @@ public class MockIpkoServer {
       .when(request()
         .withMethod("POST")
         .withPath(LOGIN_PATH)
-        .withBody(JsonBody.json(String.format(PASSWORD_JSON_TEMPLATE, WRONG_PASSWORD),
-          MatchType.ONLY_MATCHING_FIELDS)))
+        .withBody(not(JsonBody.json(String.format(PASSWORD_JSON_TEMPLATE, PASSWORD),
+          MatchType.ONLY_MATCHING_FIELDS))))
       .respond(response()
         .withStatusCode(200)
         .withHeader(SESSION_HEADER, SESSION_TOKEN)

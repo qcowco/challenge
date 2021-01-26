@@ -32,7 +32,7 @@ public class FetchAccountsUseCaseTest {
 
   @Test
   public void signInFailsOnInvalidCredentials() {
-    Iterator<String> input = iterate(WRONG_USERNAME, WRONG_PASSWORD);
+    Iterator<String> input = iterate("WRONG_USERNAME", "WRONG_PASSWORD");
     List<String> output = new LinkedList<>();
     FetchAccountsUseCase useCase = proxiedCliFor(input, output);
     assertThrows(InvalidCredentials.class, useCase::execute);

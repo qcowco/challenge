@@ -35,7 +35,7 @@ public class IpkoClientTest {
   @Test
   public void signInFailsOnInvalidCredentials() {
     BankClient bankClient = new IpkoClient(server.getProxy());
-    assertThrows(InvalidCredentials.class, () -> bankClient.login(WRONG_USERNAME, WRONG_PASSWORD));
+    assertThrows(InvalidCredentials.class, () -> bankClient.login("WRONG_USERNAME", "WRONG_PASSWORD"));
   }
 
   @Test
