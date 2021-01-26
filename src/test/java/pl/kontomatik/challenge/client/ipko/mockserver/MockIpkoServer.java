@@ -65,7 +65,6 @@ public class MockIpkoServer {
   private void setupMocks() {
     mockSuccessfulAuthentication();
     mockFailedAuthentication();
-    mockCookieRequest();
     mockAccountsRequest();
     mockNotFound();
   }
@@ -134,15 +133,6 @@ public class MockIpkoServer {
         .withHeader(SESSION_HEADER, SESSION_TOKEN)
         .withBody(BAD_AUTH_RESPONSE_BODY)
       );
-  }
-
-  private void mockCookieRequest() {
-    mockServer
-      .when(request()
-        .withMethod("GET")
-        .withPath(NDCD_PATH))
-      .respond(response()
-        .withStatusCode(200));
   }
 
   private void mockAccountsRequest() {
