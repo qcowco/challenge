@@ -1,9 +1,6 @@
 package pl.kontomatik.challenge.client.ipko.mockserver;
 
-import org.junit.jupiter.api.BeforeAll;
-import org.mockserver.client.MockServerClient;
 import org.mockserver.integration.ClientAndServer;
-import org.mockserver.junit.jupiter.MockServerSettings;
 import org.mockserver.logging.MockServerLogger;
 import org.mockserver.matchers.MatchType;
 import org.mockserver.model.JsonBody;
@@ -14,18 +11,23 @@ import java.net.Proxy;
 
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
+import static pl.kontomatik.challenge.client.ipko.mockserver.MockIpkoServer.MockData.*;
 
-@MockServerSettings(ports = 1090)
-public abstract class MockIpkoServer {
+public class MockIpkoServer {
+
+  public static class MockData {
+
+    public static final String USERNAME = "USERNAME";
+    public static final String WRONG_USERNAME = "WRONG_USERNAME";
+    public static final String PASSWORD = "PASSWORD";
+    public static final String WRONG_PASSWORD = "WRONG_PASSWORD";
+    public static final String ACCOUNT_NUMBER = "123456789";
+    public static final double ACCOUNT_BALANCE = 0.5;
+
+  }
 
   private static final String LOGIN_JSON_TEMPLATE = "{\"data\":{\"login\":\"%s\"}}";
   private static final String PASSWORD_JSON_TEMPLATE = "{\"data\":{\"password\":\"%s\"}}";
-  protected static final String USERNAME = "USERNAME";
-  protected static final String WRONG_USERNAME = "WRONG_USERNAME";
-  protected static final String PASSWORD = "PASSWORD";
-  protected static final String WRONG_PASSWORD = "WRONG_PASSWORD";
-  protected static final String ACCOUNT_NUMBER = "123456789";
-  protected static final double ACCOUNT_BALANCE = 0.5;
   private static final String LOGIN_PATH = "/ipko3/login";
   private static final String NDCD_PATH = "/nudatasecurity/2.2/w/w-573441/init/js";
   private static final String INIT_PATH = "/ipko3/init";
@@ -35,35 +37,47 @@ public abstract class MockIpkoServer {
   private static final String BAD_AUTH_RESPONSE_BODY = "{\"response\":{\"flow_id\":\"flow_id\",\"token\":\"token\",\"fields\":{\"errors\":{\"description\":\"An error!\"}}}}";
   private static final String ACCOUNT_RESPONSE_TEMPLATE = "{\"accounts\":{\"acc1\":{\"number\":{\"value\":\"%s\"},\"balance\":%f}}}";
 
-  protected static Proxy proxy;
+  private ClientAndServer mockServer;
 
-  @BeforeAll
-  public static void setupHttps() {
+  private MockIpkoServer() {
+    mockServer = ClientAndServer.startClientAndServer(1090);
+    setupHttps();
+    setupMocks();
+  }
+
+  public static MockIpkoServer startMockIpkoServer() {
+    return new MockIpkoServer();
+  }
+
+  private void setupHttps() {
     HttpsURLConnection.setDefaultSSLSocketFactory(
       new KeyStoreFactory(new MockServerLogger()).sslContext().getSocketFactory()
     );
   }
 
-  @BeforeAll
-  public static void setupProxy(ClientAndServer clientAndServer) {
-    proxy = new Proxy(Proxy.Type.HTTP, clientAndServer.remoteAddress());
+  public Proxy getProxy() {
+    return new Proxy(Proxy.Type.HTTP, mockServer.remoteAddress());
   }
 
-  protected static void setupMockedServer(MockServerClient mockServerClient) {
-    mockSuccessfulAuthentication(mockServerClient);
-    mockFailedAuthentication(mockServerClient);
-    mockCookieRequest(mockServerClient);
-    mockAccountsRequest(mockServerClient);
-    mockNotFound(mockServerClient);
+  public void stop() {
+    mockServer.stop();
   }
 
-  private static void mockSuccessfulAuthentication(MockServerClient mockServerClient) {
-    mockSuccessfulLogin(mockServerClient);
-    mockSuccessfulSessionAuthorization(mockServerClient);
+  private void setupMocks() {
+    mockSuccessfulAuthentication();
+    mockFailedAuthentication();
+    mockCookieRequest();
+    mockAccountsRequest();
+    mockNotFound();
   }
 
-  private static void mockSuccessfulLogin(MockServerClient mockServerClient) {
-    mockServerClient
+  private void mockSuccessfulAuthentication() {
+    mockSuccessfulLogin();
+    mockSuccessfulSessionAuthorization();
+  }
+
+  private void mockSuccessfulLogin() {
+    mockServer
       .when(request()
         .withMethod("POST")
         .withPath(LOGIN_PATH)
@@ -76,8 +90,8 @@ public abstract class MockIpkoServer {
       );
   }
 
-  private static void mockSuccessfulSessionAuthorization(MockServerClient mockServerClient) {
-    mockServerClient
+  private void mockSuccessfulSessionAuthorization() {
+    mockServer
       .when(request()
         .withMethod("POST")
         .withPath(LOGIN_PATH)
@@ -88,15 +102,16 @@ public abstract class MockIpkoServer {
         .withHeader(SESSION_HEADER, SESSION_TOKEN)
         .withBody(LOGIN_RESPONSE_BODY)
       );
+
   }
 
-  private static void mockFailedAuthentication(MockServerClient mockServerClient) {
-    mockFailedLogin(mockServerClient);
-    mockFailedSessionAuthorization(mockServerClient);
+  private void mockFailedAuthentication() {
+    mockFailedLogin();
+    mockFailedSessionAuthorization();
   }
 
-  private static void mockFailedLogin(MockServerClient mockServerClient) {
-    mockServerClient
+  private void mockFailedLogin() {
+    mockServer
       .when(request()
         .withMethod("POST")
         .withPath(LOGIN_PATH)
@@ -108,8 +123,8 @@ public abstract class MockIpkoServer {
       );
   }
 
-  private static void mockFailedSessionAuthorization(MockServerClient mockServerClient) {
-    mockServerClient
+  private void mockFailedSessionAuthorization() {
+    mockServer
       .when(request()
         .withMethod("POST")
         .withPath(LOGIN_PATH)
@@ -122,8 +137,8 @@ public abstract class MockIpkoServer {
       );
   }
 
-  private static void mockCookieRequest(MockServerClient mockServerClient) {
-    mockServerClient
+  private void mockCookieRequest() {
+    mockServer
       .when(request()
         .withMethod("GET")
         .withPath(NDCD_PATH))
@@ -131,8 +146,8 @@ public abstract class MockIpkoServer {
         .withStatusCode(200));
   }
 
-  private static void mockAccountsRequest(MockServerClient mockServerClient) {
-    mockServerClient
+  private void mockAccountsRequest() {
+    mockServer
       .when(request()
         .withMethod("POST")
         .withPath(INIT_PATH))
@@ -141,8 +156,8 @@ public abstract class MockIpkoServer {
         .withBody(String.format(ACCOUNT_RESPONSE_TEMPLATE, ACCOUNT_NUMBER, ACCOUNT_BALANCE)));
   }
 
-  private static void mockNotFound(MockServerClient mockServerClient) {
-    mockServerClient.when(request())
+  private void mockNotFound() {
+    mockServer.when(request())
       .respond(response()
         .withStatusCode(404));
   }
