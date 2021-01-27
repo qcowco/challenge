@@ -5,16 +5,22 @@ import pl.kontomatik.challenge.usecase.FetchAccountsUseCase;
 
 import java.util.Scanner;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 public class ChallengeApplication {
+  private static Scanner scanner = new Scanner(System.in);
 
   public static void main(String[] args) {
     IpkoClient ipkoClient = new IpkoClient();
-    Supplier<String> supplier = () -> new Scanner(System.in).nextLine();
     Consumer<String> consumer = System.out::println;
-    FetchAccountsUseCase useCase = new FetchAccountsUseCase(ipkoClient, supplier, consumer);
-    useCase.execute();
+    FetchAccountsUseCase useCase = new FetchAccountsUseCase(ipkoClient, consumer);
+    String username = askForInput("Input Your username");
+    String password = askForInput("Input Your password");
+    useCase.execute(username, password);
+  }
+
+  private static String askForInput(String message) {
+    System.out.println(message);
+    return scanner.nextLine();
   }
 
 }

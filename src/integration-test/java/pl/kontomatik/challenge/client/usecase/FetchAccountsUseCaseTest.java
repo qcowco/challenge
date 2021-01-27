@@ -8,7 +8,6 @@ import pl.kontomatik.challenge.usecase.FetchAccountsUseCase;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
@@ -21,35 +20,21 @@ public class FetchAccountsUseCaseTest {
   @Test
   public void afterSignInCanFetchAccounts() throws IOException {
     BankClient bankClient = new IpkoClient();
-    Iterator<String> input = loadCredentials();
     List<String> output = new LinkedList<>();
-    FetchAccountsUseCase useCase = new FetchAccountsUseCase(bankClient, input::next, output::add);
-    useCase.execute();
+    FetchAccountsUseCase useCase = new FetchAccountsUseCase(bankClient, output::add);
+    Properties credentials = loadCredentials();
+    useCase.execute(credentials.getProperty("username"), credentials.getProperty("password"));
     assertContains(output, "Account number:");
   }
 
-  private static Iterator<String> loadCredentials() throws IOException {
-    return inputFrom(credentialProperties());
+  private static Properties loadCredentials() throws IOException {
+    Properties credentials = new Properties();
+    credentials.load(credentialStream());
+    return credentials;
   }
 
-  private static Properties credentialProperties() throws IOException {
-    Properties properties = new Properties();
-    properties.load(resourceStream());
-    return properties;
-  }
-
-  private static InputStream resourceStream() {
+  private static InputStream credentialStream() {
     return FetchAccountsUseCaseTest.class.getResourceAsStream("/application.properties");
-  }
-
-  private static Iterator<String> inputFrom(Properties credentials) {
-    String username = credentials.getProperty("username");
-    String password = credentials.getProperty("password");
-    return iterate(username, password);
-  }
-
-  private static Iterator<String> iterate(String username, String password) {
-    return List.of(username, password).iterator();
   }
 
   private static void assertContains(List<String> output, String message) {
@@ -64,10 +49,9 @@ public class FetchAccountsUseCaseTest {
   @Test
   public void failsOnInvalidCredentials() {
     BankClient bankClient = new IpkoClient();
-    Iterator<String> input = iterate("qwerty", "azerty");
     List<String> output = new LinkedList<>();
-    FetchAccountsUseCase useCase = new FetchAccountsUseCase(bankClient, input::next, output::add);
-    assertThrows(InvalidCredentials.class, useCase::execute);
+    FetchAccountsUseCase useCase = new FetchAccountsUseCase(bankClient, output::add);
+    assertThrows(InvalidCredentials.class, () -> useCase.execute("qwerty", "azerty"));
   }
 
 }
