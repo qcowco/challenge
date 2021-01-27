@@ -1,6 +1,7 @@
-package pl.kontomatik.challenge.client;
+package pl.kontomatik.challenge.client.usecase;
 
 import org.junit.jupiter.api.Test;
+import pl.kontomatik.challenge.client.BankClient;
 import pl.kontomatik.challenge.client.exception.InvalidCredentials;
 import pl.kontomatik.challenge.client.ipko.IpkoClient;
 import pl.kontomatik.challenge.usecase.FetchAccountsUseCase;
