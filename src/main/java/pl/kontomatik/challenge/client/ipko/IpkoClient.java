@@ -16,6 +16,7 @@ public class IpkoClient implements BankClient {
 
   private static final String LOGIN_URL = "https://www.ipko.pl/ipko3/login";
   private static final String INIT_URL = "https://www.ipko.pl/ipko3/init";
+  private static final String SESSION_HEADER = "X-Session-Id";
   private static final HttpBodyMapper mapper = new HttpBodyMapper();
   private final Proxy proxy;
 
@@ -49,8 +50,7 @@ public class IpkoClient implements BankClient {
     return Jsoup.connect(LOGIN_URL)
       .ignoreContentType(true)
       .requestBody(loginRequestBodyFor(username))
-      .method(Connection.Method.POST)
-      .header("Content-Type", "application/json");
+      .method(Connection.Method.POST);
   }
 
   private String loginRequestBodyFor(String username) {
@@ -61,6 +61,7 @@ public class IpkoClient implements BankClient {
     try {
       return request
         .proxy(proxy)
+        .header("Content-Type", "application/json")
         .execute();
     } catch (IOException e) {
       throw new UncheckedIOException(e);
@@ -88,7 +89,7 @@ public class IpkoClient implements BankClient {
     return Jsoup.connect(LOGIN_URL)
       .ignoreContentType(true)
       .requestBody(sessionRequestBodyFor(authResponse, password))
-      .headers(Map.of("X-Session-Id", authResponse.sessionToken, "Content-Type", "application/json"))
+      .header(SESSION_HEADER, authResponse.sessionToken)
       .proxy(proxy)
       .method(Connection.Method.POST);
   }
@@ -121,7 +122,7 @@ public class IpkoClient implements BankClient {
       return Jsoup.connect(INIT_URL)
         .ignoreContentType(true)
         .requestBody(mapper.accountsRequestBody())
-        .header("X-Session-Id", sessionToken)
+        .header(SESSION_HEADER, sessionToken)
         .method(Connection.Method.POST);
     }
 
