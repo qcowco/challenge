@@ -28,12 +28,10 @@ public class MockIpkoServer {
   private static final String LOGIN_JSON_TEMPLATE = "{\"data\":{\"login\":\"%s\"}}";
   private static final String PASSWORD_JSON_TEMPLATE = "{\"data\":{\"password\":\"%s\"}}";
   private static final String LOGIN_PATH = "/ipko3/login";
-  private static final String INIT_PATH = "/ipko3/init";
   private static final String SESSION_HEADER = "X-Session-Id";
   private static final String SESSION_TOKEN = "TOKEN";
   private static final String LOGIN_RESPONSE_BODY = "{\"response\":{\"flow_id\":\"flow_id\",\"token\":\"token\",\"finished\":true}}";
   private static final String BAD_AUTH_RESPONSE_BODY = "{\"response\":{\"flow_id\":\"flow_id\",\"token\":\"token\",\"fields\":{\"errors\":{\"description\":\"An error!\"}}}}";
-  private static final String ACCOUNT_RESPONSE_TEMPLATE = "{\"accounts\":{\"acc1\":{\"number\":{\"value\":\"%s\"},\"balance\":%f}}}";
 
   private ClientAndServer mockServer;
 
@@ -138,10 +136,11 @@ public class MockIpkoServer {
     mockServer
       .when(request()
         .withMethod("POST")
-        .withPath(INIT_PATH))
+        .withPath("/ipko3/init"))
       .respond(response()
         .withStatusCode(200)
-        .withBody(String.format(ACCOUNT_RESPONSE_TEMPLATE, ACCOUNT_NUMBER, ACCOUNT_BALANCE)));
+        .withBody(String.format("{\"accounts\":{\"acc1\":{\"number\":{\"value\":\"%s\"},\"balance\":%f}}}",
+          ACCOUNT_NUMBER, ACCOUNT_BALANCE)));
   }
 
   private void mockNotFound() {

@@ -15,7 +15,6 @@ import java.util.Map;
 public class IpkoClient implements BankClient {
 
   private static final String LOGIN_URL = "https://www.ipko.pl/ipko3/login";
-  private static final String INIT_URL = "https://www.ipko.pl/ipko3/init";
   private static final String SESSION_HEADER = "X-Session-Id";
   private static final HttpBodyMapper mapper = new HttpBodyMapper();
   private final Proxy proxy;
@@ -118,7 +117,7 @@ public class IpkoClient implements BankClient {
     }
 
     private Connection accountsRequest() {
-      return Jsoup.connect(INIT_URL)
+      return Jsoup.connect("https://www.ipko.pl/ipko3/init")
         .ignoreContentType(true)
         .requestBody(mapper.accountsRequestBody())
         .header(SESSION_HEADER, sessionToken)
