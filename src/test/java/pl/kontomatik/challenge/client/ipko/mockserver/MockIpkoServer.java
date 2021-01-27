@@ -28,7 +28,6 @@ public class MockIpkoServer {
   private static final String LOGIN_JSON_TEMPLATE = "{\"data\":{\"login\":\"%s\"}}";
   private static final String PASSWORD_JSON_TEMPLATE = "{\"data\":{\"password\":\"%s\"}}";
   private static final String LOGIN_PATH = "/ipko3/login";
-  private static final String NDCD_PATH = "/nudatasecurity/2.2/w/w-573441/init/js";
   private static final String INIT_PATH = "/ipko3/init";
   private static final String SESSION_HEADER = "X-Session-Id";
   private static final String SESSION_TOKEN = "TOKEN";

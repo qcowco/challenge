@@ -90,7 +90,6 @@ public class IpkoClient implements BankClient {
       .ignoreContentType(true)
       .requestBody(sessionRequestBodyFor(authResponse, password))
       .header(SESSION_HEADER, authResponse.sessionToken)
-      .proxy(proxy)
       .method(Connection.Method.POST);
   }
 
