@@ -46,14 +46,14 @@ public class IpkoClient implements BankClient {
     return handleSend(request);
   }
 
-  private Connection loginRequestFor(String username) {
+  private static Connection loginRequestFor(String username) {
     return Jsoup.connect(LOGIN_URL)
       .ignoreContentType(true)
       .requestBody(loginRequestBodyFor(username))
       .method(Connection.Method.POST);
   }
 
-  private String loginRequestBodyFor(String username) {
+  private static String loginRequestBodyFor(String username) {
     return mapper.getAuthRequestBodyFor(username);
   }
 
@@ -68,7 +68,7 @@ public class IpkoClient implements BankClient {
     }
   }
 
-  private void verifySuccessful(AuthResponse authResponse) {
+  private static void verifySuccessful(AuthResponse authResponse) {
     if (authResponse.wrongCredentials)
       throw new InvalidCredentials("Couldn't login with provided credentials.");
   }
@@ -85,7 +85,7 @@ public class IpkoClient implements BankClient {
     return handleSend(request);
   }
 
-  private Connection getAuthorizeSessionRequest(AuthResponse authResponse, String password) {
+  private static Connection getAuthorizeSessionRequest(AuthResponse authResponse, String password) {
     return Jsoup.connect(LOGIN_URL)
       .ignoreContentType(true)
       .requestBody(sessionRequestBodyFor(authResponse, password))
@@ -94,7 +94,7 @@ public class IpkoClient implements BankClient {
       .method(Connection.Method.POST);
   }
 
-  private String sessionRequestBodyFor(AuthResponse authResponse, String password) {
+  private static String sessionRequestBodyFor(AuthResponse authResponse, String password) {
     return mapper.getSessionAuthRequestBodyFor(authResponse.flowId, authResponse.flowToken, password);
   }
 

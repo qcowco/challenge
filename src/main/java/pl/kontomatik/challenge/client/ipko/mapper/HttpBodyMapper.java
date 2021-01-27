@@ -35,7 +35,7 @@ public class HttpBodyMapper {
     }
   }
 
-  private AuthResponse authResponseFrom(Map<String, String> headers, JsonNode responseNode) {
+  private static AuthResponse authResponseFrom(Map<String, String> headers, JsonNode responseNode) {
     String sessionToken = headers.get("X-Session-Id");
     String flowId = responseNode.findPath("flow_id").asText();
     String token = responseNode.findPath("token").asText();
@@ -43,18 +43,18 @@ public class HttpBodyMapper {
     return new AuthResponse(sessionToken, flowId, token, wrongCredential);
   }
 
-  private boolean containsLoginErrors(JsonNode responseNode) {
+  private static boolean containsLoginErrors(JsonNode responseNode) {
     JsonNode fields = responseNode.with("response").with("fields");
     boolean generalError = hasGeneralError(fields);
     boolean wrongCredential = hasCredentialError(fields);
     return generalError || wrongCredential;
   }
 
-  private boolean hasGeneralError(JsonNode fields) {
+  private static boolean hasGeneralError(JsonNode fields) {
     return fields.hasNonNull("errors");
   }
 
-  private boolean hasCredentialError(JsonNode fields) {
+  private static boolean hasCredentialError(JsonNode fields) {
     boolean wrongLogin = fields.with(AUTH_STATE_ID).hasNonNull("errors");
     boolean wrongPassword = fields.with(SESSION_STATE_ID).hasNonNull("errors");
     return wrongLogin || wrongPassword;
@@ -65,7 +65,7 @@ public class HttpBodyMapper {
     return tryWriteAsString(authRequest);
   }
 
-  private AuthRequest authRequestFor(String username) {
+  private static AuthRequest authRequestFor(String username) {
     return AuthRequest.authBuilder()
       .setStateId(AUTH_STATE_ID)
       .putData("login", username)
@@ -78,7 +78,7 @@ public class HttpBodyMapper {
     return tryWriteAsString(authRequest);
   }
 
-  private AuthRequest sessionAuthRequestFor(String flowId, String token, String password) {
+  private static AuthRequest sessionAuthRequestFor(String flowId, String token, String password) {
     return AuthRequest.authBuilder()
       .setStateId(SESSION_STATE_ID)
       .setFlowId(flowId)
@@ -109,7 +109,7 @@ public class HttpBodyMapper {
     return accountsTree.findPath("accounts");
   }
 
-  private Map<String, Double> getAccountsFrom(JsonNode accountsNode) {
+  private static Map<String, Double> getAccountsFrom(JsonNode accountsNode) {
     Map<String, Double> accountMap = new HashMap<>();
     accountsNode.forEach(accountNode -> {
       String account = accountNode.with("number")

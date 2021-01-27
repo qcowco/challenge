@@ -27,35 +27,35 @@ public class FetchAccountsUseCaseTest {
     assertContains(output, "Account number:");
   }
 
-  private Iterator<String> loadCredentials() throws IOException {
+  private static Iterator<String> loadCredentials() throws IOException {
     return inputFrom(credentialProperties());
   }
 
-  private Properties credentialProperties() throws IOException {
+  private static Properties credentialProperties() throws IOException {
     Properties properties = new Properties();
     properties.load(resourceStream());
     return properties;
   }
 
-  private InputStream resourceStream() {
+  private static InputStream resourceStream() {
     return FetchAccountsUseCaseTest.class.getResourceAsStream("/application.properties");
   }
 
-  private Iterator<String> inputFrom(Properties credentials) {
+  private static Iterator<String> inputFrom(Properties credentials) {
     String username = credentials.getProperty("username");
     String password = credentials.getProperty("password");
     return iterate(username, password);
   }
 
-  private Iterator<String> iterate(String username, String password) {
+  private static Iterator<String> iterate(String username, String password) {
     return List.of(username, password).iterator();
   }
 
-  private void assertContains(List<String> output, String message) {
+  private static void assertContains(List<String> output, String message) {
     assertTrue(anyLineContains(output, message));
   }
 
-  private boolean anyLineContains(List<String> output, String message) {
+  private static boolean anyLineContains(List<String> output, String message) {
     return output.stream()
       .anyMatch(outputLine -> outputLine.contains(message));
   }

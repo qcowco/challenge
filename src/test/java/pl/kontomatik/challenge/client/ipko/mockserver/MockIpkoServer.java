@@ -48,7 +48,7 @@ public class MockIpkoServer {
     return new MockIpkoServer();
   }
 
-  private void setupHttps() {
+  private static void setupHttps() {
     HttpsURLConnection.setDefaultSSLSocketFactory(
       new KeyStoreFactory(new MockServerLogger()).sslContext().getSocketFactory()
     );
