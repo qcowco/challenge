@@ -77,7 +77,7 @@ public class IpkoClient implements BankClient {
     public Map<String, Double> fetchAccounts() {
       String jsonResponse = sendAccountsRequest()
         .body();
-      return RequestMapper.getAccountsFromJson(jsonResponse);
+      return ResponseParser.getAccountsFromJson(jsonResponse);
     }
 
     private Connection.Response sendAccountsRequest() {

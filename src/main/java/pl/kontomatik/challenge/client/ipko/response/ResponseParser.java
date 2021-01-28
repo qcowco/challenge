@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class ResponseParser {
@@ -47,12 +48,34 @@ public class ResponseParser {
     return wrongLogin || wrongPassword;
   }
 
+  public static Map<String, Double> getAccountsFromJson(String jsonAccounts) {
+    JsonNode accountsNode = findAccountsNode(jsonAccounts);
+    return parseAccounts(accountsNode);
+  }
+
+  private static JsonNode findAccountsNode(String jsonAccounts) {
+    JsonNode accountsTree = mapJsonNode(jsonAccounts);
+    return accountsTree.findPath("accounts");
+  }
+
   private static JsonNode mapJsonNode(String responseBody) {
     try {
       return OBJECT_MAPPER.readTree(responseBody);
     } catch (JsonProcessingException e) {
       throw new IllegalArgumentException("Cannot parse json in response", e);
     }
+  }
+
+  private static Map<String, Double> parseAccounts(JsonNode accountsNode) {
+    Map<String, Double> accountMap = new HashMap<>();
+    accountsNode.forEach(accountNode -> {
+      String account = accountNode.with("number")
+        .get("value").asText();
+      Double balance = accountNode.get("balance")
+        .asDouble();
+      accountMap.put(account, balance);
+    });
+    return accountMap;
   }
 
 }
