@@ -15,7 +15,6 @@ public class IpkoClient implements BankClient {
 
   private static final String LOGIN_URL = "https://www.ipko.pl/ipko3/login";
   private static final String SESSION_HEADER = "X-Session-Id";
-  private static final HttpBodyMapper MAPPER = new HttpBodyMapper();
   private final JSoupHttpClient httpClient;
 
   public IpkoClient(JSoupHttpClient httpClient) {
@@ -38,12 +37,8 @@ public class IpkoClient implements BankClient {
   private static Connection createLoginRequest(String username) {
     return Jsoup.connect(LOGIN_URL)
       .ignoreContentType(true)
-      .requestBody(createLoginRequestBody(username))
+      .requestBody(RequestMapper.createLoginRequestBody(username))
       .method(Connection.Method.POST);
-  }
-
-  private static String createLoginRequestBody(String username) {
-    return MAPPER.createLoginRequestBody(username);
   }
 
   private AuthorizedSession submitPassword(Connection.Response loginResponse, String password) {
@@ -62,7 +57,8 @@ public class IpkoClient implements BankClient {
   }
 
   private static String createPasswordRequestBody(String responseBody, String password) {
-    return MAPPER.createPasswordRequestBody(JsonResponseParser.extractFlowId(responseBody), extractFlowToken(responseBody), password);
+    return RequestMapper.createPasswordRequestBody(JsonResponseParser.extractFlowId(responseBody),
+      JsonResponseParser.extractFlowToken(responseBody), password);
   }
 
   private static void assertCredentialAccepted(String body) {
@@ -82,7 +78,7 @@ public class IpkoClient implements BankClient {
     public Map<String, Double> fetchAccounts() {
       String jsonResponse = sendAccountsRequest()
         .body();
-      return MAPPER.getAccountsFromJson(jsonResponse);
+      return RequestMapper.getAccountsFromJson(jsonResponse);
     }
 
     private Connection.Response sendAccountsRequest() {
@@ -93,7 +89,7 @@ public class IpkoClient implements BankClient {
     private Connection accountsRequest() {
       return Jsoup.connect("https://www.ipko.pl/ipko3/init")
         .ignoreContentType(true)
-        .requestBody(MAPPER.accountsRequestBody())
+        .requestBody(RequestMapper.accountsRequestBody())
         .header(SESSION_HEADER, sessionToken)
         .method(Connection.Method.POST);
     }

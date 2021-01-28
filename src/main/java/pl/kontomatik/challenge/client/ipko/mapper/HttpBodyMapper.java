@@ -13,9 +13,9 @@ public class HttpBodyMapper {
 
   private static final String AUTH_STATE_ID = "login";
   private static final String SESSION_STATE_ID = "password";
-  private final ObjectMapper objectMapper = new ObjectMapper();
+  private static final ObjectMapper objectMapper = new ObjectMapper();
 
-  public String createLoginRequestBody(String username) {
+  public static String createLoginRequestBody(String username) {
     AuthRequest authRequest = createAuthRequest(username);
     return writeString(authRequest);
   }
@@ -27,8 +27,8 @@ public class HttpBodyMapper {
       .build();
   }
 
-  public String createPasswordRequestBody(String flowId, String token,
-                                          String password) {
+  public static String createPasswordRequestBody(String flowId, String token,
+                                                 String password) {
     AuthRequest authRequest = createPasswordRequest(flowId, token, password);
     return writeString(authRequest);
   }
@@ -42,11 +42,11 @@ public class HttpBodyMapper {
       .build();
   }
 
-  public String accountsRequestBody() {
+  public static String accountsRequestBody() {
     return writeString(BaseRequest.accountsRequest());
   }
 
-  private String writeString(BaseRequest accountsRequest) {
+  private static String writeString(BaseRequest accountsRequest) {
     try {
       return objectMapper.writeValueAsString(accountsRequest);
     } catch (JsonProcessingException e) {
@@ -54,17 +54,17 @@ public class HttpBodyMapper {
     }
   }
 
-  public Map<String, Double> getAccountsFromJson(String jsonAccounts) {
+  public static Map<String, Double> getAccountsFromJson(String jsonAccounts) {
     JsonNode accountsNode = findAccountsNode(jsonAccounts);
     return parseAccounts(accountsNode);
   }
 
-  private JsonNode findAccountsNode(String jsonAccounts) {
+  private static JsonNode findAccountsNode(String jsonAccounts) {
     JsonNode accountsTree = mapJsonNode(jsonAccounts);
     return accountsTree.findPath("accounts");
   }
 
-  private JsonNode mapJsonNode(String responseBody) {
+  private static JsonNode mapJsonNode(String responseBody) {
     try {
       return objectMapper.readTree(responseBody);
     } catch (JsonProcessingException e) {
