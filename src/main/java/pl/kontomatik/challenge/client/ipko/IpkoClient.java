@@ -4,18 +4,19 @@ import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import pl.kontomatik.challenge.client.BankClient;
 import pl.kontomatik.challenge.client.exception.InvalidCredentials;
-import pl.kontomatik.challenge.client.ipko.dto.AuthResponse;
 import pl.kontomatik.challenge.client.ipko.http.JSoupHttpClient;
 import pl.kontomatik.challenge.client.ipko.mapper.HttpBodyMapper;
 
 import java.util.Map;
+
+import static pl.kontomatik.challenge.client.ipko.JsonResponseParser.extractFlowToken;
 
 public class IpkoClient implements BankClient {
 
   private static final String LOGIN_URL = "https://www.ipko.pl/ipko3/login";
   private static final String SESSION_HEADER = "X-Session-Id";
   private static final HttpBodyMapper MAPPER = new HttpBodyMapper();
-  private JSoupHttpClient httpClient;
+  private final JSoupHttpClient httpClient;
 
   public IpkoClient(JSoupHttpClient httpClient) {
     this.httpClient = httpClient;
@@ -23,16 +24,15 @@ public class IpkoClient implements BankClient {
 
   @Override
   public AuthorizedSession signIn(String username, String password) {
-    AuthResponse loginResponse = submitLogin(username);
+    Connection.Response loginResponse = submitLogin(username);
     return submitPassword(loginResponse, password);
   }
 
-  private AuthResponse submitLogin(String username) {
+  private Connection.Response submitLogin(String username) {
     Connection request = createLoginRequest(username);
     Connection.Response response = httpClient.send(request);
-    AuthResponse authResponse = MAPPER.createAuthResponse(response.headers(), response.body());
-    assertCredentialAccepted(authResponse);
-    return authResponse;
+    assertCredentialAccepted(response.body());
+    return response;
   }
 
   private static Connection createLoginRequest(String username) {
@@ -46,28 +46,27 @@ public class IpkoClient implements BankClient {
     return MAPPER.createLoginRequestBody(username);
   }
 
-  private AuthorizedSession submitPassword(AuthResponse loginResponse, String password) {
+  private AuthorizedSession submitPassword(Connection.Response loginResponse, String password) {
     Connection request = createPasswordRequest(loginResponse, password);
     Connection.Response response = httpClient.send(request);
-    AuthResponse sessionResponse = MAPPER.createAuthResponse(response.headers(), response.body());
-    assertCredentialAccepted(sessionResponse);
-    return new IpkoSession(sessionResponse.sessionToken);
+    assertCredentialAccepted(response.body());
+    return new IpkoSession(JsonResponseParser.extractSessionId(response.headers()));
   }
 
-  private static Connection createPasswordRequest(AuthResponse authResponse, String password) {
+  private static Connection createPasswordRequest(Connection.Response response, String password) {
     return Jsoup.connect(LOGIN_URL)
       .ignoreContentType(true)
-      .requestBody(createPasswordRequestBody(authResponse, password))
-      .header(SESSION_HEADER, authResponse.sessionToken)
+      .requestBody(createPasswordRequestBody(response.body(), password))
+      .header(SESSION_HEADER, JsonResponseParser.extractSessionId(response.headers()))
       .method(Connection.Method.POST);
   }
 
-  private static String createPasswordRequestBody(AuthResponse authResponse, String password) {
-    return MAPPER.createPasswordRequestBody(authResponse.flowId, authResponse.flowToken, password);
+  private static String createPasswordRequestBody(String responseBody, String password) {
+    return MAPPER.createPasswordRequestBody(JsonResponseParser.extractFlowId(responseBody), extractFlowToken(responseBody), password);
   }
 
-  private static void assertCredentialAccepted(AuthResponse authResponse) {
-    if (authResponse.wrongCredentials)
+  private static void assertCredentialAccepted(String body) {
+    if (JsonResponseParser.containsCredentialErrors(body))
       throw new InvalidCredentials("Couldn't login with provided credentials.");
   }
 

@@ -6,7 +6,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import pl.kontomatik.challenge.client.ipko.dto.AuthRequest;
-import pl.kontomatik.challenge.client.ipko.dto.AuthResponse;
 import pl.kontomatik.challenge.client.ipko.dto.BaseRequest;
 
 import java.util.HashMap;
@@ -20,36 +19,6 @@ public class HttpBodyMapper {
 
   public HttpBodyMapper() {
     objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
-  }
-
-  public AuthResponse createAuthResponse(Map<String, String> headers, String body) {
-    JsonNode responseNode = mapJsonNode(body);
-    return createAuthResponse(headers, responseNode);
-  }
-
-  private static AuthResponse createAuthResponse(Map<String, String> headers, JsonNode responseNode) {
-    String sessionToken = headers.get("X-Session-Id");
-    String flowId = responseNode.findPath("flow_id").asText();
-    String token = responseNode.findPath("token").asText();
-    boolean wrongCredential = containsLoginErrors(responseNode);
-    return new AuthResponse(sessionToken, flowId, token, wrongCredential);
-  }
-
-  private static boolean containsLoginErrors(JsonNode responseNode) {
-    JsonNode fields = responseNode.with("response").with("fields");
-    boolean generalError = hasGeneralError(fields);
-    boolean wrongCredential = hasCredentialError(fields);
-    return generalError || wrongCredential;
-  }
-
-  private static boolean hasGeneralError(JsonNode fields) {
-    return fields.hasNonNull("errors");
-  }
-
-  private static boolean hasCredentialError(JsonNode fields) {
-    boolean wrongLogin = fields.with(AUTH_STATE_ID).hasNonNull("errors");
-    boolean wrongPassword = fields.with(SESSION_STATE_ID).hasNonNull("errors");
-    return wrongLogin || wrongPassword;
   }
 
   public String createLoginRequestBody(String username) {
