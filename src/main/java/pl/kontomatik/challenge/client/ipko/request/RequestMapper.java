@@ -1,5 +1,7 @@
 package pl.kontomatik.challenge.client.ipko.request;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,7 +12,11 @@ import java.util.Map;
 
 public class RequestMapper {
 
-  private static final ObjectMapper objectMapper = new ObjectMapper();
+  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+  static {
+    OBJECT_MAPPER.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+  }
 
   public static String createLoginRequestBody(String username) {
     Request authRequest = new Request("login", Map.of("login", username));
@@ -33,7 +39,7 @@ public class RequestMapper {
 
   private static String writeString(Request accountsRequest) {
     try {
-      return objectMapper.writeValueAsString(accountsRequest);
+      return OBJECT_MAPPER.writeValueAsString(accountsRequest);
     } catch (JsonProcessingException e) {
       throw new IllegalArgumentException("Couldn't parse given node as String", e);
     }
@@ -51,7 +57,7 @@ public class RequestMapper {
 
   private static JsonNode mapJsonNode(String responseBody) {
     try {
-      return objectMapper.readTree(responseBody);
+      return OBJECT_MAPPER.readTree(responseBody);
     } catch (JsonProcessingException e) {
       throw new IllegalArgumentException("Cannot parse json in response", e);
     }
