@@ -3,50 +3,35 @@ package pl.kontomatik.challenge.client.ipko.request;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import pl.kontomatik.challenge.client.ipko.request.dto.AuthRequest;
-import pl.kontomatik.challenge.client.ipko.request.dto.BaseRequest;
+import pl.kontomatik.challenge.client.ipko.request.dto.Request;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class RequestMapper {
 
-  private static final String AUTH_STATE_ID = "login";
-  private static final String SESSION_STATE_ID = "password";
   private static final ObjectMapper objectMapper = new ObjectMapper();
 
   public static String createLoginRequestBody(String username) {
-    AuthRequest authRequest = createAuthRequest(username);
+    Request authRequest = new Request("login", Map.of("login", username));
     return writeString(authRequest);
-  }
-
-  private static AuthRequest createAuthRequest(String username) {
-    return AuthRequest.authBuilder()
-      .setStateId(AUTH_STATE_ID)
-      .putData("login", username)
-      .build();
   }
 
   public static String createPasswordRequestBody(String flowId, String token,
                                                  String password) {
-    AuthRequest authRequest = createPasswordRequest(flowId, token, password);
+    Request authRequest = new Request("password", flowId, token, Map.of("password", password));
     return writeString(authRequest);
   }
 
-  private static AuthRequest createPasswordRequest(String flowId, String token, String password) {
-    return AuthRequest.authBuilder()
-      .setStateId(SESSION_STATE_ID)
-      .setFlowId(flowId)
-      .setToken(token)
-      .putData("password", password)
-      .build();
-  }
-
   public static String accountsRequestBody() {
-    return writeString(BaseRequest.accountsRequest());
+    return writeString(accountsRequest());
   }
 
-  private static String writeString(BaseRequest accountsRequest) {
+  private static Request accountsRequest() {
+    return new Request(Map.of("accounts", Map.of()));
+  }
+
+  private static String writeString(Request accountsRequest) {
     try {
       return objectMapper.writeValueAsString(accountsRequest);
     } catch (JsonProcessingException e) {
