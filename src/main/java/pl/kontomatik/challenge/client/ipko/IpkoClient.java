@@ -5,11 +5,9 @@ import org.jsoup.Jsoup;
 import pl.kontomatik.challenge.client.BankClient;
 import pl.kontomatik.challenge.client.exception.InvalidCredentials;
 import pl.kontomatik.challenge.client.ipko.dto.AuthResponse;
+import pl.kontomatik.challenge.client.ipko.http.JSoupHttpClient;
 import pl.kontomatik.challenge.client.ipko.mapper.HttpBodyMapper;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.net.Proxy;
 import java.util.Map;
 
 public class IpkoClient implements BankClient {
@@ -17,14 +15,10 @@ public class IpkoClient implements BankClient {
   private static final String LOGIN_URL = "https://www.ipko.pl/ipko3/login";
   private static final String SESSION_HEADER = "X-Session-Id";
   private static final HttpBodyMapper MAPPER = new HttpBodyMapper();
-  private final Proxy proxy;
+  private JSoupHttpClient httpClient;
 
-  public IpkoClient() {
-    this(null);
-  }
-
-  public IpkoClient(Proxy proxy) {
-    this.proxy = proxy;
+  public IpkoClient(JSoupHttpClient httpClient) {
+    this.httpClient = httpClient;
   }
 
   @Override
@@ -35,7 +29,7 @@ public class IpkoClient implements BankClient {
 
   private AuthResponse submitLogin(String username) {
     Connection request = createLoginRequest(username);
-    Connection.Response response = send(request);
+    Connection.Response response = httpClient.send(request);
     AuthResponse authResponse = MAPPER.createAuthResponse(response.headers(), response.body());
     assertCredentialAccepted(authResponse);
     return authResponse;
@@ -54,7 +48,7 @@ public class IpkoClient implements BankClient {
 
   private AuthorizedSession submitPassword(AuthResponse loginResponse, String password) {
     Connection request = createPasswordRequest(loginResponse, password);
-    Connection.Response response = send(request);
+    Connection.Response response = httpClient.send(request);
     AuthResponse sessionResponse = MAPPER.createAuthResponse(response.headers(), response.body());
     assertCredentialAccepted(sessionResponse);
     return new IpkoSession(sessionResponse.sessionToken);
@@ -70,17 +64,6 @@ public class IpkoClient implements BankClient {
 
   private static String createPasswordRequestBody(AuthResponse authResponse, String password) {
     return MAPPER.createPasswordRequestBody(authResponse.flowId, authResponse.flowToken, password);
-  }
-
-  private Connection.Response send(Connection request) {
-    try {
-      return request
-        .proxy(proxy)
-        .header("Content-Type", "application/json")
-        .execute();
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
   }
 
   private static void assertCredentialAccepted(AuthResponse authResponse) {
@@ -105,7 +88,7 @@ public class IpkoClient implements BankClient {
 
     private Connection.Response sendAccountsRequest() {
       Connection request = accountsRequest();
-      return send(request);
+      return httpClient.send(request);
     }
 
     private Connection accountsRequest() {

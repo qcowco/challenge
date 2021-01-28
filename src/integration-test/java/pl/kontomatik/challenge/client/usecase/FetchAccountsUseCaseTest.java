@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import pl.kontomatik.challenge.client.BankClient;
 import pl.kontomatik.challenge.client.exception.InvalidCredentials;
 import pl.kontomatik.challenge.client.ipko.IpkoClient;
+import pl.kontomatik.challenge.client.ipko.http.JSoupHttpClient;
 import pl.kontomatik.challenge.usecase.FetchAccountsUseCase;
 
 import java.io.IOException;
@@ -19,7 +20,7 @@ public class FetchAccountsUseCaseTest {
 
   @Test
   public void afterSignInCanFetchAccounts() throws IOException {
-    BankClient bankClient = new IpkoClient();
+    BankClient bankClient = new IpkoClient(new JSoupHttpClient());
     List<String> output = new ArrayList<>();
     FetchAccountsUseCase useCase = new FetchAccountsUseCase(bankClient, output::add);
     Properties credentials = loadCredentials();
@@ -48,7 +49,7 @@ public class FetchAccountsUseCaseTest {
 
   @Test
   public void failsOnInvalidCredentials() {
-    BankClient bankClient = new IpkoClient();
+    BankClient bankClient = new IpkoClient(new JSoupHttpClient());
     List<String> output = new ArrayList<>();
     FetchAccountsUseCase useCase = new FetchAccountsUseCase(bankClient, output::add);
     assertThrows(InvalidCredentials.class, () -> useCase.execute("qwerty", "azerty"));

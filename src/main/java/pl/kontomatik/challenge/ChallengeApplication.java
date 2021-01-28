@@ -1,6 +1,7 @@
 package pl.kontomatik.challenge;
 
 import pl.kontomatik.challenge.client.ipko.IpkoClient;
+import pl.kontomatik.challenge.client.ipko.http.JSoupHttpClient;
 import pl.kontomatik.challenge.usecase.FetchAccountsUseCase;
 
 import java.util.Scanner;
@@ -8,7 +9,7 @@ import java.util.Scanner;
 public class ChallengeApplication {
 
   public static void main(String[] args) {
-    IpkoClient ipkoClient = new IpkoClient();
+    IpkoClient ipkoClient = new IpkoClient(new JSoupHttpClient());
     FetchAccountsUseCase useCase = new FetchAccountsUseCase(ipkoClient, System.out::println);
     String username = askForInput("Input Your username");
     String password = askForInput("Input Your password");
