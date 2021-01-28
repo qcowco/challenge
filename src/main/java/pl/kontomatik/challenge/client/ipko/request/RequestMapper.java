@@ -1,15 +1,15 @@
-package pl.kontomatik.challenge.client.ipko.mapper;
+package pl.kontomatik.challenge.client.ipko.request;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import pl.kontomatik.challenge.client.ipko.dto.AuthRequest;
-import pl.kontomatik.challenge.client.ipko.dto.BaseRequest;
+import pl.kontomatik.challenge.client.ipko.request.dto.AuthRequest;
+import pl.kontomatik.challenge.client.ipko.request.dto.BaseRequest;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class HttpBodyMapper {
+public class RequestMapper {
 
   private static final String AUTH_STATE_ID = "login";
   private static final String SESSION_STATE_ID = "password";

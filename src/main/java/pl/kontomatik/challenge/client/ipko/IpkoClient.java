@@ -5,11 +5,9 @@ import org.jsoup.Jsoup;
 import pl.kontomatik.challenge.client.BankClient;
 import pl.kontomatik.challenge.client.exception.InvalidCredentials;
 import pl.kontomatik.challenge.client.ipko.http.JSoupHttpClient;
-import pl.kontomatik.challenge.client.ipko.mapper.HttpBodyMapper;
+import pl.kontomatik.challenge.client.ipko.request.RequestMapper;
 
 import java.util.Map;
-
-import static pl.kontomatik.challenge.client.ipko.JsonResponseParser.extractFlowToken;
 
 public class IpkoClient implements BankClient {
 
