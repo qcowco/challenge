@@ -32,34 +32,31 @@ public class FetchAccountsUseCaseTest {
 
   @Test
   public void signInFailsOnInvalidCredentials() {
-    Iterator<String> input = iterate("WRONG_USERNAME", "WRONG_PASSWORD");
     List<String> output = new LinkedList<>();
-    FetchAccountsUseCase useCase = proxiedCliFor(input, output);
-    assertThrows(InvalidCredentials.class, useCase::execute);
+    FetchAccountsUseCase useCase = proxiedCliFor(output);
+    assertThrows(InvalidCredentials.class, () -> useCase.execute("qwerty", "azerty"));
   }
 
   private static Iterator<String> iterate(String... inputs) {
     return Arrays.asList(inputs).iterator();
   }
 
-  private static FetchAccountsUseCase proxiedCliFor(Iterator<String> input, List<String> output) {
+  private static FetchAccountsUseCase proxiedCliFor(List<String> output) {
     BankClient proxiedClient = new IpkoClient(server.getProxy());
-    return new FetchAccountsUseCase(proxiedClient, input::next, output::add);
+    return new FetchAccountsUseCase(proxiedClient, output::add);
   }
 
   @Test
   public void signInSucceedsOnValidCredentials() {
-    Iterator<String> input = iterate(USERNAME, PASSWORD);
     List<String> output = new LinkedList<>();
-    FetchAccountsUseCase useCase = proxiedCliFor(input, output);
-    assertDoesNotThrow(useCase::execute);
+    FetchAccountsUseCase useCase = proxiedCliFor(output);
+    assertDoesNotThrow(() -> useCase.execute(USERNAME, PASSWORD));
   }
 
   @Test
   public void afterSigningInDisplaysAccounts() {
-    Iterator<String> input = iterate(USERNAME, PASSWORD);
     List<String> output = new LinkedList<>();
-    proxiedCliFor(input, output).execute();
+    proxiedCliFor(output).execute(USERNAME, PASSWORD);
     assertContainsEveryElement(output, ACCOUNT_NUMBER, String.valueOf(ACCOUNT_BALANCE));
   }
 
