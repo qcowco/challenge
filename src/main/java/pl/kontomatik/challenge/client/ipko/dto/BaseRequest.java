@@ -4,9 +4,9 @@ import java.util.Map;
 
 public class BaseRequest {
 
-  private final Map<String, Object> data;
+  public final Map<String, Object> data;
 
-  public BaseRequest(Map<String, Object> data) {
+  protected BaseRequest(Map<String, Object> data) {
     this.data = data;
   }
 

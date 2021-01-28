@@ -10,11 +10,11 @@ import java.util.Map;
 public class AuthRequest extends BaseRequest {
 
   @JsonProperty("state_id")
-  private final String stateId;
+  public final String stateId;
   @JsonProperty("flow_id")
-  private final String flowId;
-  private final String token;
-  private final String action = "submit";
+  public final String flowId;
+  public final String token;
+  public final String action = "submit";
 
   AuthRequest(Map<String, Object> data, String stateId,
               String flowId, String token) {

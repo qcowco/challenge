@@ -1,7 +1,5 @@
 package pl.kontomatik.challenge.client.ipko.mapper;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,10 +14,6 @@ public class HttpBodyMapper {
   private static final String AUTH_STATE_ID = "login";
   private static final String SESSION_STATE_ID = "password";
   private final ObjectMapper objectMapper = new ObjectMapper();
-
-  public HttpBodyMapper() {
-    objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
-  }
 
   public String createLoginRequestBody(String username) {
     AuthRequest authRequest = createAuthRequest(username);
