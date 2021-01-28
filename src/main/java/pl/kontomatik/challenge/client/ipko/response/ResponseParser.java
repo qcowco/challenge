@@ -1,4 +1,4 @@
-package pl.kontomatik.challenge.client.ipko;
+package pl.kontomatik.challenge.client.ipko.response;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.Map;
 
-public class JsonResponseParser {
+public class ResponseParser {
 
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 

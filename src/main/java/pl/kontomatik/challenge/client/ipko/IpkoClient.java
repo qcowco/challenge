@@ -6,6 +6,7 @@ import pl.kontomatik.challenge.client.BankClient;
 import pl.kontomatik.challenge.client.exception.InvalidCredentials;
 import pl.kontomatik.challenge.client.ipko.http.JSoupHttpClient;
 import pl.kontomatik.challenge.client.ipko.request.RequestMapper;
+import pl.kontomatik.challenge.client.ipko.response.ResponseParser;
 
 import java.util.Map;
 
@@ -43,24 +44,24 @@ public class IpkoClient implements BankClient {
     Connection request = createPasswordRequest(loginResponse, password);
     Connection.Response response = httpClient.send(request);
     assertCredentialAccepted(response.body());
-    return new IpkoSession(JsonResponseParser.extractSessionId(response.headers()));
+    return new IpkoSession(ResponseParser.extractSessionId(response.headers()));
   }
 
   private static Connection createPasswordRequest(Connection.Response response, String password) {
     return Jsoup.connect(LOGIN_URL)
       .ignoreContentType(true)
       .requestBody(createPasswordRequestBody(response.body(), password))
-      .header(SESSION_HEADER, JsonResponseParser.extractSessionId(response.headers()))
+      .header(SESSION_HEADER, ResponseParser.extractSessionId(response.headers()))
       .method(Connection.Method.POST);
   }
 
   private static String createPasswordRequestBody(String responseBody, String password) {
-    return RequestMapper.createPasswordRequestBody(JsonResponseParser.extractFlowId(responseBody),
-      JsonResponseParser.extractFlowToken(responseBody), password);
+    return RequestMapper.createPasswordRequestBody(ResponseParser.extractFlowId(responseBody),
+      ResponseParser.extractFlowToken(responseBody), password);
   }
 
   private static void assertCredentialAccepted(String body) {
-    if (JsonResponseParser.containsCredentialErrors(body))
+    if (ResponseParser.containsCredentialErrors(body))
       throw new InvalidCredentials("Couldn't login with provided credentials.");
   }
 
