@@ -4,7 +4,7 @@ import java.util.Map;
 
 public interface BankClient {
 
-  AuthorizedSession login(String username, String password);
+  AuthorizedSession signIn(String username, String password);
 
   interface AuthorizedSession {
 

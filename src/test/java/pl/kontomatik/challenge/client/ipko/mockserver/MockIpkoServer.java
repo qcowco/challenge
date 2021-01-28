@@ -33,7 +33,7 @@ public class MockIpkoServer {
   private static final String LOGIN_RESPONSE_BODY = "{\"response\":{\"flow_id\":\"flow_id\",\"token\":\"token\",\"finished\":true}}";
   private static final String BAD_AUTH_RESPONSE_BODY = "{\"response\":{\"flow_id\":\"flow_id\",\"token\":\"token\",\"fields\":{\"errors\":{\"description\":\"An error!\"}}}}";
 
-  private ClientAndServer mockServer;
+  private final ClientAndServer mockServer;
 
   private MockIpkoServer() {
     mockServer = ClientAndServer.startClientAndServer(1090);

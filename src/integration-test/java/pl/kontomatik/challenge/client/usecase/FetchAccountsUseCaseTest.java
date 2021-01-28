@@ -8,7 +8,7 @@ import pl.kontomatik.challenge.usecase.FetchAccountsUseCase;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -20,7 +20,7 @@ public class FetchAccountsUseCaseTest {
   @Test
   public void afterSignInCanFetchAccounts() throws IOException {
     BankClient bankClient = new IpkoClient();
-    List<String> output = new LinkedList<>();
+    List<String> output = new ArrayList<>();
     FetchAccountsUseCase useCase = new FetchAccountsUseCase(bankClient, output::add);
     Properties credentials = loadCredentials();
     useCase.execute(credentials.getProperty("username"), credentials.getProperty("password"));
@@ -49,7 +49,7 @@ public class FetchAccountsUseCaseTest {
   @Test
   public void failsOnInvalidCredentials() {
     BankClient bankClient = new IpkoClient();
-    List<String> output = new LinkedList<>();
+    List<String> output = new ArrayList<>();
     FetchAccountsUseCase useCase = new FetchAccountsUseCase(bankClient, output::add);
     assertThrows(InvalidCredentials.class, () -> useCase.execute("qwerty", "azerty"));
   }

@@ -22,20 +22,12 @@ public class HttpBodyMapper {
     objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
   }
 
-  public AuthResponse getAuthResponseFrom(Map<String, String> headers, String body) {
-    JsonNode responseNode = tryGetJsonNodeFrom(body);
-    return authResponseFrom(headers, responseNode);
+  public AuthResponse createAuthResponse(Map<String, String> headers, String body) {
+    JsonNode responseNode = mapJsonNode(body);
+    return createAuthResponse(headers, responseNode);
   }
 
-  private JsonNode tryGetJsonNodeFrom(String responseBody) {
-    try {
-      return objectMapper.readTree(responseBody);
-    } catch (JsonProcessingException e) {
-      throw new IllegalArgumentException("Cannot parse json in response", e);
-    }
-  }
-
-  private static AuthResponse authResponseFrom(Map<String, String> headers, JsonNode responseNode) {
+  private static AuthResponse createAuthResponse(Map<String, String> headers, JsonNode responseNode) {
     String sessionToken = headers.get("X-Session-Id");
     String flowId = responseNode.findPath("flow_id").asText();
     String token = responseNode.findPath("token").asText();
@@ -60,25 +52,25 @@ public class HttpBodyMapper {
     return wrongLogin || wrongPassword;
   }
 
-  public String getAuthRequestBodyFor(String username) {
-    AuthRequest authRequest = authRequestFor(username);
-    return tryWriteAsString(authRequest);
+  public String createLoginRequestBody(String username) {
+    AuthRequest authRequest = createAuthRequest(username);
+    return writeString(authRequest);
   }
 
-  private static AuthRequest authRequestFor(String username) {
+  private static AuthRequest createAuthRequest(String username) {
     return AuthRequest.authBuilder()
       .setStateId(AUTH_STATE_ID)
       .putData("login", username)
       .build();
   }
 
-  public String getSessionAuthRequestBodyFor(String flowId, String token,
-                                             String password) {
-    AuthRequest authRequest = sessionAuthRequestFor(flowId, token, password);
-    return tryWriteAsString(authRequest);
+  public String createPasswordRequestBody(String flowId, String token,
+                                          String password) {
+    AuthRequest authRequest = createPasswordRequest(flowId, token, password);
+    return writeString(authRequest);
   }
 
-  private static AuthRequest sessionAuthRequestFor(String flowId, String token, String password) {
+  private static AuthRequest createPasswordRequest(String flowId, String token, String password) {
     return AuthRequest.authBuilder()
       .setStateId(SESSION_STATE_ID)
       .setFlowId(flowId)
@@ -87,7 +79,11 @@ public class HttpBodyMapper {
       .build();
   }
 
-  private String tryWriteAsString(BaseRequest accountsRequest) {
+  public String accountsRequestBody() {
+    return writeString(BaseRequest.accountsRequest());
+  }
+
+  private String writeString(BaseRequest accountsRequest) {
     try {
       return objectMapper.writeValueAsString(accountsRequest);
     } catch (JsonProcessingException e) {
@@ -95,21 +91,25 @@ public class HttpBodyMapper {
     }
   }
 
-  public String accountsRequestBody() {
-    return tryWriteAsString(BaseRequest.accountsRequest());
-  }
-
   public Map<String, Double> getAccountsFromJson(String jsonAccounts) {
     JsonNode accountsNode = findAccountsNode(jsonAccounts);
-    return getAccountsFrom(accountsNode);
+    return parseAccounts(accountsNode);
   }
 
   private JsonNode findAccountsNode(String jsonAccounts) {
-    JsonNode accountsTree = tryGetJsonNodeFrom(jsonAccounts);
+    JsonNode accountsTree = mapJsonNode(jsonAccounts);
     return accountsTree.findPath("accounts");
   }
 
-  private static Map<String, Double> getAccountsFrom(JsonNode accountsNode) {
+  private JsonNode mapJsonNode(String responseBody) {
+    try {
+      return objectMapper.readTree(responseBody);
+    } catch (JsonProcessingException e) {
+      throw new IllegalArgumentException("Cannot parse json in response", e);
+    }
+  }
+
+  private static Map<String, Double> parseAccounts(JsonNode accountsNode) {
     Map<String, Double> accountMap = new HashMap<>();
     accountsNode.forEach(accountNode -> {
       String account = accountNode.with("number")

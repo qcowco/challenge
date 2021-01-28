@@ -29,19 +29,19 @@ public class IpkoClientTest {
   @Test
   public void signInSucceedsOnValidCredentials() {
     BankClient bankClient = new IpkoClient(server.getProxy());
-    assertDoesNotThrow(() -> bankClient.login(USERNAME, PASSWORD));
+    assertDoesNotThrow(() -> bankClient.signIn(USERNAME, PASSWORD));
   }
 
   @Test
   public void signInFailsOnInvalidCredentials() {
     BankClient bankClient = new IpkoClient(server.getProxy());
-    assertThrows(InvalidCredentials.class, () -> bankClient.login("WRONG_USERNAME", "WRONG_PASSWORD"));
+    assertThrows(InvalidCredentials.class, () -> bankClient.signIn("WRONG_USERNAME", "WRONG_PASSWORD"));
   }
 
   @Test
   public void afterSignInCanFetchAccounts() {
     BankClient bankClient = new IpkoClient(server.getProxy());
-    BankClient.AuthorizedSession authorizedSession = bankClient.login(USERNAME, PASSWORD);
+    BankClient.AuthorizedSession authorizedSession = bankClient.signIn(USERNAME, PASSWORD);
     Map<String, Double> expectedAccounts = Map.of(ACCOUNT_NUMBER, ACCOUNT_BALANCE);
     Map<String, Double> actualAccounts = authorizedSession.fetchAccounts();
     assertEquals(expectedAccounts, actualAccounts);

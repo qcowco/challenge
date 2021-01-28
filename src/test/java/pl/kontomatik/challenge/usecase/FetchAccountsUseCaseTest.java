@@ -8,9 +8,8 @@ import pl.kontomatik.challenge.client.exception.InvalidCredentials;
 import pl.kontomatik.challenge.client.ipko.IpkoClient;
 import pl.kontomatik.challenge.client.ipko.mockserver.MockIpkoServer;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -32,31 +31,27 @@ public class FetchAccountsUseCaseTest {
 
   @Test
   public void signInFailsOnInvalidCredentials() {
-    List<String> output = new LinkedList<>();
-    FetchAccountsUseCase useCase = proxiedCliFor(output);
+    List<String> output = new ArrayList<>();
+    FetchAccountsUseCase useCase = createProxiedUseCase(output);
     assertThrows(InvalidCredentials.class, () -> useCase.execute("qwerty", "azerty"));
   }
 
-  private static Iterator<String> iterate(String... inputs) {
-    return Arrays.asList(inputs).iterator();
-  }
-
-  private static FetchAccountsUseCase proxiedCliFor(List<String> output) {
+  private static FetchAccountsUseCase createProxiedUseCase(List<String> output) {
     BankClient proxiedClient = new IpkoClient(server.getProxy());
     return new FetchAccountsUseCase(proxiedClient, output::add);
   }
 
   @Test
   public void signInSucceedsOnValidCredentials() {
-    List<String> output = new LinkedList<>();
-    FetchAccountsUseCase useCase = proxiedCliFor(output);
+    List<String> output = new ArrayList<>();
+    FetchAccountsUseCase useCase = createProxiedUseCase(output);
     assertDoesNotThrow(() -> useCase.execute(USERNAME, PASSWORD));
   }
 
   @Test
   public void afterSigningInDisplaysAccounts() {
-    List<String> output = new LinkedList<>();
-    proxiedCliFor(output).execute(USERNAME, PASSWORD);
+    List<String> output = new ArrayList<>();
+    createProxiedUseCase(output).execute(USERNAME, PASSWORD);
     assertContainsEveryElement(output, ACCOUNT_NUMBER, String.valueOf(ACCOUNT_BALANCE));
   }
 

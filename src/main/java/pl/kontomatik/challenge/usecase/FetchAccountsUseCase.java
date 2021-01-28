@@ -16,7 +16,7 @@ public class FetchAccountsUseCase {
   }
 
   public void execute(String username, String password) {
-    BankClient.AuthorizedSession authorizedSession = bankClient.login(username, password);
+    BankClient.AuthorizedSession authorizedSession = bankClient.signIn(username, password);
     Map<String, Double> accounts = authorizedSession.fetchAccounts();
     display(accounts);
   }
