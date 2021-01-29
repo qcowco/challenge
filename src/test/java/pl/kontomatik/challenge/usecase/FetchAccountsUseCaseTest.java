@@ -37,11 +37,6 @@ public class FetchAccountsUseCaseTest {
     assertThrows(InvalidCredentials.class, () -> useCase.execute("qwerty", "azerty"));
   }
 
-  private static FetchAccountsUseCase createProxiedUseCase(List<String> output) {
-    BankClient proxiedClient = new IpkoClient(new JSoupHttpClient(server.getProxy()));
-    return new FetchAccountsUseCase(proxiedClient, output::add);
-  }
-
   @Test
   public void signInSucceedsOnValidCredentials() {
     List<String> output = new ArrayList<>();
@@ -54,6 +49,11 @@ public class FetchAccountsUseCaseTest {
     List<String> output = new ArrayList<>();
     createProxiedUseCase(output).execute(USERNAME, PASSWORD);
     assertContainsEveryElement(output, ACCOUNT_NUMBER, String.valueOf(ACCOUNT_BALANCE));
+  }
+
+  private static FetchAccountsUseCase createProxiedUseCase(List<String> output) {
+    BankClient proxiedClient = new IpkoClient(new JSoupHttpClient(server.getProxy()));
+    return new FetchAccountsUseCase(proxiedClient, output::add);
   }
 
   private static void assertContainsEveryElement(List<String> output, String... elements) {

@@ -16,30 +16,36 @@ public class RequestMapper {
     OBJECT_MAPPER.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
   }
 
-  public static String createLoginRequestBody(String username) {
-    Request authRequest = new Request("login", Map.of("login", username));
-    return writeString(authRequest);
+  public static String loginRequestJson(String username) {
+    return writeAsJson(createLoginRequest(username));
   }
 
-  public static String createPasswordRequestBody(String flowId, String token,
-                                                 String password) {
-    Request authRequest = new Request("password", flowId, token, Map.of("password", password));
-    return writeString(authRequest);
+  private static Request createLoginRequest(String username) {
+    return new Request("login", Map.of("login", username));
   }
 
-  public static String accountsRequestBody() {
-    return writeString(accountsRequest());
+  public static String passwordRequestJson(String flowId, String token,
+                                           String password) {
+    return writeAsJson(createPasswordRequest(flowId, token, password));
   }
 
-  private static Request accountsRequest() {
+  private static Request createPasswordRequest(String flowId, String token, String password) {
+    return new Request("password", flowId, token, Map.of("password", password));
+  }
+
+  public static String accountsRequestJson() {
+    return writeAsJson(createAccountsRequest());
+  }
+
+  private static Request createAccountsRequest() {
     return new Request(Map.of("accounts", Map.of()));
   }
 
-  private static String writeString(Request accountsRequest) {
+  private static String writeAsJson(Request accountsRequest) {
     try {
       return OBJECT_MAPPER.writeValueAsString(accountsRequest);
     } catch (JsonProcessingException e) {
-      throw new IllegalArgumentException("Couldn't parse given node as String", e);
+      throw new IllegalArgumentException("Couldn't parse given node as Json", e);
     }
   }
 

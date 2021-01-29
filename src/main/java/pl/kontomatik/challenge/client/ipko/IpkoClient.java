@@ -28,22 +28,19 @@ public class IpkoClient implements BankClient {
 
   private Connection.Response submitLogin(String username) {
     Connection request = createLoginRequest(username);
-    Connection.Response response = httpClient.send(request);
-    assertCredentialAccepted(response.body());
-    return response;
+    return sendCredential(request);
   }
 
   private static Connection createLoginRequest(String username) {
     return Jsoup.connect(LOGIN_URL)
       .ignoreContentType(true)
-      .requestBody(RequestMapper.createLoginRequestBody(username))
+      .requestBody(RequestMapper.loginRequestJson(username))
       .method(Connection.Method.POST);
   }
 
   private AuthorizedSession submitPassword(Connection.Response loginResponse, String password) {
     Connection request = createPasswordRequest(loginResponse, password);
-    Connection.Response response = httpClient.send(request);
-    assertCredentialAccepted(response.body());
+    Connection.Response response = sendCredential(request);
     return new IpkoSession(ResponseParser.extractSessionId(response.headers()));
   }
 
@@ -55,8 +52,14 @@ public class IpkoClient implements BankClient {
       .method(Connection.Method.POST);
   }
 
+  private Connection.Response sendCredential(Connection request) {
+    Connection.Response response = httpClient.send(request);
+    assertCredentialAccepted(response.body());
+    return response;
+  }
+
   private static String createPasswordRequestBody(String responseBody, String password) {
-    return RequestMapper.createPasswordRequestBody(ResponseParser.extractFlowId(responseBody),
+    return RequestMapper.passwordRequestJson(ResponseParser.extractFlowId(responseBody),
       ResponseParser.extractFlowToken(responseBody), password);
   }
 
@@ -88,7 +91,7 @@ public class IpkoClient implements BankClient {
     private Connection accountsRequest() {
       return Jsoup.connect("https://www.ipko.pl/ipko3/init")
         .ignoreContentType(true)
-        .requestBody(RequestMapper.accountsRequestBody())
+        .requestBody(RequestMapper.accountsRequestJson())
         .header(SESSION_HEADER, sessionToken)
         .method(Connection.Method.POST);
     }

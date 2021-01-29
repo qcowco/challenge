@@ -38,11 +38,12 @@ public class MockIpkoServer {
   private MockIpkoServer() {
     mockServer = ClientAndServer.startClientAndServer(1090);
     setupHttps();
-    setupMocks();
   }
 
   public static MockIpkoServer startMockIpkoServer() {
-    return new MockIpkoServer();
+    MockIpkoServer server = new MockIpkoServer();
+    server.setupMocks();
+    return server;
   }
 
   private static void setupHttps() {
