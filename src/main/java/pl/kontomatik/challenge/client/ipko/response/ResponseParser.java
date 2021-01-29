@@ -23,18 +23,23 @@ public class ResponseParser {
     return findPath(body, "token");
   }
 
-  private static String findPath(String body, String flow_id) {
-    return mapJsonNode(body).findPath(flow_id).asText();
+  private static String findPath(String body, String path) {
+    return mapJsonNode(body).findPath(path).asText();
   }
 
   public static boolean containsCredentialErrors(String body) {
-    return containsCredentialErrors(mapJsonNode(body));
+    JsonNode fields = findFieldsNode(body);
+    return hasCredentialError(fields);
   }
 
-  private static boolean containsCredentialErrors(JsonNode responseNode) {
-    JsonNode fields = responseNode.with("response").with("fields");
+  private static JsonNode findFieldsNode(String body) {
+    JsonNode responseNode = mapJsonNode(body);
+    return responseNode.with("response").with("fields");
+  }
+
+  private static boolean hasCredentialError(JsonNode fields) {
     boolean generalError = hasGeneralError(fields);
-    boolean wrongCredential = hasCredentialError(fields);
+    boolean wrongCredential = hasFieldCredentialError(fields);
     return generalError || wrongCredential;
   }
 
@@ -42,14 +47,14 @@ public class ResponseParser {
     return fields.hasNonNull("errors");
   }
 
-  private static boolean hasCredentialError(JsonNode fields) {
+  private static boolean hasFieldCredentialError(JsonNode fields) {
     boolean wrongLogin = fields.with("login").hasNonNull("errors");
     boolean wrongPassword = fields.with("password").hasNonNull("errors");
     return wrongLogin || wrongPassword;
   }
 
-  public static Map<String, Double> getAccountsFromJson(String jsonAccounts) {
-    JsonNode accountsNode = findAccountsNode(jsonAccounts);
+  public static Map<String, Double> parseAccounts(String json) {
+    JsonNode accountsNode = findAccountsNode(json);
     return parseAccounts(accountsNode);
   }
 

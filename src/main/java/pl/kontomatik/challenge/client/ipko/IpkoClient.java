@@ -31,7 +31,7 @@ public class IpkoClient implements BankClient {
   }
 
   private JSoupHttpClient.Response sendLoginRequest(String username) {
-    return sendSignInRequest(baseHeaders(), RequestMapper.loginRequestJson(username));
+    return sendCredentialRequest(baseHeaders(), RequestMapper.loginRequestJson(username));
   }
 
   private AuthorizedSession submitPassword(JSoupHttpClient.Response loginResponse, String password) {
@@ -42,7 +42,7 @@ public class IpkoClient implements BankClient {
 
   private JSoupHttpClient.Response sendPasswordRequest(JSoupHttpClient.Response loginResponse, String password) {
     String sessionId = ResponseParser.extractSessionId(loginResponse.getHeaders());
-    return sendSignInRequest(sessionHeaders(sessionId), passwordRequestJson(loginResponse, password));
+    return sendCredentialRequest(sessionHeaders(sessionId), passwordRequestJson(loginResponse, password));
   }
 
   private static Map<String, String> sessionHeaders(String sessionId) {
@@ -63,7 +63,7 @@ public class IpkoClient implements BankClient {
     return RequestMapper.passwordRequestJson(flowId, flowToken, password);
   }
 
-  private JSoupHttpClient.Response sendSignInRequest(Map<String, String> headers, String body) {
+  private JSoupHttpClient.Response sendCredentialRequest(Map<String, String> headers, String body) {
     return httpClient.post("https://www.ipko.pl/ipko3/login", headers, body);
   }
 
@@ -87,7 +87,7 @@ public class IpkoClient implements BankClient {
     @Override
     public Map<String, Double> fetchAccounts() {
       JSoupHttpClient.Response response = sendAccountsRequest();
-      return ResponseParser.getAccountsFromJson(response.getBody());
+      return ResponseParser.parseAccounts(response.getBody());
     }
 
     private JSoupHttpClient.Response sendAccountsRequest() {
