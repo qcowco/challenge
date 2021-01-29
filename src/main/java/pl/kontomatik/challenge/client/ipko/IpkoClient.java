@@ -1,7 +1,5 @@
 package pl.kontomatik.challenge.client.ipko;
 
-import org.jsoup.Connection;
-import org.jsoup.Jsoup;
 import pl.kontomatik.challenge.client.BankClient;
 import pl.kontomatik.challenge.client.exception.InvalidCredentials;
 import pl.kontomatik.challenge.client.ipko.http.JSoupHttpClient;
@@ -12,7 +10,6 @@ import java.util.Map;
 
 public class IpkoClient implements BankClient {
 
-  private static final String LOGIN_URL = "https://www.ipko.pl/ipko3/login";
   private static final String SESSION_HEADER = "X-Session-Id";
   private final JSoupHttpClient httpClient;
 
@@ -22,50 +19,48 @@ public class IpkoClient implements BankClient {
 
   @Override
   public AuthorizedSession signIn(String username, String password) {
-    Connection.Response loginResponse = submitLogin(username);
-    return submitPassword(loginResponse, password);
+    JSoupHttpClient.Response response = submitLogin(username);
+    return submitPassword(response, password);
   }
 
-  private Connection.Response submitLogin(String username) {
-    Connection request = createLoginRequest(username);
-    return sendCredential(request);
-  }
-
-  private static Connection createLoginRequest(String username) {
-    return Jsoup.connect(LOGIN_URL)
-      .ignoreContentType(true)
-      .requestBody(RequestMapper.loginRequestJson(username))
-      .method(Connection.Method.POST);
-  }
-
-  private AuthorizedSession submitPassword(Connection.Response loginResponse, String password) {
-    Connection request = createPasswordRequest(loginResponse, password);
-    Connection.Response response = sendCredential(request);
-    return new IpkoSession(ResponseParser.extractSessionId(response.headers()));
-  }
-
-  private static Connection createPasswordRequest(Connection.Response response, String password) {
-    return Jsoup.connect(LOGIN_URL)
-      .ignoreContentType(true)
-      .requestBody(createPasswordRequestBody(response.body(), password))
-      .header(SESSION_HEADER, ResponseParser.extractSessionId(response.headers()))
-      .method(Connection.Method.POST);
-  }
-
-  private Connection.Response sendCredential(Connection request) {
-    Connection.Response response = httpClient.send(request);
-    assertCredentialAccepted(response.body());
+  private JSoupHttpClient.Response submitLogin(String username) {
+    JSoupHttpClient.Response response = sendLoginRequest(username);
+    assertCredentialAccepted(response.body);
     return response;
   }
 
-  private static String createPasswordRequestBody(String responseBody, String password) {
-    return RequestMapper.passwordRequestJson(ResponseParser.extractFlowId(responseBody),
-      ResponseParser.extractFlowToken(responseBody), password);
+  private JSoupHttpClient.Response sendLoginRequest(String username) {
+    return sendSignInRequest(Map.of(), RequestMapper.loginRequestJson(username));
+  }
+
+  private AuthorizedSession submitPassword(JSoupHttpClient.Response loginResponse, String password) {
+    JSoupHttpClient.Response response = sendPasswordRequest(loginResponse, password);
+    assertCredentialAccepted(response.body);
+    return createSession(response.headers);
+  }
+
+  private JSoupHttpClient.Response sendPasswordRequest(JSoupHttpClient.Response loginResponse, String password) {
+    return sendSignInRequest(
+      Map.of(SESSION_HEADER, ResponseParser.extractSessionId(loginResponse.headers)),
+      RequestMapper.passwordRequestJson(
+        ResponseParser.extractFlowId(loginResponse.body),
+        ResponseParser.extractFlowToken(loginResponse.body),
+        password
+      )
+    );
+  }
+
+  private JSoupHttpClient.Response sendSignInRequest(Map<String, String> headers, String body) {
+    return httpClient.post("https://www.ipko.pl/ipko3/login", headers, body);
   }
 
   private static void assertCredentialAccepted(String body) {
     if (ResponseParser.containsCredentialErrors(body))
       throw new InvalidCredentials("Couldn't login with provided credentials.");
+  }
+
+  private IpkoSession createSession(Map<String, String> headers) {
+    return new IpkoSession(ResponseParser.extractSessionId(headers));
   }
 
   public class IpkoSession implements AuthorizedSession {
@@ -78,22 +73,13 @@ public class IpkoClient implements BankClient {
 
     @Override
     public Map<String, Double> fetchAccounts() {
-      String jsonResponse = sendAccountsRequest()
-        .body();
-      return ResponseParser.getAccountsFromJson(jsonResponse);
+      JSoupHttpClient.Response response = sendAccountsRequest();
+      return ResponseParser.getAccountsFromJson(response.body);
     }
 
-    private Connection.Response sendAccountsRequest() {
-      Connection request = accountsRequest();
-      return httpClient.send(request);
-    }
-
-    private Connection accountsRequest() {
-      return Jsoup.connect("https://www.ipko.pl/ipko3/init")
-        .ignoreContentType(true)
-        .requestBody(RequestMapper.accountsRequestJson())
-        .header(SESSION_HEADER, sessionToken)
-        .method(Connection.Method.POST);
+    private JSoupHttpClient.Response sendAccountsRequest() {
+      return httpClient.post("https://www.ipko.pl/ipko3/init",
+        Map.of(SESSION_HEADER, sessionToken), RequestMapper.accountsRequestJson());
     }
 
   }
