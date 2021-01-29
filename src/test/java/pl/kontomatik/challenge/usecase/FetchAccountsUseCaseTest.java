@@ -6,8 +6,8 @@ import org.junit.jupiter.api.Test;
 import pl.kontomatik.challenge.client.BankClient;
 import pl.kontomatik.challenge.client.exception.InvalidCredentials;
 import pl.kontomatik.challenge.client.ipko.IpkoClient;
-import pl.kontomatik.challenge.client.ipko.http.JSoupHttpClient;
 import pl.kontomatik.challenge.client.ipko.mockserver.MockIpkoServer;
+import pl.kontomatik.challenge.http.jsoup.JSoupHttpClient;
 
 import java.util.ArrayList;
 import java.util.Arrays;

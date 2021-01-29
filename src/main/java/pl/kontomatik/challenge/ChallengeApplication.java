@@ -1,7 +1,7 @@
 package pl.kontomatik.challenge;
 
 import pl.kontomatik.challenge.client.ipko.IpkoClient;
-import pl.kontomatik.challenge.client.ipko.http.JSoupHttpClient;
+import pl.kontomatik.challenge.http.jsoup.JSoupHttpClient;
 import pl.kontomatik.challenge.usecase.FetchAccountsUseCase;
 
 import java.util.Scanner;

@@ -2,18 +2,19 @@ package pl.kontomatik.challenge.client.ipko;
 
 import pl.kontomatik.challenge.client.BankClient;
 import pl.kontomatik.challenge.client.exception.InvalidCredentials;
-import pl.kontomatik.challenge.client.ipko.http.JSoupHttpClient;
 import pl.kontomatik.challenge.client.ipko.request.RequestMapper;
 import pl.kontomatik.challenge.client.ipko.response.ResponseParser;
+import pl.kontomatik.challenge.http.HttpClient;
+import pl.kontomatik.challenge.http.jsoup.JSoupHttpClient;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class IpkoClient implements BankClient {
 
-  private final JSoupHttpClient httpClient;
+  private final HttpClient httpClient;
 
-  public IpkoClient(JSoupHttpClient httpClient) {
+  public IpkoClient(HttpClient httpClient) {
     this.httpClient = httpClient;
   }
 
@@ -25,7 +26,7 @@ public class IpkoClient implements BankClient {
 
   private JSoupHttpClient.Response submitLogin(String username) {
     JSoupHttpClient.Response response = sendLoginRequest(username);
-    assertCredentialAccepted(response.body);
+    assertCredentialAccepted(response.getBody());
     return response;
   }
 
@@ -35,12 +36,12 @@ public class IpkoClient implements BankClient {
 
   private AuthorizedSession submitPassword(JSoupHttpClient.Response loginResponse, String password) {
     JSoupHttpClient.Response response = sendPasswordRequest(loginResponse, password);
-    assertCredentialAccepted(response.body);
-    return createSession(response.headers);
+    assertCredentialAccepted(response.getBody());
+    return createSession(response.getHeaders());
   }
 
   private JSoupHttpClient.Response sendPasswordRequest(JSoupHttpClient.Response loginResponse, String password) {
-    String sessionId = ResponseParser.extractSessionId(loginResponse.headers);
+    String sessionId = ResponseParser.extractSessionId(loginResponse.getHeaders());
     return sendSignInRequest(sessionHeaders(sessionId), passwordRequestJson(loginResponse, password));
   }
 
@@ -57,8 +58,8 @@ public class IpkoClient implements BankClient {
   }
 
   private static String passwordRequestJson(JSoupHttpClient.Response loginResponse, String password) {
-    String flowId = ResponseParser.extractFlowId(loginResponse.body);
-    String flowToken = ResponseParser.extractFlowToken(loginResponse.body);
+    String flowId = ResponseParser.extractFlowId(loginResponse.getBody());
+    String flowToken = ResponseParser.extractFlowToken(loginResponse.getBody());
     return RequestMapper.passwordRequestJson(flowId, flowToken, password);
   }
 
@@ -86,7 +87,7 @@ public class IpkoClient implements BankClient {
     @Override
     public Map<String, Double> fetchAccounts() {
       JSoupHttpClient.Response response = sendAccountsRequest();
-      return ResponseParser.getAccountsFromJson(response.body);
+      return ResponseParser.getAccountsFromJson(response.getBody());
     }
 
     private JSoupHttpClient.Response sendAccountsRequest() {

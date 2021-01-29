@@ -1,14 +1,15 @@
-package pl.kontomatik.challenge.client.ipko.http;
+package pl.kontomatik.challenge.http.jsoup;
 
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
+import pl.kontomatik.challenge.http.HttpClient;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.Proxy;
 import java.util.Map;
 
-public class JSoupHttpClient {
+public class JSoupHttpClient implements HttpClient {
 
   private final Proxy proxy;
 
@@ -20,10 +21,11 @@ public class JSoupHttpClient {
     this.proxy = proxy;
   }
 
+  @Override
   public Response post(String URL, Map<String, String> headers, String body) {
     Connection request = createPostRequest(URL, headers, body);
-    Connection.Response response = send(request);
-    return createResponse(response);
+    Connection.Response jsoupResponse = send(request);
+    return new HttpResponse(jsoupResponse);
   }
 
   private static Connection createPostRequest(String URL, Map<String, String> headers, String body) {
@@ -44,18 +46,24 @@ public class JSoupHttpClient {
     }
   }
 
-  private static Response createResponse(Connection.Response response) {
-    return new Response(response.headers(), response.body());
-  }
-
-  public static class Response {
+  public static class HttpResponse implements Response {
 
     public final Map<String, String> headers;
     public final String body;
 
-    private Response(Map<String, String> headers, String body) {
-      this.headers = headers;
-      this.body = body;
+    private HttpResponse(Connection.Response response) {
+      this.headers = response.headers();
+      this.body = response.body();
+    }
+
+    @Override
+    public Map<String, String> getHeaders() {
+      return headers;
+    }
+
+    @Override
+    public String getBody() {
+      return body;
     }
 
   }
