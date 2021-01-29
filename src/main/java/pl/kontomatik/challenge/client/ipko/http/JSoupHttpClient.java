@@ -21,12 +21,12 @@ public class JSoupHttpClient {
   }
 
   public Response post(String URL, Map<String, String> headers, String body) {
-    Connection request = createPost(URL, headers, body);
+    Connection request = createPostRequest(URL, headers, body);
     Connection.Response response = send(request);
     return createResponse(response);
   }
 
-  private static Connection createPost(String URL, Map<String, String> headers, String body) {
+  private static Connection createPostRequest(String URL, Map<String, String> headers, String body) {
     return Jsoup.connect(URL)
       .method(Connection.Method.POST)
       .headers(headers)
@@ -37,7 +37,6 @@ public class JSoupHttpClient {
   private Connection.Response send(Connection request) {
     try {
       return request
-        .header("Content-Type", "application/json")
         .proxy(proxy)
         .execute();
     } catch (IOException e) {

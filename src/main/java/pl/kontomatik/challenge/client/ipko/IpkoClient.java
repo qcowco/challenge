@@ -6,11 +6,11 @@ import pl.kontomatik.challenge.client.ipko.http.JSoupHttpClient;
 import pl.kontomatik.challenge.client.ipko.request.RequestMapper;
 import pl.kontomatik.challenge.client.ipko.response.ResponseParser;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class IpkoClient implements BankClient {
 
-  private static final String SESSION_HEADER = "X-Session-Id";
   private final JSoupHttpClient httpClient;
 
   public IpkoClient(JSoupHttpClient httpClient) {
@@ -30,7 +30,7 @@ public class IpkoClient implements BankClient {
   }
 
   private JSoupHttpClient.Response sendLoginRequest(String username) {
-    return sendSignInRequest(Map.of(), RequestMapper.loginRequestJson(username));
+    return sendSignInRequest(baseHeaders(), RequestMapper.loginRequestJson(username));
   }
 
   private AuthorizedSession submitPassword(JSoupHttpClient.Response loginResponse, String password) {
@@ -40,14 +40,26 @@ public class IpkoClient implements BankClient {
   }
 
   private JSoupHttpClient.Response sendPasswordRequest(JSoupHttpClient.Response loginResponse, String password) {
-    return sendSignInRequest(
-      Map.of(SESSION_HEADER, ResponseParser.extractSessionId(loginResponse.headers)),
-      RequestMapper.passwordRequestJson(
-        ResponseParser.extractFlowId(loginResponse.body),
-        ResponseParser.extractFlowToken(loginResponse.body),
-        password
-      )
-    );
+    String sessionId = ResponseParser.extractSessionId(loginResponse.headers);
+    return sendSignInRequest(sessionHeaders(sessionId), passwordRequestJson(loginResponse, password));
+  }
+
+  private static Map<String, String> sessionHeaders(String sessionId) {
+    Map<String, String> headers = baseHeaders();
+    headers.put("X-Session-Id", sessionId);
+    return headers;
+  }
+
+  private static Map<String, String> baseHeaders() {
+    HashMap<String, String> headers = new HashMap<>();
+    headers.put("Content-Type", "application/json");
+    return headers;
+  }
+
+  private static String passwordRequestJson(JSoupHttpClient.Response loginResponse, String password) {
+    String flowId = ResponseParser.extractFlowId(loginResponse.body);
+    String flowToken = ResponseParser.extractFlowToken(loginResponse.body);
+    return RequestMapper.passwordRequestJson(flowId, flowToken, password);
   }
 
   private JSoupHttpClient.Response sendSignInRequest(Map<String, String> headers, String body) {
@@ -65,10 +77,10 @@ public class IpkoClient implements BankClient {
 
   public class IpkoSession implements AuthorizedSession {
 
-    private final String sessionToken;
+    private final String sessionId;
 
-    private IpkoSession(String sessionToken) {
-      this.sessionToken = sessionToken;
+    private IpkoSession(String sessionId) {
+      this.sessionId = sessionId;
     }
 
     @Override
@@ -78,8 +90,9 @@ public class IpkoClient implements BankClient {
     }
 
     private JSoupHttpClient.Response sendAccountsRequest() {
-      return httpClient.post("https://www.ipko.pl/ipko3/init",
-        Map.of(SESSION_HEADER, sessionToken), RequestMapper.accountsRequestJson());
+      Map<String, String> sessionHeaders = sessionHeaders(sessionId);
+      String accountsRequestJson = RequestMapper.accountsRequestJson();
+      return httpClient.post("https://www.ipko.pl/ipko3/init", sessionHeaders, accountsRequestJson);
     }
 
   }
