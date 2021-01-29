@@ -29,7 +29,7 @@ public class MockIpkoServer {
   private static final String PASSWORD_JSON_TEMPLATE = "{\"data\":{\"password\":\"%s\"}}";
   private static final String LOGIN_PATH = "/ipko3/login";
   private static final String SESSION_HEADER = "X-Session-Id";
-  private static final String SESSION_TOKEN = "TOKEN";
+  private static final String SESSION_ID = "TOKEN";
   private static final String LOGIN_RESPONSE_BODY = "{\"response\":{\"flow_id\":\"flow_id\",\"token\":\"token\",\"finished\":true}}";
   private static final String BAD_AUTH_RESPONSE_BODY = "{\"response\":{\"flow_id\":\"flow_id\",\"token\":\"token\",\"fields\":{\"errors\":{\"description\":\"An error!\"}}}}";
 
@@ -81,7 +81,7 @@ public class MockIpkoServer {
           MatchType.ONLY_MATCHING_FIELDS)))
       .respond(response()
         .withStatusCode(200)
-        .withHeader(SESSION_HEADER, SESSION_TOKEN)
+        .withHeader(SESSION_HEADER, SESSION_ID)
         .withBody(LOGIN_RESPONSE_BODY)
       );
   }
@@ -95,7 +95,7 @@ public class MockIpkoServer {
           MatchType.ONLY_MATCHING_FIELDS)))
       .respond(response()
         .withStatusCode(200)
-        .withHeader(SESSION_HEADER, SESSION_TOKEN)
+        .withHeader(SESSION_HEADER, SESSION_ID)
         .withBody(LOGIN_RESPONSE_BODY)
       );
 
@@ -128,7 +128,7 @@ public class MockIpkoServer {
           MatchType.ONLY_MATCHING_FIELDS))))
       .respond(response()
         .withStatusCode(200)
-        .withHeader(SESSION_HEADER, SESSION_TOKEN)
+        .withHeader(SESSION_HEADER, SESSION_ID)
         .withBody(BAD_AUTH_RESPONSE_BODY)
       );
   }

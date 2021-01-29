@@ -20,7 +20,7 @@ public class FetchAccountsUseCaseTest {
 
   @Test
   public void afterSignInCanFetchAccounts() throws IOException {
-    BankClient bankClient = new IpkoClient(new JSoupHttpClient());
+    BankClient bankClient = createIpkoClient();
     List<String> output = new ArrayList<>();
     FetchAccountsUseCase useCase = new FetchAccountsUseCase(bankClient, output::add);
     Properties credentials = loadCredentials();
@@ -49,10 +49,14 @@ public class FetchAccountsUseCaseTest {
 
   @Test
   public void failsOnInvalidCredentials() {
-    BankClient bankClient = new IpkoClient(new JSoupHttpClient());
+    BankClient bankClient = createIpkoClient();
     List<String> output = new ArrayList<>();
     FetchAccountsUseCase useCase = new FetchAccountsUseCase(bankClient, output::add);
     assertThrows(InvalidCredentials.class, () -> useCase.execute("qwerty", "azerty"));
+  }
+
+  private IpkoClient createIpkoClient() {
+    return new IpkoClient(new JSoupHttpClient());
   }
 
 }
