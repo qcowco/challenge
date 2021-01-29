@@ -22,7 +22,7 @@ public class FetchAccountsUseCaseTest {
 
   @BeforeAll
   public static void setUp() {
-    server = MockIpkoServer.startMockIpkoServer();
+    server = MockIpkoServer.startMockIpkoServer(1090);
   }
 
   @AfterAll

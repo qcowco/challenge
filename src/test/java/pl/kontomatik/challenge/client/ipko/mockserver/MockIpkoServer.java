@@ -35,14 +35,15 @@ public class MockIpkoServer {
 
   private final ClientAndServer mockServer;
 
-  private MockIpkoServer() {
-    mockServer = ClientAndServer.startClientAndServer(1090);
-    setupHttps();
+  private MockIpkoServer(ClientAndServer clientAndServer) {
+    mockServer = clientAndServer;
   }
 
-  public static MockIpkoServer startMockIpkoServer() {
-    MockIpkoServer server = new MockIpkoServer();
+  public static MockIpkoServer startMockIpkoServer(int port) {
+    ClientAndServer clientAndServer = ClientAndServer.startClientAndServer(port);
+    MockIpkoServer server = new MockIpkoServer(clientAndServer);
     server.setupMocks();
+    MockIpkoServer.setupHttps();
     return server;
   }
 
