@@ -29,18 +29,12 @@ public class ResponseParser {
 
   public static boolean containsCredentialErrors(String body) {
     JsonNode fields = findFieldsNode(body);
-    return hasCredentialError(fields);
+    return hasGeneralError(fields) || hasFieldError(fields);
   }
 
   private static JsonNode findFieldsNode(String body) {
     JsonNode responseNode = mapJsonNode(body);
     return responseNode.with("response").with("fields");
-  }
-
-  private static boolean hasCredentialError(JsonNode fields) {
-    boolean generalError = hasGeneralError(fields);
-    boolean fieldError = hasFieldError(fields);
-    return generalError || fieldError;
   }
 
   private static boolean hasGeneralError(JsonNode fields) {

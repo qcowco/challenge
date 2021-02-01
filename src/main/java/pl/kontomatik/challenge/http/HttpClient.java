@@ -4,7 +4,7 @@ import java.util.Map;
 
 public interface HttpClient {
 
-  Response post(String URL, Map<String, String> headers, String body);
+  Response post(String url, Map<String, String> headers, String body);
 
   interface Response {
 

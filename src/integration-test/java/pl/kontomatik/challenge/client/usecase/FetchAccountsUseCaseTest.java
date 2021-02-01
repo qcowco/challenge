@@ -8,7 +8,6 @@ import pl.kontomatik.challenge.http.jsoup.JSoupHttpClient;
 import pl.kontomatik.challenge.usecase.FetchAccountsUseCase;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -17,6 +16,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class FetchAccountsUseCaseTest {
+
+  @Test
+  public void failsOnInvalidCredentials() {
+    BankClient bankClient = createIpkoClient();
+    FetchAccountsUseCase useCase = new FetchAccountsUseCase(bankClient, new ArrayList<String>()::add);
+    assertThrows(InvalidCredentials.class, () -> useCase.execute("qwerty", "azerty"));
+  }
 
   @Test
   public void afterSignInCanFetchAccounts() throws IOException {
@@ -28,35 +34,18 @@ public class FetchAccountsUseCaseTest {
     assertContains(output, "Account number:");
   }
 
+  private static IpkoClient createIpkoClient() {
+    return new IpkoClient(new JSoupHttpClient());
+  }
+
   private static Properties loadCredentials() throws IOException {
     Properties credentials = new Properties();
-    credentials.load(credentialStream());
+    credentials.load(FetchAccountsUseCaseTest.class.getResourceAsStream("/application.properties"));
     return credentials;
   }
 
-  private static InputStream credentialStream() {
-    return FetchAccountsUseCaseTest.class.getResourceAsStream("/application.properties");
-  }
-
   private static void assertContains(List<String> output, String message) {
-    assertTrue(anyLineContains(output, message));
-  }
-
-  private static boolean anyLineContains(List<String> output, String message) {
-    return output.stream()
-      .anyMatch(outputLine -> outputLine.contains(message));
-  }
-
-  @Test
-  public void failsOnInvalidCredentials() {
-    BankClient bankClient = createIpkoClient();
-    List<String> output = new ArrayList<>();
-    FetchAccountsUseCase useCase = new FetchAccountsUseCase(bankClient, output::add);
-    assertThrows(InvalidCredentials.class, () -> useCase.execute("qwerty", "azerty"));
-  }
-
-  private static IpkoClient createIpkoClient() {
-    return new IpkoClient(new JSoupHttpClient());
+    assertTrue(output.stream().anyMatch(s -> s.contains(message)));
   }
 
 }

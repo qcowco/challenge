@@ -14,7 +14,7 @@ public class JSoupHttpClient implements HttpClient {
   private final Proxy proxy;
 
   public JSoupHttpClient() {
-    this(null);
+    this.proxy = null;
   }
 
   public JSoupHttpClient(Proxy proxy) {
@@ -22,14 +22,14 @@ public class JSoupHttpClient implements HttpClient {
   }
 
   @Override
-  public Response post(String URL, Map<String, String> headers, String body) {
-    Connection request = createPostRequest(URL, headers, body);
+  public Response post(String url, Map<String, String> headers, String body) {
+    Connection request = createPostRequest(url, headers, body);
     Connection.Response jsoupResponse = send(request);
     return new HttpResponse(jsoupResponse);
   }
 
-  private static Connection createPostRequest(String URL, Map<String, String> headers, String body) {
-    return Jsoup.connect(URL)
+  private static Connection createPostRequest(String url, Map<String, String> headers, String body) {
+    return Jsoup.connect(url)
       .method(Connection.Method.POST)
       .headers(headers)
       .requestBody(body)
