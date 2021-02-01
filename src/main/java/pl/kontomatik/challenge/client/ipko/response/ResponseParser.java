@@ -39,15 +39,15 @@ public class ResponseParser {
 
   private static boolean hasCredentialError(JsonNode fields) {
     boolean generalError = hasGeneralError(fields);
-    boolean wrongCredential = hasFieldCredentialError(fields);
-    return generalError || wrongCredential;
+    boolean fieldError = hasFieldError(fields);
+    return generalError || fieldError;
   }
 
   private static boolean hasGeneralError(JsonNode fields) {
     return fields.hasNonNull("errors");
   }
 
-  private static boolean hasFieldCredentialError(JsonNode fields) {
+  private static boolean hasFieldError(JsonNode fields) {
     boolean wrongLogin = fields.with("login").hasNonNull("errors");
     boolean wrongPassword = fields.with("password").hasNonNull("errors");
     return wrongLogin || wrongPassword;

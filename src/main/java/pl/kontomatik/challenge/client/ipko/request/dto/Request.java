@@ -15,7 +15,7 @@ public class Request {
   @JsonProperty("token")
   private String flowToken;
   private String action = "submit";
-  private Map<String, Object> data;
+  private final Map<String, Object> data;
 
   public Request(Map<String, Object> data) {
     this.data = data;
